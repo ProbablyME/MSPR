@@ -5,17 +5,17 @@ import os
 import zipfile
 
 # Liste des codes pays européens (ISO 3166-1 alpha-2)
-# EUROPEAN_COUNTRIES = {
-#     'AL', 'AD', 'AT', 'BY', 'BE', 'BA', 'BG', 'HR', 'CY', 'CZ',
-#     'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IS', 'IE', 'IT',
-#     'XK', 'LV', 'LI', 'LT', 'LU', 'MT', 'MD', 'MC', 'ME', 'NL',
-#     'MK', 'NO', 'PL', 'PT', 'RO', 'RU', 'SM', 'RS', 'SK', 'SI',
-#     'ES', 'SE', 'CH', 'UA', 'GB', 'VA'
-# }
-
 EUROPEAN_COUNTRIES = {
-    'FR'
+    'AL', 'AD', 'AT', 'BY', 'BE', 'BA', 'BG', 'HR', 'CY', 'CZ',
+    'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IS', 'IE', 'IT',
+    'XK', 'LV', 'LI', 'LT', 'LU', 'MT', 'MD', 'MC', 'ME', 'NL',
+    'MK', 'NO', 'PL', 'PT', 'RO', 'RU', 'SM', 'RS', 'SK', 'SI',
+    'ES', 'SE', 'CH', 'UA', 'GB', 'VA'
 }
+
+# EUROPEAN_COUNTRIES = {
+#     'FR'
+# }
 
 # Dossier de destination
 OUTPUT_DIR = "downloads_gtfs"
