@@ -13,13 +13,8 @@ EUROPEAN_COUNTRIES = {
     'ES', 'SE', 'CH', 'UA', 'GB', 'VA'
 }
 
-# EUROPEAN_COUNTRIES = {
-#     'FR'
-# }
-
 # Dossier de destination
 OUTPUT_DIR = "downloads_gtfs"
-
 
 def download_and_extract(url: str, country_code: str, feed_id: str) -> bool:
     """Télécharge un fichier ZIP et l'extrait dans un dossier nommé par pays."""
