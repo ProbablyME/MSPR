@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: RailCarbon
+    folder: RailCarbon
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards

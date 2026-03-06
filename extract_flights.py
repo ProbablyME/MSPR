@@ -24,8 +24,10 @@ Architecture en 3 phases, tout en mémoire (aucun fichier intermédiaire) :
           -> UPDATE co2_total_kg = distance_km × co2_per_km via JOIN EASA
 
 Résumé IA :
-  - Checkpoints : sauvegarde après chaque mois traité → reprise automatique si crash
-  - Try/except  : chaque étape est isolée, les erreurs n'arrêtent pas le pipeline
+  - Checkpoints  : sauvegarde après chaque mois traité → reprise automatique si crash
+  - Try/except   : chaque étape est isolée, les erreurs n'arrêtent pas le pipeline
+  - Loki         : logs Python envoyés à Grafana Loki en temps réel
+  - etl_run_log  : chaque run ETL est tracé en BDD (durée, volumes, statut)
 
 Workflow : docker compose up -d  →  python extract_flights.py
 """
@@ -60,6 +62,25 @@ logging.basicConfig(
     ],
 )
 logger = logging.getLogger(__name__)
+
+# ── Handler Loki (optionnel — actif si python-logging-loki est installé) ──────
+# Installation : pip install python-logging-loki
+LOKI_URL = os.environ.get("LOKI_URL", "http://localhost:3100/loki/api/v1/push")
+try:
+    import logging_loki
+    loki_handler = logging_loki.LokiHandler(
+        url=LOKI_URL,
+        tags={"application": "railcarbon-etl"},
+        version="1",
+    )
+    loki_handler.setLevel(logging.INFO)
+    logger.addHandler(loki_handler)
+    logger.info("[LOGGING] Handler Loki activé -> %s", LOKI_URL)
+except ImportError:
+    logger.info("[LOGGING] python-logging-loki non installé — logs Loki désactivés.")
+    logger.info("[LOGGING] Pour activer : pip install python-logging-loki")
+except Exception as e:
+    logger.warning("[LOGGING] Loki non disponible (%s) — logs fichier/console uniquement.", e)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # CONFIGURATION
@@ -132,6 +153,91 @@ EASA_TO_ICAO: dict[str, str] = {
     # Dassault
     "Falcon 7X":  "F7X",
 }
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ETL RUN LOG (mart.etl_run_log)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def run_start(conn) -> int | None:
+    """
+    Crée la table etl_run_log si elle n'existe pas (migration idempotente),
+    puis insère une ligne 'en_cours'.
+    Retourne le run_id généré (utilisé pour la mise à jour finale).
+    En cas d'échec, rollback propre pour ne pas bloquer le pipeline.
+    """
+    try:
+        with conn.cursor() as cur:
+            # Migration idempotente : crée la table si absente
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS mart.etl_run_log (
+                    run_id           SERIAL PRIMARY KEY,
+                    started_at       TIMESTAMP   NOT NULL DEFAULT NOW(),
+                    finished_at      TIMESTAMP,
+                    duration_s       NUMERIC(10,2),
+                    mois_traites     INTEGER     DEFAULT 0,
+                    airports_charges INTEGER     DEFAULT 0,
+                    routes_chargees  INTEGER     DEFAULT 0,
+                    co2_exact        INTEGER     DEFAULT 0,
+                    co2_fallback     INTEGER     DEFAULT 0,
+                    erreurs          INTEGER     DEFAULT 0,
+                    statut           VARCHAR(20) DEFAULT 'en_cours'
+                );
+            """)
+            cur.execute("""
+                INSERT INTO mart.etl_run_log (started_at, statut)
+                VALUES (NOW(), 'en_cours')
+                RETURNING run_id;
+            """)
+            run_id = cur.fetchone()[0]
+        conn.commit()
+        logger.info("[RUN] ETL run #%d démarré — suivi dans mart.etl_run_log.", run_id)
+        return run_id
+    except Exception as e:
+        conn.rollback()  # remet la connexion dans un état propre
+        logger.warning("[RUN] Impossible de créer le run log : %s — pipeline continue.", e)
+        return None
+
+
+def run_end(conn, run_id: int | None, metrics: dict, statut: str) -> None:
+    """
+    Met à jour le run ETL avec les métriques finales et le statut.
+      metrics = {
+        "mois_traites", "airports_charges", "routes_chargees",
+        "co2_exact", "co2_fallback", "erreurs"
+      }
+      statut  = 'succes' | 'erreur'
+    """
+    if run_id is None:
+        return
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                UPDATE mart.etl_run_log
+                SET finished_at      = NOW(),
+                    duration_s       = ROUND(
+                        EXTRACT(EPOCH FROM (NOW() - started_at))::NUMERIC, 2
+                    ),
+                    mois_traites     = %(mois_traites)s,
+                    airports_charges = %(airports_charges)s,
+                    routes_chargees  = %(routes_chargees)s,
+                    co2_exact        = %(co2_exact)s,
+                    co2_fallback     = %(co2_fallback)s,
+                    erreurs          = %(erreurs)s,
+                    statut           = %(statut)s
+                WHERE run_id = %(run_id)s;
+            """, {**metrics, "statut": statut, "run_id": run_id})
+            conn.commit()
+            logger.info(
+                "[RUN] ETL run #%d terminé — statut : %s | "
+                "%d routes | %d mois | %d erreurs",
+                run_id, statut,
+                metrics.get("routes_chargees", 0),
+                metrics.get("mois_traites", 0),
+                metrics.get("erreurs", 0),
+            )
+    except Exception as e:
+        logger.warning("[RUN] Impossible de mettre à jour le run log #%d : %s", run_id, e)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -868,24 +974,70 @@ def main() -> None:
         logger.error("Vérifiez que le conteneur est démarré : docker compose up -d")
         return
 
+    # ── Démarrage du run ETL dans mart.etl_run_log ────────────────────────────
+    run_id = run_start(conn)
+
+    # Métriques accumulées pendant le LOAD pour etl_run_log
+    metrics: dict = {
+        "mois_traites":     len(completed_months),
+        "airports_charges": len(all_airports),
+        "routes_chargees":  0,
+        "co2_exact":        0,
+        "co2_fallback":     0,
+        "erreurs":          0,
+    }
+
     load_ok = False
     try:
         with conn:  # transaction atomique : commit si tout réussit, rollback sinon
-            easa_ok  = load_vehicle_avion(easa_rows, conn)
+            easa_ok = load_vehicle_avion(easa_rows, conn)
             if not easa_ok:
+                metrics["erreurs"] += 1
                 raise RuntimeError("Echec chargement dim_vehicle_avion — rollback.")
 
             routes_ok = load_stations_and_routes(all_airports, all_routes, conn)
             if not routes_ok:
+                metrics["erreurs"] += 1
                 raise RuntimeError("Echec chargement stations/routes — rollback.")
+
+            # Collecte des métriques CO2 depuis la BDD après chargement
+            try:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT
+                            COUNT(*) FILTER (WHERE dominant_typecode IN (
+                                SELECT icao_typecode FROM mart.dim_vehicle_avion
+                                WHERE icao_typecode IS NOT NULL
+                            )) AS co2_exact,
+                            COUNT(*) FILTER (WHERE co2_total_kg IS NOT NULL
+                                AND dominant_typecode NOT IN (
+                                    SELECT icao_typecode FROM mart.dim_vehicle_avion
+                                    WHERE icao_typecode IS NOT NULL
+                                ) OR dominant_typecode IS NULL
+                            ) AS co2_fallback,
+                            COUNT(*) AS total
+                        FROM mart.dim_route_avion;
+                    """)
+                    row = cur.fetchone()
+                    if row:
+                        metrics["co2_exact"]       = row[0] or 0
+                        metrics["co2_fallback"]     = row[1] or 0
+                        metrics["routes_chargees"]  = row[2] or 0
+            except Exception as e:
+                logger.warning("[RUN] Impossible de collecter les métriques CO2 : %s", e)
 
             load_ok = True
 
     except (psycopg2.Error, RuntimeError) as e:
         logger.error(f"[LOAD] Transaction annulée (rollback) : {e}")
+        metrics["erreurs"] += 1
     except Exception as e:
         logger.error(f"[LOAD] Erreur inattendue — rollback : {e}")
+        metrics["erreurs"] += 1
     finally:
+        # Mise à jour du run log avant fermeture de la connexion
+        statut = "succes" if load_ok else "erreur"
+        run_end(conn, run_id, metrics, statut)
         conn.close()
         logger.info("[LOAD] Connexion fermée.")
 

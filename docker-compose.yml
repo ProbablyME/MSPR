@@ -28,5 +28,38 @@ services:
     depends_on:
       - postgres
 
+  # ── Loki : stockage des logs Python ────────────────────────────────────────
+  loki:
+    image: grafana/loki:3.0.0
+    container_name: railcarbon_loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml
+      - railcarbon_loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+
+  # ── Grafana : dashboards logs + santé BDD ──────────────────────────────────
+  grafana:
+    image: grafana/grafana:11.0.0
+    container_name: railcarbon_grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - railcarbon_grafana_data:/var/lib/grafana
+    depends_on:
+      - loki
+      - postgres
+
 volumes:
   railcarbon_pgdata:
+  railcarbon_loki_data:
+  railcarbon_grafana_data:
