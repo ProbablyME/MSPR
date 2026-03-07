@@ -686,3 +686,351 @@ DETAIL:  Key (arr_station_id)=(stoparea:589648) is not present in table "dim_sta
 2026-03-06 21:26:19,245 - ERROR - [TRAIN][LOAD] Erreur mart.dim_route_train : insert or update on table "dim_route_train" violates foreign key constraint "dim_route_train_dep_station_id_fkey"
 DETAIL:  Key (dep_station_id)=(de:05362:87303_G) is not present in table "dim_station".
 
+2026-03-06 21:27:26,996 - INFO - [TRAIN][LOAD] Insertion de 20925 faits dans fact_emission...
+2026-03-06 21:27:46,129 - INFO - [TRAIN][LOAD] fact_emission — 20925 faits traités.
+2026-03-06 21:27:46,221 - INFO - [TRAIN][LOAD] Traitement feed DE/mdb-900...
+2026-03-06 21:27:46,433 - INFO - [TRAIN][LOAD]   594 stop_ids remappés.
+2026-03-06 21:27:47,096 - INFO - [TRAIN][TRANSFORM] DE/mdb-900 : tronçons calculés.
+2026-03-06 21:28:26,422 - INFO - [TRAIN][LOAD] mart.dim_route_train — 418 lignes insérées.
+2026-03-06 21:28:45,659 - INFO - [TRAIN][LOAD] Insertion de 418 faits dans fact_emission...
+2026-03-06 21:28:46,047 - INFO - [TRAIN][LOAD] fact_emission — 418 faits traités.
+2026-03-06 21:28:46,125 - INFO - [TRAIN][LOAD] Traitement feed DE/mdb-906...
+2026-03-06 21:28:46,287 - INFO - [TRAIN][LOAD]   475 stop_ids remappés.
+2026-03-06 21:28:46,919 - INFO - [TRAIN][TRANSFORM] DE/mdb-906 : tronçons calculés.
+2026-03-06 21:29:35,588 - INFO - [TRAIN][LOAD] mart.dim_route_train — 288 lignes insérées.
+2026-03-06 21:29:56,874 - INFO - [TRAIN][LOAD] Insertion de 288 faits dans fact_emission...
+2026-03-06 21:29:57,171 - INFO - [TRAIN][LOAD] fact_emission — 288 faits traités.
+2026-03-06 21:29:57,300 - INFO - [TRAIN][LOAD] Traitement feed EE/mdb-1095...
+2026-03-06 21:29:57,527 - INFO - [TRAIN][LOAD]   211 stop_ids remappés.
+2026-03-06 21:29:58,472 - INFO - [TRAIN][TRANSFORM] EE/mdb-1095 : tronçons calculés.
+2026-03-06 21:30:39,410 - INFO - [TRAIN][LOAD] mart.dim_route_train — 293 lignes insérées.
+2026-03-06 21:30:58,622 - INFO - [TRAIN][LOAD] Insertion de 293 faits dans fact_emission...
+2026-03-06 21:30:59,083 - INFO - [TRAIN][LOAD] fact_emission — 293 faits traités.
+2026-03-06 21:30:59,157 - INFO - [TRAIN][LOAD] Traitement feed EE/mdb-2337...
+2026-03-06 21:30:59,376 - INFO - [TRAIN][LOAD]   1189 stop_ids remappés.
+2026-03-06 21:31:00,023 - INFO - [TRAIN][TRANSFORM] EE/mdb-2337 : tronçons calculés.
+2026-03-06 21:31:35,912 - INFO - [TRAIN][LOAD] mart.dim_route_train — 377 lignes insérées.
+2026-03-06 21:31:54,823 - INFO - [TRAIN][LOAD] Insertion de 377 faits dans fact_emission...
+2026-03-06 21:31:55,409 - INFO - [TRAIN][LOAD] fact_emission — 377 faits traités.
+2026-03-06 21:31:55,494 - INFO - [TRAIN][LOAD] Traitement feed ES/mdb-1003...
+2026-03-06 21:31:55,700 - INFO - [TRAIN][LOAD]   57 stop_ids remappés.
+2026-03-06 21:31:56,438 - INFO - [TRAIN][TRANSFORM] ES/mdb-1003 : tronçons calculés.
+2026-03-06 21:32:30,231 - INFO - [TRAIN][LOAD] mart.dim_route_train — 46 lignes insérées.
+2026-03-06 21:32:47,849 - INFO - [TRAIN][LOAD] Insertion de 46 faits dans fact_emission...
+2026-03-06 21:32:47,995 - INFO - [TRAIN][LOAD] fact_emission — 46 faits traités.
+2026-03-06 21:32:48,077 - INFO - [TRAIN][LOAD] Traitement feed ES/mdb-1856...
+2026-03-06 21:32:48,222 - INFO - [TRAIN][LOAD]   268 stop_ids remappés.
+2026-03-06 21:32:48,767 - INFO - [TRAIN][TRANSFORM] ES/mdb-1856 : tronçons calculés.
+2026-03-06 21:33:22,542 - INFO - [TRAIN][LOAD] mart.dim_route_train — 204 lignes insérées.
+2026-03-06 21:33:39,862 - INFO - [TRAIN][LOAD] Insertion de 204 faits dans fact_emission...
+2026-03-06 21:33:40,202 - INFO - [TRAIN][LOAD] fact_emission — 204 faits traités.
+2026-03-06 21:33:40,278 - INFO - [TRAIN][LOAD] Traitement feed ES/mdb-2141...
+2026-03-06 21:33:40,423 - INFO - [TRAIN][LOAD]   24 stop_ids remappés.
+2026-03-06 21:33:41,046 - INFO - [TRAIN][TRANSFORM] ES/mdb-2141 : tronçons calculés.
+2026-03-06 21:34:19,309 - INFO - [TRAIN][LOAD] mart.dim_route_train — 46 lignes insérées.
+2026-03-06 21:34:36,596 - INFO - [TRAIN][LOAD] Insertion de 46 faits dans fact_emission...
+2026-03-06 21:34:36,780 - INFO - [TRAIN][LOAD] fact_emission — 46 faits traités.
+2026-03-06 21:34:36,904 - INFO - [TRAIN][LOAD] Traitement feed ES/mdb-2715...
+2026-03-06 21:34:37,187 - INFO - [TRAIN][LOAD]   670 stop_ids remappés.
+2026-03-06 21:34:38,665 - INFO - [TRAIN][TRANSFORM] ES/mdb-2715 : tronçons calculés.
+2026-03-06 21:35:25,071 - INFO - [TRAIN][LOAD] mart.dim_route_train — 174 lignes insérées.
+2026-03-06 21:35:55,603 - INFO - [TRAIN][LOAD] Insertion de 174 faits dans fact_emission...
+2026-03-06 21:35:57,884 - INFO - [TRAIN][LOAD] fact_emission — 174 faits traités.
+2026-03-06 21:35:58,042 - INFO - [TRAIN][LOAD] Traitement feed ES/mdb-2766...
+2026-03-06 21:35:58,593 - INFO - [TRAIN][LOAD]   24 stop_ids remappés.
+2026-03-06 21:36:00,719 - INFO - [TRAIN][TRANSFORM] ES/mdb-2766 : tronçons calculés.
+2026-03-06 21:37:12,461 - INFO - [TRAIN][LOAD] mart.dim_route_train — 46 lignes insérées.
+2026-03-06 21:37:40,600 - INFO - [TRAIN][LOAD] Insertion de 46 faits dans fact_emission...
+2026-03-06 21:37:40,822 - INFO - [TRAIN][LOAD] fact_emission — 46 faits traités.
+2026-03-06 21:37:40,945 - INFO - [TRAIN][LOAD] Traitement feed ES/mdb-2785...
+2026-03-06 21:37:41,249 - INFO - [TRAIN][LOAD]   4 stop_ids remappés.
+2026-03-06 21:37:42,867 - INFO - [TRAIN][TRANSFORM] ES/mdb-2785 : tronçons calculés.
+2026-03-06 21:38:39,032 - INFO - [TRAIN][LOAD] mart.dim_route_train — 38 lignes insérées.
+2026-03-06 21:39:06,132 - INFO - [TRAIN][LOAD] Insertion de 38 faits dans fact_emission...
+2026-03-06 21:39:07,751 - INFO - [TRAIN][LOAD] fact_emission — 38 faits traités.
+2026-03-06 21:39:07,865 - INFO - [TRAIN][LOAD] Traitement feed ES/mdb-2826...
+2026-03-06 21:39:08,746 - INFO - [TRAIN][LOAD]   1121 stop_ids remappés.
+2026-03-06 21:39:10,590 - INFO - [TRAIN][TRANSFORM] ES/mdb-2826 : tronçons calculés.
+2026-03-06 21:40:53,271 - INFO - [TRAIN][LOAD] mart.dim_route_train — 694 lignes insérées.
+2026-03-06 21:41:40,081 - INFO - [TRAIN][LOAD] Insertion de 750 faits dans fact_emission...
+2026-03-06 21:41:41,822 - INFO - [TRAIN][LOAD] fact_emission — 750 faits traités.
+2026-03-06 21:41:41,936 - INFO - [TRAIN][LOAD] Traitement feed ES/mdb-2832...
+2026-03-06 21:41:42,601 - INFO - [TRAIN][LOAD]   1117 stop_ids remappés.
+2026-03-06 21:41:45,103 - INFO - [TRAIN][TRANSFORM] ES/mdb-2832 : tronçons calculés.
+2026-03-06 21:42:56,919 - INFO - [TRAIN][LOAD] mart.dim_route_train — 694 lignes insérées.
+2026-03-06 21:43:35,872 - INFO - [TRAIN][LOAD] Insertion de 750 faits dans fact_emission...
+2026-03-06 21:43:37,460 - INFO - [TRAIN][LOAD] fact_emission — 750 faits traités.
+2026-03-06 21:43:37,614 - INFO - [TRAIN][LOAD] Traitement feed FR/mdb-1259...
+2026-03-06 21:43:38,414 - INFO - [TRAIN][LOAD]   7009 stop_ids remappés.
+2026-03-06 21:43:42,048 - INFO - Error while receiving.
+Traceback (most recent call last):
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\clientserver.py", line 535, in send_command
+    answer = smart_decode(self.stream.readline()[:-1])
+                          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\socket.py", line 705, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [WinError 10054] Une connexion existante a dû être fermée par l’hôte distant
+2026-03-06 21:43:42,266 - INFO - Error while sending or receiving.
+Traceback (most recent call last):
+  File "C:\Users\filal\Desktop\MSPR\MSPR\etl.py", line 1974, in main
+    n = train_process_feed(
+        ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\Desktop\MSPR\MSPR\etl.py", line 1185, in train_process_feed
+    routes_df, facts_df = train_process_routes_and_facts(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\Desktop\MSPR\MSPR\etl.py", line 950, in train_process_routes_and_facts
+    trips_df = trips_df.filter(col("route_id").cast(StringType()).isin(train_route_ids))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\pyspark\errors\utils.py", line 285, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\pyspark\sql\classic\column.py", line 481, in isin
+    [c._jc if isinstance(c, Column) else _create_column_from_literal(c) for c in cols],
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\pyspark\sql\classic\column.py", line 481, in <listcomp>
+    [c._jc if isinstance(c, Column) else _create_column_from_literal(c) for c in cols],
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\pyspark\sql\classic\column.py", line 55, in _create_column_from_literal
+    return cast(JVMView, sc._jvm).functions.lit(enum_to_value(literal))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\java_gateway.py", line 1759, in __getattr__
+    return JavaClass(
+           ^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\java_gateway.py", line 1515, in __init__
+    def __init__(self, fqn, gateway_client):
+    
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\pyspark\core\context.py", line 390, in signal_handler
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\clientserver.py", line 535, in send_command
+    answer = smart_decode(self.stream.readline()[:-1])
+                          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\socket.py", line 705, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [WinError 10054] Une connexion existante a dû être fermée par l’hôte distant
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\clientserver.py", line 527, in send_command
+    self.socket.sendall(command.encode("utf-8"))
+ConnectionResetError: [WinError 10054] Une connexion existante a dû être fermée par l’hôte distant
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\clientserver.py", line 527, in send_command
+    self.socket.sendall(command.encode("utf-8"))
+ConnectionResetError: [WinError 10054] Une connexion existante a dû être fermée par l’hôte distant
+2026-03-06 21:43:42,284 - INFO - Closing down clientserver connection
+2026-03-06 21:43:42,285 - INFO - Exception while sending command.
+Traceback (most recent call last):
+  File "C:\Users\filal\Desktop\MSPR\MSPR\etl.py", line 1974, in main
+    n = train_process_feed(
+        ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\Desktop\MSPR\MSPR\etl.py", line 1185, in train_process_feed
+    routes_df, facts_df = train_process_routes_and_facts(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\Desktop\MSPR\MSPR\etl.py", line 950, in train_process_routes_and_facts
+    trips_df = trips_df.filter(col("route_id").cast(StringType()).isin(train_route_ids))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\pyspark\errors\utils.py", line 285, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\pyspark\sql\classic\column.py", line 481, in isin
+    [c._jc if isinstance(c, Column) else _create_column_from_literal(c) for c in cols],
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\pyspark\sql\classic\column.py", line 481, in <listcomp>
+    [c._jc if isinstance(c, Column) else _create_column_from_literal(c) for c in cols],
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\pyspark\sql\classic\column.py", line 55, in _create_column_from_literal
+    return cast(JVMView, sc._jvm).functions.lit(enum_to_value(literal))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\java_gateway.py", line 1759, in __getattr__
+    return JavaClass(
+           ^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\java_gateway.py", line 1515, in __init__
+    def __init__(self, fqn, gateway_client):
+    
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\pyspark\core\context.py", line 390, in signal_handler
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\clientserver.py", line 535, in send_command
+    answer = smart_decode(self.stream.readline()[:-1])
+                          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\socket.py", line 705, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [WinError 10054] Une connexion existante a dû être fermée par l’hôte distant
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\clientserver.py", line 527, in send_command
+    self.socket.sendall(command.encode("utf-8"))
+ConnectionResetError: [WinError 10054] Une connexion existante a dû être fermée par l’hôte distant
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\clientserver.py", line 527, in send_command
+    self.socket.sendall(command.encode("utf-8"))
+ConnectionResetError: [WinError 10054] Une connexion existante a dû être fermée par l’hôte distant
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\java_gateway.py", line 1038, in send_command
+    response = connection.send_command(command)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\clientserver.py", line 530, in send_command
+    raise Py4JNetworkError(
+py4j.protocol.Py4JNetworkError: Error while sending
+2026-03-06 21:43:46,381 - INFO - Closing down clientserver connection
+2026-03-06 21:43:46,382 - INFO - Closing down clientserver connection
+2026-03-06 21:43:46,382 - INFO - Closing down clientserver connection
+2026-03-06 21:43:42,055 - INFO - Error while sending or receiving.
+Traceback (most recent call last):
+  File "C:\Users\filal\Desktop\MSPR\MSPR\etl.py", line 1974, in main
+    n = train_process_feed(
+        ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\Desktop\MSPR\MSPR\etl.py", line 1185, in train_process_feed
+    routes_df, facts_df = train_process_routes_and_facts(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\Desktop\MSPR\MSPR\etl.py", line 950, in train_process_routes_and_facts
+    trips_df = trips_df.filter(col("route_id").cast(StringType()).isin(train_route_ids))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\pyspark\errors\utils.py", line 285, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\pyspark\sql\classic\column.py", line 481, in isin
+    [c._jc if isinstance(c, Column) else _create_column_from_literal(c) for c in cols],
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\pyspark\sql\classic\column.py", line 481, in <listcomp>
+    [c._jc if isinstance(c, Column) else _create_column_from_literal(c) for c in cols],
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\pyspark\sql\classic\column.py", line 55, in _create_column_from_literal
+    return cast(JVMView, sc._jvm).functions.lit(enum_to_value(literal))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\java_gateway.py", line 1759, in __getattr__
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\java_gateway.py", line 1515, in __init__
+    def __init__(self, fqn, gateway_client):
+    
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\pyspark\core\context.py", line 390, in signal_handler
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\clientserver.py", line 535, in send_command
+    answer = smart_decode(self.stream.readline()[:-1])
+                          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\socket.py", line 705, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [WinError 10054] Une connexion existante a dû être fermée par l’hôte distant
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\clientserver.py", line 527, in send_command
+    self.socket.sendall(command.encode("utf-8"))
+ConnectionResetError: [WinError 10054] Une connexion existante a dû être fermée par l’hôte distant
+2026-03-06 21:43:42,144 - INFO - Closing down clientserver connection
+2026-03-06 21:43:46,394 - INFO - Closing down clientserver connection
+2026-03-06 21:43:46,394 - ERROR - Exception while sending command.
+Traceback (most recent call last):
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\clientserver.py", line 535, in send_command
+    answer = smart_decode(self.stream.readline()[:-1])
+                          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\socket.py", line 705, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [WinError 10054] Une connexion existante a dû être fermée par l’hôte distant
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\java_gateway.py", line 1038, in send_command
+    response = connection.send_command(command)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\clientserver.py", line 566, in send_command
+    raise Py4JNetworkError(
+py4j.protocol.Py4JNetworkError: Error while sending or receiving
+2026-03-06 21:43:46,395 - INFO - Exception while sending command.
+Traceback (most recent call last):
+  File "C:\Users\filal\Desktop\MSPR\MSPR\etl.py", line 1974, in main
+    n = train_process_feed(
+        ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\Desktop\MSPR\MSPR\etl.py", line 1185, in train_process_feed
+    routes_df, facts_df = train_process_routes_and_facts(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\Desktop\MSPR\MSPR\etl.py", line 950, in train_process_routes_and_facts
+    trips_df = trips_df.filter(col("route_id").cast(StringType()).isin(train_route_ids))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\pyspark\errors\utils.py", line 285, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\pyspark\sql\classic\column.py", line 481, in isin
+    [c._jc if isinstance(c, Column) else _create_column_from_literal(c) for c in cols],
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\pyspark\sql\classic\column.py", line 481, in <listcomp>
+    [c._jc if isinstance(c, Column) else _create_column_from_literal(c) for c in cols],
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\pyspark\sql\classic\column.py", line 55, in _create_column_from_literal
+    return cast(JVMView, sc._jvm).functions.lit(enum_to_value(literal))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\java_gateway.py", line 1759, in __getattr__
+    return JavaClass(
+           ^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\java_gateway.py", line 1515, in __init__
+    def __init__(self, fqn, gateway_client):
+    
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\pyspark\core\context.py", line 390, in signal_handler
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\clientserver.py", line 535, in send_command
+    answer = smart_decode(self.stream.readline()[:-1])
+                          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\socket.py", line 705, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [WinError 10054] Une connexion existante a dû être fermée par l’hôte distant
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\clientserver.py", line 527, in send_command
+    self.socket.sendall(command.encode("utf-8"))
+ConnectionResetError: [WinError 10054] Une connexion existante a dû être fermée par l’hôte distant
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\java_gateway.py", line 1038, in send_command
+    response = connection.send_command(command)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\filal\AppData\Roaming\Python\Python311\site-packages\py4j\clientserver.py", line 530, in send_command
+    raise Py4JNetworkError(
+py4j.protocol.Py4JNetworkError: Error while sending
+2026-03-06 21:43:46,396 - INFO - Closing down clientserver connection
+2026-03-06 21:43:48,435 - INFO - Closing down clientserver connection
+2026-03-06 21:43:48,435 - INFO - Closing down clientserver connection
+2026-03-06 21:43:48,447 - INFO - Closing down clientserver connection
+2026-03-06 21:43:48,579 - INFO - Closing down clientserver connection
+2026-03-06 21:43:48,581 - INFO - Closing down clientserver connection

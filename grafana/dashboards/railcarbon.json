@@ -416,7 +416,7 @@
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
       "targets": [{
         "refId": "A",
-        "rawSql": "SELECT CASE WHEN rt.is_night_train THEN 'Train de nuit' ELSE 'Train de jour' END AS type, ROUND(AVG(fe.co2_kg_passenger)::numeric, 2) AS co2_moyen FROM mart.fact_emission fe JOIN mart.dim_route_train rt ON rt.route_train_id = fe.route_train_id WHERE fe.transport_mode = 'train' GROUP BY rt.is_night_train ORDER BY rt.is_night_train;",
+        "rawSql": "SELECT ROUND(AVG(CASE WHEN rt.is_night_train = FALSE THEN fe.co2_kg_passenger END)::numeric, 3) AS \"Train de jour\", ROUND(AVG(CASE WHEN rt.is_night_train = TRUE THEN fe.co2_kg_passenger END)::numeric, 3) AS \"Train de nuit\" FROM mart.fact_emission fe JOIN mart.dim_route_train rt ON rt.route_train_id = fe.route_train_id WHERE fe.transport_mode = 'train';",
         "format": "table"
       }],
       "fieldConfig": {
@@ -424,7 +424,7 @@
           "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
         }
       },
-      "options": { "orientation": "horizontal", "displayMode": "gradient", "reduceOptions": { "calcs": ["lastNotNull"] } }
+      "options": { "orientation": "horizontal", "displayMode": "gradient", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "/.*/" } }
     },
 
     {
@@ -445,7 +445,7 @@
           { "matcher": { "id": "byName", "options": "routes_avion" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "blue" } }] }
         ]
       },
-      "options": { "xField": "operateur", "orientation": "vertical", "legend": { "displayMode": "list", "placement": "bottom" } }
+      "options": { "xField": "operateur", "orientation": "horizontal", "legend": { "displayMode": "list", "placement": "bottom" } }
     },
 
     {
@@ -465,7 +465,7 @@
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
       "targets": [{
         "refId": "A",
-        "rawSql": "SELECT station_name AS name, latitude, longitude, CASE WHEN is_airport THEN 1.0 ELSE 0.0 END AS is_airport_num, COALESCE(city, station_name) AS city, COALESCE(country_code, '') AS country FROM mart.dim_station WHERE latitude IS NOT NULL AND longitude IS NOT NULL AND latitude BETWEEN 35 AND 72 AND longitude BETWEEN -25 AND 45 LIMIT 8000;",
+        "rawSql": "SELECT station_name AS name, latitude, longitude, CASE WHEN is_airport THEN 'Aeroport' ELSE 'Gare' END AS type, COALESCE(city, station_name) AS ville, CASE country_code WHEN 'DE' THEN 'Allemagne' WHEN 'FR' THEN 'France' WHEN 'BE' THEN 'Belgique' WHEN 'NL' THEN 'Pays-Bas' WHEN 'CH' THEN 'Suisse' WHEN 'AT' THEN 'Autriche' WHEN 'IT' THEN 'Italie' WHEN 'ES' THEN 'Espagne' WHEN 'PT' THEN 'Portugal' WHEN 'PL' THEN 'Pologne' WHEN 'CZ' THEN 'Republique tcheque' WHEN 'SK' THEN 'Slovaquie' WHEN 'HU' THEN 'Hongrie' WHEN 'RO' THEN 'Roumanie' WHEN 'BG' THEN 'Bulgarie' WHEN 'HR' THEN 'Croatie' WHEN 'SI' THEN 'Slovenie' WHEN 'SE' THEN 'Suede' WHEN 'NO' THEN 'Norvege' WHEN 'DK' THEN 'Danemark' WHEN 'FI' THEN 'Finlande' WHEN 'GB' THEN 'Royaume-Uni' WHEN 'IE' THEN 'Irlande' WHEN 'LU' THEN 'Luxembourg' WHEN 'GR' THEN 'Grece' ELSE COALESCE(country_code, 'Inconnu') END AS pays FROM mart.dim_station WHERE latitude IS NOT NULL AND longitude IS NOT NULL AND latitude BETWEEN 35 AND 72 AND longitude BETWEEN -25 AND 45 LIMIT 8000;",
         "format": "table"
       }],
       "options": {
@@ -570,6 +570,104 @@
         ]},
         "color": { "mode": "thresholds" }
       }}
+    },
+
+    {
+      "id": 54,
+      "title": "Routes train sans faits (orphelines)",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 71, "w": 6, "h": 4 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.dim_route_train rt LEFT JOIN mart.fact_emission fe ON fe.route_train_id = rt.route_train_id WHERE fe.route_train_id IS NULL;", "format": "table" }],
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "displayName": "Routes orphelines",
+        "thresholds": { "mode": "absolute", "steps": [
+          { "color": "green", "value": null },
+          { "color": "orange", "value": 100 },
+          { "color": "red", "value": 1000 }
+        ]},
+        "color": { "mode": "thresholds" }
+      }}
+    },
+
+    {
+      "id": 55,
+      "title": "Faits CO2 nuls ou negatifs",
+      "type": "stat",
+      "gridPos": { "x": 6, "y": 71, "w": 6, "h": 4 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.fact_emission WHERE co2_kg_passenger IS NULL OR co2_kg_passenger <= 0;", "format": "table" }],
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "displayName": "CO2 nuls/negatifs",
+        "thresholds": { "mode": "absolute", "steps": [
+          { "color": "green", "value": null },
+          { "color": "orange", "value": 1 },
+          { "color": "red", "value": 100 }
+        ]},
+        "color": { "mode": "thresholds" }
+      }}
+    },
+
+    {
+      "id": 56,
+      "title": "Avion : typecodes ICAO sans vehicule connu",
+      "type": "stat",
+      "gridPos": { "x": 12, "y": 71, "w": 6, "h": 4 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.dim_route_avion r LEFT JOIN mart.dim_vehicle_avion v ON v.icao_typecode = r.dominant_typecode WHERE v.vehicle_avion_id IS NULL AND r.dominant_typecode IS NOT NULL;", "format": "table" }],
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "displayName": "ICAO sans match",
+        "thresholds": { "mode": "absolute", "steps": [
+          { "color": "green", "value": null },
+          { "color": "orange", "value": 50 },
+          { "color": "red", "value": 200 }
+        ]},
+        "color": { "mode": "thresholds" }
+      }}
+    },
+
+    {
+      "id": 57,
+      "title": "Taux couverture CO2 avion (%)",
+      "type": "stat",
+      "gridPos": { "x": 18, "y": 71, "w": 6, "h": 4 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{ "refId": "A", "rawSql": "SELECT ROUND(100.0 * COUNT(co2_total_kg) / NULLIF(COUNT(*), 0), 1) AS val FROM mart.dim_route_avion;", "format": "table" }],
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "unit": "percent", "displayName": "Couverture CO2 avion",
+        "thresholds": { "mode": "absolute", "steps": [
+          { "color": "red", "value": null },
+          { "color": "orange", "value": 70 },
+          { "color": "green", "value": 90 }
+        ]},
+        "color": { "mode": "thresholds" }
+      }}
+    },
+
+    {
+      "id": 58,
+      "title": "Tableau recapitulatif qualite",
+      "type": "table",
+      "gridPos": { "x": 0, "y": 75, "w": 24, "h": 7 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{
+        "refId": "A",
+        "rawSql": "SELECT 'Routes train orphelines' AS metrique, COUNT(*) AS valeur, CASE WHEN COUNT(*) = 0 THEN 'OK' WHEN COUNT(*) < 1000 THEN 'Warning' ELSE 'Erreur' END AS statut FROM mart.dim_route_train rt LEFT JOIN mart.fact_emission fe ON fe.route_train_id = rt.route_train_id WHERE fe.route_train_id IS NULL UNION ALL SELECT 'Faits CO2 nuls', COUNT(*), CASE WHEN COUNT(*) = 0 THEN 'OK' WHEN COUNT(*) < 100 THEN 'Warning' ELSE 'Erreur' END FROM mart.fact_emission WHERE co2_kg_passenger IS NULL OR co2_kg_passenger <= 0 UNION ALL SELECT 'Routes avion sans CO2', COUNT(*), CASE WHEN COUNT(*) = 0 THEN 'OK' WHEN COUNT(*) < 100 THEN 'Warning' ELSE 'Erreur' END FROM mart.dim_route_avion WHERE co2_total_kg IS NULL UNION ALL SELECT 'ICAO sans vehicule connu', COUNT(*), CASE WHEN COUNT(*) = 0 THEN 'OK' WHEN COUNT(*) < 200 THEN 'Warning' ELSE 'Erreur' END FROM mart.dim_route_avion r LEFT JOIN mart.dim_vehicle_avion v ON v.icao_typecode = r.dominant_typecode WHERE v.vehicle_avion_id IS NULL AND r.dominant_typecode IS NOT NULL UNION ALL SELECT 'Stations sans GPS', COUNT(*), CASE WHEN COUNT(*) = 0 THEN 'OK' WHEN COUNT(*) < 200 THEN 'Warning' ELSE 'Erreur' END FROM mart.dim_station WHERE latitude IS NULL OR longitude IS NULL ORDER BY statut DESC;",
+        "format": "table"
+      }],
+      "fieldConfig": {
+        "overrides": [{
+          "matcher": { "id": "byName", "options": "statut" },
+          "properties": [
+            { "id": "custom.displayMode", "value": "color-background" },
+            { "id": "mappings", "value": [
+              { "type": "value", "options": { "OK":      { "color": "green",  "index": 0 } } },
+              { "type": "value", "options": { "Warning": { "color": "orange", "index": 1 } } },
+              { "type": "value", "options": { "Erreur":  { "color": "red",    "index": 2 } } }
+            ]}
+          ]
+        }]
+      }
     }
 
   ]

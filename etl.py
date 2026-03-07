@@ -477,7 +477,9 @@ def _read_gtfs_file(spark, feed_path: str, filename: str):
     filepath = os.path.join(feed_path, filename)
     if os.path.exists(filepath):
         # inferSchema=False -> tout en StringType, évite que stop_id numérique soit inféré BIGINT
-        return spark.read.csv(filepath, header=True, inferSchema=False)
+        df = spark.read.csv(filepath, header=True, inferSchema=False)
+        # Certains feeds GTFS ont des espaces en tête dans les noms de colonnes (" route_type")
+        return df.toDF(*[c.strip() for c in df.columns])
     return None
 
 
@@ -925,6 +927,8 @@ def train_process_routes_and_facts(
     if routes_df is None:
         return None, None
     routes_df = routes_df.filter(
+        col("route_type").rlike(r"^\s*\d+\s*$")  # exclut 'TransporteAereo' et autres non-numériques
+    ).filter(
         col("route_type").cast(IntegerType()).isin(list(ALL_TRAIN_ROUTE_TYPES))
     )
     if not routes_df.head(1):
@@ -1693,8 +1697,8 @@ def avion_load_routes_psql(final_routes_df, source_id: "int | None" = None) -> i
     """
     logger.info("[AVION][LOAD] dim_route_avion...")
     for sql in [
-        "ALTER TABLE mart.dim_route_avion ADD COLUMN IF NOT EXISTS dominant_typecode VARCHAR(20);",
-        "ALTER TABLE mart.dim_route_avion ALTER COLUMN dominant_typecode TYPE VARCHAR(20);",
+        "ALTER TABLE mart.dim_route_avion ADD COLUMN IF NOT EXISTS dominant_typecode VARCHAR(50);",
+        "ALTER TABLE mart.dim_route_avion ALTER COLUMN dominant_typecode TYPE VARCHAR(50);",
         "ALTER TABLE mart.dim_route_avion ADD COLUMN IF NOT EXISTS co2_total_kg NUMERIC(12,3);",
     ]:
         _run_sql(sql)
@@ -1714,7 +1718,7 @@ def avion_load_routes_psql(final_routes_df, source_id: "int | None" = None) -> i
                 ades = str(row["ades"]).replace("'", "''")
                 dist = row["distance_km"] if row["distance_km"] is not None else "NULL"
                 tc   = (
-                    f"'{str(row['dominant_typecode']).replace(chr(39), chr(39)*2)}'"
+                    f"'{str(row['dominant_typecode'])[:50].replace(chr(39), chr(39)*2)}'"
                     if row["dominant_typecode"] else "NULL"
                 )
                 src = source_id if source_id is not None else "NULL"
