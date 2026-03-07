@@ -146,18 +146,26 @@ def compare_cities(
 @router.get("/locations/common-cities", summary="Obtenir les villes connectées par l'air et le rail")
 def get_common_cities(db: Session = Depends(get_db)):
     """
-    Retourne la liste des villes qui possèdent à la fois une gare et un aéroport.
-    Utile pour l'ETL ou le dashboard.
+    Retourne les villes qui ont une gare ET un aéroport dans un rayon de 80 km.
+    Utilise la proximité géographique (Haversine) au lieu du nom exact.
     """
     query = text("""
-        SELECT DISTINCT city
-        FROM mart.dim_station
-        WHERE city IS NOT NULL AND city != ''
-        GROUP BY city
-        HAVING COUNT(DISTINCT is_airport) = 2
-        ORDER BY city
+        SELECT DISTINCT g.city
+        FROM mart.dim_station g
+        JOIN mart.dim_station a ON a.is_airport = TRUE
+        WHERE g.is_airport = FALSE
+          AND g.city IS NOT NULL AND g.city != ''
+          AND g.latitude IS NOT NULL AND g.longitude IS NOT NULL
+          AND a.latitude IS NOT NULL AND a.longitude IS NOT NULL
+          AND (
+            2 * 6371 * ASIN(SQRT(
+              POWER(SIN(RADIANS(a.latitude  - g.latitude)  / 2), 2) +
+              COS(RADIANS(g.latitude)) * COS(RADIANS(a.latitude)) *
+              POWER(SIN(RADIANS(a.longitude - g.longitude) / 2), 2)
+            ))
+          ) < 80
+        ORDER BY g.city
     """)
-
     result = db.execute(query).fetchall()
     return {"common_cities": [row._mapping["city"] for row in result]}
 

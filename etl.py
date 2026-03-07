@@ -671,12 +671,27 @@ def train_collect_stations_from_backontrack(spark, source_id: "int | None" = Non
 
 def _extract_city(station_name: str) -> str:
     """Extrait la ville depuis le nom d'une gare (heuristique).
-    Ex: 'Paris - Gare de Lyon' → 'Paris', 'Lyon, Part-Dieu' → 'Lyon'."""
+    Ex: 'Paris - Gare de Lyon' → 'Paris', 'Lyon, Part-Dieu' → 'Lyon',
+        'Paris-Nord' → 'Paris', 'Baden-Baden Bf' → 'Baden-Baden'."""
     if not station_name:
         return ""
+    # Séparateurs explicites en priorité
     for sep in [" - ", ", ", " ("]:
         if sep in station_name:
             return station_name.split(sep)[0].strip()
+    # Tiret : coupe si la partie droite est un suffixe de gare connu
+    if "-" in station_name:
+        left, right = station_name.rsplit("-", 1)
+        left, right = left.strip(), right.strip()
+        suffixes = ["Gare", "Station", "Bahnhof", "Hbf", "Bf",
+                    "Central", "Nord", "Sud", "Est", "West",
+                    "Ouest", "Centre", "Main", "Airport"]
+        if any(right.startswith(s) for s in suffixes):
+            return left  # ex: Paris-Nord → Paris
+        # Vrai nom composé (Baden-Baden, Aix-en-Provence) : garder entier
+        if len(left) > 2 and len(right) > 2 and right[0].isupper():
+            return station_name.strip()
+        return left
     return station_name.strip()
 
 
