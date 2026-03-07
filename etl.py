@@ -956,9 +956,10 @@ def train_process_routes_and_facts(
         return None, None
 
     if station_id_mapping:
+        import pandas as _pd
         mapping_df = spark.createDataFrame(
-            [(k, v) for k, v in station_id_mapping.items()],
-            ["old_stop_id", "canonical_stop_id"],
+            _pd.DataFrame(list(station_id_mapping.items()),
+                          columns=["old_stop_id", "canonical_stop_id"])
         )
         for attr_name, df_obj in (("stop_times_df", stop_times_df), ("stops_df", stops_df)):
             df_obj = (
@@ -1133,16 +1134,47 @@ def train_seed_vehicles() -> None:
 
 
 def train_load_stations(spark, canonical_stations: list) -> int:
-    """Insère les stations canoniques dans mart.dim_station (is_airport = FALSE)."""
+    """Insère les stations canoniques dans mart.dim_station (is_airport = FALSE).
+
+    Bypass Spark intentionnel : createDataFrame sur 24k+ dicts lance des workers
+    Python qui crashent sur Windows. Les données sont déjà en mémoire Python →
+    insertion directe via psycopg2 par batchs de 1000 lignes.
+    """
     if not canonical_stations:
         return 0
-    df = spark.createDataFrame(canonical_stations)
-    # station_id peut être inféré LongType si les premières valeurs sont numériques
-    # (ex: "87654321") → force StringType pour éviter le crash sur "StopArea:OCE..."
-    df = df.withColumn("station_id", col("station_id").cast(StringType()))
-    if "source_id" in df.columns:
-        df = df.withColumn("source_id", col("source_id").cast(IntegerType()))
-    return _train_write_upsert(df, f"{SCHEMA}.dim_station", "station_id")
+    columns = ["station_id", "station_name", "city", "country_code",
+               "latitude", "longitude", "is_airport", "source_id"]
+    cols_str = ", ".join(f'"{c}"' for c in columns)
+    sql = (
+        f"INSERT INTO {SCHEMA}.dim_station ({cols_str}) VALUES %s "
+        f"ON CONFLICT (station_id) DO NOTHING"
+    )
+    data = [
+        (
+            str(row["station_id"]),
+            row.get("station_name"),
+            row.get("city"),
+            row.get("country_code"),
+            row.get("latitude"),
+            row.get("longitude"),
+            bool(row.get("is_airport", False)),
+            int(row["source_id"]) if row.get("source_id") is not None else None,
+        )
+        for row in canonical_stations
+    ]
+    try:
+        from psycopg2.extras import execute_values
+        conn = _get_pg_conn()
+        conn.autocommit = False
+        with conn.cursor() as cur:
+            execute_values(cur, sql, data, page_size=1000)
+        conn.commit()
+        conn.close()
+        logger.info("[TRAIN][LOAD] %s.dim_station — %d lignes insérées.", SCHEMA, len(data))
+        return len(data)
+    except Exception as e:
+        logger.error("[TRAIN][LOAD] dim_station — erreur : %s", e)
+        return 0
 
 
 def train_insert_facts(facts_df) -> None:
@@ -1221,8 +1253,10 @@ def train_process_backontrack(spark, global_mapping: dict, source_id: "int | Non
         stops_df = stops_df.filter(_is_valid_coord(col("lat"), col("lon")))
 
         if global_mapping:
+            import pandas as _pd
             mapping_df = spark.createDataFrame(
-                [(k, v) for k, v in global_mapping.items()], ["old_stop_id", "canonical_stop_id"]
+                _pd.DataFrame(list(global_mapping.items()),
+                              columns=["old_stop_id", "canonical_stop_id"])
             )
             for attr_name, df_obj in (("trip_stop_df", trip_stop_df), ("stops_df", stops_df)):
                 df_obj = (
@@ -1896,8 +1930,11 @@ def main() -> None:
         .appName("RailCarbon ETL")
         .config("spark.driver.extraClassPath", _pg_jar)
         .config("spark.executor.extraClassPath", _pg_jar)
-        .config("spark.driver.memory", "8g")
-        .config("spark.executor.memory", "8g")
+        .config("spark.driver.memory", "4g")           # 8g inutile en local mode
+        .config("spark.executor.memory", "2g")         # driver=executor en local
+        .config("spark.sql.shuffle.partitions", "8")   # défaut 200 = gaspillage en local
+        .config("spark.python.worker.reuse", "true")   # évite de respawn des workers à chaque tâche
+        .config("spark.sql.execution.arrow.pyspark.enabled", "true")  # pandas↔Spark via Arrow (pas Py4J)
         .getOrCreate()
     )
 
@@ -2013,8 +2050,11 @@ def main() -> None:
             .appName("RailCarbon ETL - AVION")
             .config("spark.driver.extraClassPath", _pg_jar)
             .config("spark.executor.extraClassPath", _pg_jar)
-            .config("spark.driver.memory", "8g")
-            .config("spark.executor.memory", "8g")
+            .config("spark.driver.memory", "4g")
+            .config("spark.executor.memory", "2g")
+            .config("spark.sql.shuffle.partitions", "8")
+            .config("spark.python.worker.reuse", "true")
+            .config("spark.sql.execution.arrow.pyspark.enabled", "true")
             .getOrCreate()
         )
         logger.info("[SPARK] Session AVION démarrée.")
