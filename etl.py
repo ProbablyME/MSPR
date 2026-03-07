@@ -1840,7 +1840,13 @@ def avion_insert_facts_psql() -> int:
                 END
             , 3)
         FROM {SCHEMA}.dim_route_avion r
-        LEFT JOIN {SCHEMA}.dim_vehicle_avion v ON v.icao_typecode = r.dominant_typecode
+        LEFT JOIN (
+            SELECT DISTINCT ON (icao_typecode)
+                vehicle_avion_id, service_type, icao_typecode
+            FROM {SCHEMA}.dim_vehicle_avion
+            WHERE icao_typecode IS NOT NULL
+            ORDER BY icao_typecode, vehicle_avion_id
+        ) v ON v.icao_typecode = r.dominant_typecode
         WHERE r.co2_total_kg IS NOT NULL
         ON CONFLICT (route_avion_id, vehicle_avion_id) DO NOTHING;
     """)
@@ -2060,7 +2066,9 @@ def main() -> None:
         logger.info("[SPARK] Session AVION démarrée.")
 
         logger.info("--- ETL AVION -----------------------------------------------------------")
-        avion_truncate_tables()
+        # NB: pas de truncate avion  14 dim_route_avion/dim_vehicle_avion utilisent upserts
+        # et TRUNCATE CASCADE effacerait fact_emission (train facts) via FK route_avion_id
+        # avion_truncate_tables()  <-- SUPPRIME, bug CASCADE
 
         # ── AVION — EXTRACT ────────────────────────────────────────────────────
         logger.info("--- AVION - EXTRACT -----------------------------------------------------")
