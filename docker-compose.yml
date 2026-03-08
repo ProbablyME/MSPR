@@ -59,6 +59,23 @@ services:
       - loki
       - postgres
 
+  # ── API FastAPI ─────────────────────────────────────────────────────────
+  api:
+    build: ./api
+    container_name: railcarbon_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DB_USER: postgres
+      DB_PASSWORD: lpironti
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: postgres
+      API_TOKEN: super-secret-temp-token
+    depends_on:
+      - postgres
+
 volumes:
   railcarbon_pgdata:
   railcarbon_loki_data:
