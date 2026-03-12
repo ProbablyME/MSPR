@@ -154,14 +154,6 @@ class DepartureResponse(BaseModel):
 
 # --- Rankings ---
 
-class RouteRankingResponse(BaseModel):
-    dep_city: str
-    arr_city: str
-    train_co2_kg: float
-    plane_co2_kg: float
-    savings_kg: float
-    savings_percent: float
-
 class LongestRouteResponse(BaseModel):
     dep_city: str
     arr_city: str
@@ -1093,62 +1085,6 @@ def get_common_cities(db: Session = Depends(get_db)):
 # ============================================================
 # 8. CLASSEMENTS & STATISTIQUES
 # ============================================================
-
-@router.get(
-    "/ranking/greener-routes",
-    response_model=List[RouteRankingResponse],
-    tags=["Classements & Stats"],
-    summary="Top N routes ou le train economise le plus de CO2",
-)
-def ranking_greener_routes(
-    limit: int = Query(10, ge=1, le=100),
-    db: Session = Depends(get_db),
-):
-    query = text("""
-        WITH train_data AS (
-            SELECT st_dep.city AS dep_city, st_arr.city AS arr_city, AVG(fe.co2_kg_passenger) AS train_co2
-            FROM mart.fact_emission fe
-            JOIN mart.dim_route_train rt ON fe.route_train_id = rt.route_train_id
-            JOIN mart.dim_station st_dep ON rt.dep_station_id = st_dep.station_id
-            JOIN mart.dim_station st_arr ON rt.arr_station_id = st_arr.station_id
-            WHERE fe.transport_mode = 'train'
-            GROUP BY st_dep.city, st_arr.city
-        ),
-        plane_data AS (
-            SELECT st_dep.city AS dep_city, st_arr.city AS arr_city, AVG(fe.co2_kg_passenger) AS plane_co2
-            FROM mart.fact_emission fe
-            JOIN mart.dim_route_avion ra ON fe.route_avion_id = ra.route_avion_id
-            JOIN mart.dim_station st_dep ON ra.dep_station_id = st_dep.station_id
-            JOIN mart.dim_station st_arr ON ra.arr_station_id = st_arr.station_id
-            WHERE fe.transport_mode = 'avion'
-            GROUP BY st_dep.city, st_arr.city
-        )
-        SELECT t.dep_city, t.arr_city,
-               ROUND(t.train_co2::numeric, 3) AS train_co2_kg,
-               ROUND(p.plane_co2::numeric, 3) AS plane_co2_kg,
-               ROUND((p.plane_co2 - t.train_co2)::numeric, 3) AS savings_kg,
-               ROUND(((p.plane_co2 - t.train_co2) / p.plane_co2 * 100)::numeric, 1) AS savings_percent
-        FROM train_data t
-        JOIN plane_data p ON t.dep_city = p.dep_city AND t.arr_city = p.arr_city
-        WHERE p.plane_co2 > t.train_co2
-        ORDER BY savings_kg DESC
-        LIMIT :limit
-    """)
-
-    result = db.execute(query, {"limit": limit}).fetchall()
-    if not result:
-        raise HTTPException(status_code=404, detail="Aucune route comparable trouvee.")
-
-    return [
-        RouteRankingResponse(
-            dep_city=r._mapping["dep_city"], arr_city=r._mapping["arr_city"],
-            train_co2_kg=float(r._mapping["train_co2_kg"]),
-            plane_co2_kg=float(r._mapping["plane_co2_kg"]),
-            savings_kg=float(r._mapping["savings_kg"]),
-            savings_percent=float(r._mapping["savings_percent"]),
-        )
-        for r in result
-    ]
 
 
 @router.get(
