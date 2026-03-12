@@ -13,6 +13,8 @@ services:
     volumes:
       # Initialisation automatique du schéma au premier démarrage
       - ./schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      # Données réelles pré-chargées (export pg_dump)
+      - ./seed_data.sql:/docker-entrypoint-initdb.d/02_seed_data.sql
       # Persistance des données entre redémarrages
       - railcarbon_pgdata:/var/lib/postgresql/data
 
@@ -51,6 +53,9 @@ services:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+      - GF_SECURITY_ALLOW_EMBEDDING=true
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning
       - ./grafana/dashboards:/var/lib/grafana/dashboards

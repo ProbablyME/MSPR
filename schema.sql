@@ -62,7 +62,7 @@
     dep_station_id    VARCHAR(50)   NOT NULL,
     arr_station_id    VARCHAR(50)   NOT NULL,
     distance_km       NUMERIC(10,3),              -- Distance Haversine (km)
-    dominant_typecode VARCHAR(20),                -- Code ICAO type le plus fréquent sur cette route
+    dominant_typecode VARCHAR(50),                -- Code ICAO type le plus fréquent sur cette route
     co2_total_kg      NUMERIC(12,3),              -- CO2 estimé = distance_km × co2_per_km EASA
     source_id         INTEGER REFERENCES mart.dim_source(source_id),
     FOREIGN KEY(dep_station_id) REFERENCES mart.dim_station(station_id),
