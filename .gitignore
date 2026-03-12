@@ -1,1 +1,23 @@
-downloads_gtfs
+# Données téléchargées (volumineuses)
+downloads_gtfs/
+opdi_cache/
+
+# Logs ETL
+*.log
+
+# Cache Python
+__pycache__/
+*.pyc
+*.pyo
+*.pkl
+
+# Environnement
+.env
+*.env
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/

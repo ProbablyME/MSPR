@@ -1,0 +1,87 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: railcarbon_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: lpironti
+      POSTGRES_DB: postgres
+    ports:
+      # 5432 est occupé par le PostgreSQL local → on expose sur 5433
+      - "5433:5432"
+    volumes:
+      # Initialisation automatique du schéma au premier démarrage
+      - ./schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      # Données réelles pré-chargées (export pg_dump)
+      - ./seed_data.sql:/docker-entrypoint-initdb.d/02_seed_data.sql
+      # Persistance des données entre redémarrages
+      - railcarbon_pgdata:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: railcarbon_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+
+  # ── Loki : stockage des logs Python ────────────────────────────────────────
+  loki:
+    image: grafana/loki:3.0.0
+    container_name: railcarbon_loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml
+      - railcarbon_loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+
+  # ── Grafana : dashboards logs + santé BDD ──────────────────────────────────
+  grafana:
+    image: grafana/grafana:11.0.0
+    container_name: railcarbon_grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - railcarbon_grafana_data:/var/lib/grafana
+    depends_on:
+      - loki
+      - postgres
+
+  # ── API FastAPI ─────────────────────────────────────────────────────────
+  api:
+    build: ./api
+    container_name: railcarbon_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DB_USER: postgres
+      DB_PASSWORD: lpironti
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: postgres
+      API_TOKEN: super-secret-temp-token
+    depends_on:
+      - postgres
+
+volumes:
+  railcarbon_pgdata:
+  railcarbon_loki_data:
+  railcarbon_grafana_data:

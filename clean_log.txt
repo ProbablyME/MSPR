@@ -1,0 +1,783 @@
+2026-03-05 19:08:59,669 - INFO - [LOGGING] Handler Loki activ� -> http://localhost:3100/loki/api/v1/push
+2026-03-05 19:08:59,686 - INFO - === Pipeline ETL RailCarbon � d�but (train + avion, PySpark) ===
+2026-03-05 19:08:59,810 - INFO - [RUN] ETL run #9 d�marr� � suivi dans mart.etl_run_log.
+2026-03-05 19:08:59,911 - INFO - [SOURCE] EASA CO2 Database              -> source_id=1
+2026-03-05 19:08:59,997 - INFO - [SOURCE] OPDI Eurocontrol               -> source_id=2
+2026-03-05 19:09:00,102 - INFO - [SOURCE] OurAirports                    -> source_id=3
+2026-03-05 19:09:00,193 - INFO - [SOURCE] Back on Track                  -> source_id=4
+2026-03-05 19:09:00,239 - INFO - [SOURCE] Sources statiques charg�es : ['EASA CO2 Database', 'OPDI Eurocontrol', 'OurAirports', 'Back on Track']
+2026-03-05 19:09:00,349 - INFO - [SPARK] JAVA_HOME force vers Java 17 : C:\Program Files\Eclipse Adoptium\jdk-17.0.18.8-hotspot
+2026-03-05 19:09:00,397 - INFO - [SPARK] JAR PostgreSQL en cache : c:\Users\filal\Desktop\MSPR\MSPR\jars\postgresql-42.7.1.jar
+2026-03-05 19:09:14,085 - INFO - [TRAIN][LOAD] Vidage des tables train...
+2026-03-05 19:09:14,205 - INFO - [TRAIN][LOAD] Seed dim_vehicle_train...
+2026-03-05 19:09:19,396 - INFO - [TRAIN][EXTRACT] 427 feeds europ�ens trouv�s.
+2026-03-05 19:09:19,723 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/mdb-659
+2026-03-05 19:09:19,769 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/mdb-898
+2026-03-05 19:09:19,815 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/mdb-1259
+2026-03-05 19:09:19,859 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/mdb-1886
+2026-03-05 19:09:19,907 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/mdb-1898
+2026-03-05 19:09:19,953 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/mdb-1899
+2026-03-05 19:09:19,997 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-8201
+2026-03-05 19:09:20,041 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-8487
+2026-03-05 19:09:20,086 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-8597
+2026-03-05 19:09:20,132 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-10230
+2026-03-05 19:09:20,176 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-11081
+2026-03-05 19:09:20,220 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-11082
+2026-03-05 19:09:20,266 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-11083
+2026-03-05 19:09:20,310 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-11084
+2026-03-05 19:09:20,355 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-11085
+2026-03-05 19:09:20,400 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-11086
+2026-03-05 19:09:20,444 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-11087
+2026-03-05 19:09:20,490 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-11492
+2026-03-05 19:09:20,534 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-11681
+2026-03-05 19:09:20,580 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-11725
+2026-03-05 19:09:20,625 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-12601
+2026-03-05 19:09:20,669 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-12608
+2026-03-05 19:09:20,714 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-12616
+2026-03-05 19:09:20,759 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-14652
+2026-03-05 19:09:20,804 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-14826
+2026-03-05 19:09:20,854 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-25381
+2026-03-05 19:09:20,902 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-34265
+2026-03-05 19:09:20,947 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-38881
+2026-03-05 19:09:20,991 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-38888
+2026-03-05 19:09:21,036 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-38889
+2026-03-05 19:09:21,080 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-39589
+2026-03-05 19:09:21,128 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-39591
+2026-03-05 19:09:21,174 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-39592
+2026-03-05 19:09:21,219 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-39593
+2026-03-05 19:09:21,263 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-39594
+2026-03-05 19:09:21,308 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-39595
+2026-03-05 19:09:21,353 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-39596
+2026-03-05 19:09:21,398 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-39597
+2026-03-05 19:09:21,442 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-39598
+2026-03-05 19:09:21,487 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-39599
+2026-03-05 19:09:21,532 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-39601
+2026-03-05 19:09:21,577 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-39602
+2026-03-05 19:09:21,622 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-39603
+2026-03-05 19:09:21,666 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-40287
+2026-03-05 19:09:21,710 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-43186
+2026-03-05 19:09:21,756 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-43286
+2026-03-05 19:09:21,805 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-51449
+2026-03-05 19:09:21,849 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-52917
+2026-03-05 19:09:21,894 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-52937
+2026-03-05 19:09:21,939 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-62323
+2026-03-05 19:09:21,983 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-64163
+2026-03-05 19:09:22,028 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-64280
+2026-03-05 19:09:22,073 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-64973
+2026-03-05 19:09:22,117 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-67595
+2026-03-05 19:09:22,162 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-67655
+2026-03-05 19:09:22,206 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-71223
+2026-03-05 19:09:22,252 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-74201
+2026-03-05 19:09:22,297 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-75062
+2026-03-05 19:09:22,345 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-78387
+2026-03-05 19:09:22,390 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-78904
+2026-03-05 19:09:22,434 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-78934
+2026-03-05 19:09:22,478 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79014
+2026-03-05 19:09:22,523 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79151
+2026-03-05 19:09:22,569 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79220
+2026-03-05 19:09:22,613 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79272
+2026-03-05 19:09:22,656 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79274
+2026-03-05 19:09:22,703 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79299
+2026-03-05 19:09:22,750 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79352
+2026-03-05 19:09:22,795 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79359
+2026-03-05 19:09:22,840 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79374
+2026-03-05 19:09:22,885 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79420
+2026-03-05 19:09:22,929 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79483
+2026-03-05 19:09:22,975 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79499
+2026-03-05 19:09:23,018 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79520
+2026-03-05 19:09:23,064 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79528
+2026-03-05 19:09:23,109 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79544
+2026-03-05 19:09:23,157 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79545
+2026-03-05 19:09:23,202 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79551
+2026-03-05 19:09:23,246 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79560
+2026-03-05 19:09:23,291 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79576
+2026-03-05 19:09:23,335 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79601
+2026-03-05 19:09:23,381 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79667
+2026-03-05 19:09:23,424 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79687
+2026-03-05 19:09:23,469 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79728
+2026-03-05 19:09:23,514 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79747
+2026-03-05 19:09:23,562 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79810
+2026-03-05 19:09:23,607 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79814
+2026-03-05 19:09:23,651 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79821
+2026-03-05 19:09:23,696 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79822
+2026-03-05 19:09:23,740 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79831
+2026-03-05 19:09:23,785 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79847
+2026-03-05 19:09:23,829 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79859
+2026-03-05 19:09:23,874 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79861
+2026-03-05 19:09:23,919 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79864
+2026-03-05 19:09:23,963 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79865
+2026-03-05 19:09:24,007 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79898
+2026-03-05 19:09:24,054 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-79992
+2026-03-05 19:09:24,101 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80036
+2026-03-05 19:09:24,147 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80092
+2026-03-05 19:09:24,194 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80100
+2026-03-05 19:09:24,239 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80147
+2026-03-05 19:09:24,282 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80221
+2026-03-05 19:09:24,328 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80223
+2026-03-05 19:09:24,373 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80245
+2026-03-05 19:09:24,417 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80254
+2026-03-05 19:09:24,462 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80401
+2026-03-05 19:09:24,510 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80403
+2026-03-05 19:09:24,555 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80410
+2026-03-05 19:09:24,603 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80413
+2026-03-05 19:09:24,648 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80415
+2026-03-05 19:09:24,692 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80417
+2026-03-05 19:09:24,737 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80421
+2026-03-05 19:09:24,781 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80423
+2026-03-05 19:09:24,826 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80425
+2026-03-05 19:09:24,870 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80427
+2026-03-05 19:09:24,915 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80429
+2026-03-05 19:09:24,959 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80431
+2026-03-05 19:09:25,004 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80439
+2026-03-05 19:09:25,049 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80441
+2026-03-05 19:09:25,092 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80443
+2026-03-05 19:09:25,137 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80445
+2026-03-05 19:09:25,181 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80447
+2026-03-05 19:09:25,226 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80449
+2026-03-05 19:09:25,271 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80451
+2026-03-05 19:09:25,316 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80453
+2026-03-05 19:09:25,359 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80457
+2026-03-05 19:09:25,404 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80459
+2026-03-05 19:09:25,448 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80461
+2026-03-05 19:09:25,493 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80463
+2026-03-05 19:09:25,538 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80465
+2026-03-05 19:09:25,582 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80469
+2026-03-05 19:09:25,626 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80471
+2026-03-05 19:09:25,671 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80475
+2026-03-05 19:09:25,715 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80477
+2026-03-05 19:09:25,759 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80479
+2026-03-05 19:09:25,804 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80492
+2026-03-05 19:09:25,849 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80587
+2026-03-05 19:09:25,893 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80590
+2026-03-05 19:09:25,937 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80594
+2026-03-05 19:09:25,982 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80606
+2026-03-05 19:09:26,026 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80611
+2026-03-05 19:09:26,071 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80613
+2026-03-05 19:09:26,115 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80655
+2026-03-05 19:09:26,160 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80671
+2026-03-05 19:09:26,204 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80676
+2026-03-05 19:09:26,249 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80694
+2026-03-05 19:09:26,293 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80707
+2026-03-05 19:09:26,337 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80721
+2026-03-05 19:09:26,382 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80725
+2026-03-05 19:09:26,426 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80736
+2026-03-05 19:09:26,471 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80742
+2026-03-05 19:09:26,517 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80772
+2026-03-05 19:09:26,564 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80787
+2026-03-05 19:09:26,608 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80921
+2026-03-05 19:09:26,652 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80931
+2026-03-05 19:09:26,697 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80934
+2026-03-05 19:09:26,741 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80960
+2026-03-05 19:09:26,785 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80961
+2026-03-05 19:09:26,830 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-80964
+2026-03-05 19:09:26,874 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81018
+2026-03-05 19:09:26,919 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81026
+2026-03-05 19:09:26,963 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81054
+2026-03-05 19:09:27,007 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81056
+2026-03-05 19:09:27,052 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81058
+2026-03-05 19:09:27,097 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81066
+2026-03-05 19:09:27,141 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81074
+2026-03-05 19:09:27,186 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81116
+2026-03-05 19:09:27,230 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81138
+2026-03-05 19:09:27,275 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81146
+2026-03-05 19:09:27,319 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81158
+2026-03-05 19:09:27,363 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81175
+2026-03-05 19:09:27,407 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81179
+2026-03-05 19:09:27,451 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81183
+2026-03-05 19:09:27,496 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81219
+2026-03-05 19:09:27,540 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81220
+2026-03-05 19:09:27,584 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81222
+2026-03-05 19:09:27,629 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81227
+2026-03-05 19:09:27,673 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81244
+2026-03-05 19:09:27,718 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81245
+2026-03-05 19:09:27,762 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81252
+2026-03-05 19:09:27,807 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81254
+2026-03-05 19:09:27,852 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81255
+2026-03-05 19:09:27,895 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81338
+2026-03-05 19:09:27,940 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81342
+2026-03-05 19:09:27,984 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81346
+2026-03-05 19:09:28,029 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81394
+2026-03-05 19:09:28,073 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81416
+2026-03-05 19:09:28,117 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81421
+2026-03-05 19:09:28,162 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81432
+2026-03-05 19:09:28,207 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81455
+2026-03-05 19:09:28,250 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81459
+2026-03-05 19:09:28,294 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81462
+2026-03-05 19:09:28,339 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81463
+2026-03-05 19:09:28,383 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81464
+2026-03-05 19:09:28,428 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81476
+2026-03-05 19:09:28,472 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81478
+2026-03-05 19:09:28,517 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81479
+2026-03-05 19:09:28,561 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81481
+2026-03-05 19:09:28,604 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81486
+2026-03-05 19:09:28,649 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81519
+2026-03-05 19:09:28,693 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81522
+2026-03-05 19:09:28,737 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81535
+2026-03-05 19:09:28,781 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81539
+2026-03-05 19:09:28,826 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81547
+2026-03-05 19:09:28,871 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81549
+2026-03-05 19:09:28,915 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81555
+2026-03-05 19:09:28,958 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81557
+2026-03-05 19:09:29,003 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81559
+2026-03-05 19:09:29,048 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81575
+2026-03-05 19:09:29,092 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81617
+2026-03-05 19:09:29,137 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81618
+2026-03-05 19:09:29,181 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81643
+2026-03-05 19:09:29,224 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81645
+2026-03-05 19:09:29,269 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81648
+2026-03-05 19:09:29,317 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81649
+2026-03-05 19:09:29,360 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81650
+2026-03-05 19:09:29,405 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81651
+2026-03-05 19:09:29,449 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81652
+2026-03-05 19:09:29,494 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81653
+2026-03-05 19:09:29,537 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81678
+2026-03-05 19:09:29,582 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81705
+2026-03-05 19:09:29,630 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81754
+2026-03-05 19:09:29,682 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81770
+2026-03-05 19:09:29,727 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81773
+2026-03-05 19:09:29,770 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81794
+2026-03-05 19:09:29,815 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81820
+2026-03-05 19:09:29,860 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81821
+2026-03-05 19:09:29,904 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81822
+2026-03-05 19:09:29,947 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81823
+2026-03-05 19:09:29,993 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81826
+2026-03-05 19:09:30,037 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81829
+2026-03-05 19:09:30,081 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81830
+2026-03-05 19:09:30,125 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81832
+2026-03-05 19:09:30,169 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81833
+2026-03-05 19:09:30,213 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81876
+2026-03-05 19:09:30,257 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81898
+2026-03-05 19:09:30,302 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81907
+2026-03-05 19:09:30,346 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81927
+2026-03-05 19:09:30,390 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81942
+2026-03-05 19:09:30,435 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81943
+2026-03-05 19:09:30,482 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81944
+2026-03-05 19:09:30,526 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81969
+2026-03-05 19:09:30,571 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81975
+2026-03-05 19:09:30,615 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81989
+2026-03-05 19:09:30,659 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82093
+2026-03-05 19:09:30,703 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82094
+2026-03-05 19:09:30,748 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82097
+2026-03-05 19:09:30,795 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82136
+2026-03-05 19:09:30,839 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82137
+2026-03-05 19:09:30,888 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82139
+2026-03-05 19:09:30,932 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82148
+2026-03-05 19:09:30,976 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82150
+2026-03-05 19:09:31,020 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82154
+2026-03-05 19:09:31,065 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82155
+2026-03-05 19:09:31,109 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82166
+2026-03-05 19:09:31,153 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82168
+2026-03-05 19:09:31,197 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82169
+2026-03-05 19:09:31,241 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82170
+2026-03-05 19:09:31,286 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82178
+2026-03-05 19:09:31,329 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82189
+2026-03-05 19:09:31,373 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82196
+2026-03-05 19:09:31,417 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82272
+2026-03-05 19:09:31,462 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82276
+2026-03-05 19:09:31,506 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82277
+2026-03-05 19:09:31,550 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82285
+2026-03-05 19:09:31,595 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82289
+2026-03-05 19:09:31,638 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82291
+2026-03-05 19:09:31,683 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82294
+2026-03-05 19:09:31,727 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82305
+2026-03-05 19:09:31,771 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82309
+2026-03-05 19:09:31,815 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82310
+2026-03-05 19:09:31,859 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82311
+2026-03-05 19:09:31,903 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82312
+2026-03-05 19:09:31,948 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82313
+2026-03-05 19:09:31,992 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82316
+2026-03-05 19:09:32,035 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82319
+2026-03-05 19:09:32,080 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82324
+2026-03-05 19:09:32,125 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82326
+2026-03-05 19:09:32,169 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82328
+2026-03-05 19:09:32,212 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82330
+2026-03-05 19:09:32,258 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82332
+2026-03-05 19:09:32,304 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82334
+2026-03-05 19:09:32,349 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82336
+2026-03-05 19:09:32,393 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82338
+2026-03-05 19:09:32,437 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82340
+2026-03-05 19:09:32,481 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82342
+2026-03-05 19:09:32,526 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82344
+2026-03-05 19:09:32,570 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82346
+2026-03-05 19:09:32,614 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82348
+2026-03-05 19:09:32,658 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82352
+2026-03-05 19:09:32,706 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82355
+2026-03-05 19:09:32,750 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82357
+2026-03-05 19:09:32,795 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82359
+2026-03-05 19:09:32,839 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82361
+2026-03-05 19:09:32,883 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82363
+2026-03-05 19:09:32,927 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82365
+2026-03-05 19:09:32,971 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82367
+2026-03-05 19:09:33,015 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82373
+2026-03-05 19:09:33,059 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82375
+2026-03-05 19:09:33,103 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82379
+2026-03-05 19:09:33,147 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82382
+2026-03-05 19:09:33,192 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82386
+2026-03-05 19:09:33,235 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82388
+2026-03-05 19:09:33,282 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82411
+2026-03-05 19:09:33,328 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82413
+2026-03-05 19:09:33,372 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82415
+2026-03-05 19:09:33,416 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82442
+2026-03-05 19:09:33,460 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82547
+2026-03-05 19:09:33,505 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82553
+2026-03-05 19:09:33,549 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82554
+2026-03-05 19:09:33,592 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82555
+2026-03-05 19:09:33,637 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82583
+2026-03-05 19:09:33,685 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82584
+2026-03-05 19:09:33,728 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82604
+2026-03-05 19:09:33,773 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82641
+2026-03-05 19:09:33,817 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82660
+2026-03-05 19:09:33,861 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82661
+2026-03-05 19:09:33,905 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82662
+2026-03-05 19:09:33,949 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82663
+2026-03-05 19:09:33,994 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82664
+2026-03-05 19:09:34,038 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82683
+2026-03-05 19:09:34,082 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82693
+2026-03-05 19:09:34,126 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82704
+2026-03-05 19:09:34,170 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82711
+2026-03-05 19:09:34,214 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82721
+2026-03-05 19:09:34,258 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82727
+2026-03-05 19:09:34,303 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82728
+2026-03-05 19:09:34,347 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82729
+2026-03-05 19:09:34,394 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82746
+2026-03-05 19:09:34,440 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82780
+2026-03-05 19:09:34,484 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82832
+2026-03-05 19:09:34,527 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82872
+2026-03-05 19:09:34,571 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82874
+2026-03-05 19:09:34,616 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82879
+2026-03-05 19:09:34,659 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82880
+2026-03-05 19:09:34,704 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82900
+2026-03-05 19:09:34,748 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82904
+2026-03-05 19:09:34,792 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82907
+2026-03-05 19:09:34,836 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82911
+2026-03-05 19:09:34,881 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82994
+2026-03-05 19:09:34,928 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82995
+2026-03-05 19:09:34,973 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82997
+2026-03-05 19:09:35,017 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-82999
+2026-03-05 19:09:35,060 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83019
+2026-03-05 19:09:35,105 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83020
+2026-03-05 19:09:35,149 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83024
+2026-03-05 19:09:35,193 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83042
+2026-03-05 19:09:35,237 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83112
+2026-03-05 19:09:35,281 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83113
+2026-03-05 19:09:35,325 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83114
+2026-03-05 19:09:35,370 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83126
+2026-03-05 19:09:35,413 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83134
+2026-03-05 19:09:35,458 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83178
+2026-03-05 19:09:35,502 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83200
+2026-03-05 19:09:35,546 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83202
+2026-03-05 19:09:35,591 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83210
+2026-03-05 19:09:35,638 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83251
+2026-03-05 19:09:35,681 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83258
+2026-03-05 19:09:35,725 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83276
+2026-03-05 19:09:35,770 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83277
+2026-03-05 19:09:35,815 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83280
+2026-03-05 19:09:35,858 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83281
+2026-03-05 19:09:35,903 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83282
+2026-03-05 19:09:35,948 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83300
+2026-03-05 19:09:35,991 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83304
+2026-03-05 19:09:36,035 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83308
+2026-03-05 19:09:36,079 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83310
+2026-03-05 19:09:36,127 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83315
+2026-03-05 19:09:36,171 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83326
+2026-03-05 19:09:36,220 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83364
+2026-03-05 19:09:36,267 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83368
+2026-03-05 19:09:36,310 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83369
+2026-03-05 19:09:36,357 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83372
+2026-03-05 19:09:36,403 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83383
+2026-03-05 19:09:36,449 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83389
+2026-03-05 19:09:36,492 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83394
+2026-03-05 19:09:36,536 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83396
+2026-03-05 19:09:36,583 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83408
+2026-03-05 19:09:36,628 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83416
+2026-03-05 19:09:36,672 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83418
+2026-03-05 19:09:36,719 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83427
+2026-03-05 19:09:36,766 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83429
+2026-03-05 19:09:36,815 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83445
+2026-03-05 19:09:36,862 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83448
+2026-03-05 19:09:36,906 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83459
+2026-03-05 19:09:36,949 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83462
+2026-03-05 19:09:36,993 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83465
+2026-03-05 19:09:37,036 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83467
+2026-03-05 19:09:37,080 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83507
+2026-03-05 19:09:37,129 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83509
+2026-03-05 19:09:37,173 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83511
+2026-03-05 19:09:37,221 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83512
+2026-03-05 19:09:37,267 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83513
+2026-03-05 19:09:37,315 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83519
+2026-03-05 19:09:37,358 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83526
+2026-03-05 19:09:37,404 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83528
+2026-03-05 19:09:37,450 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83529
+2026-03-05 19:09:37,493 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83531
+2026-03-05 19:09:37,537 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83533
+2026-03-05 19:09:37,581 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83578
+2026-03-05 19:09:37,625 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83579
+2026-03-05 19:09:37,669 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83582
+2026-03-05 19:09:37,717 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83620
+2026-03-05 19:09:37,760 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83627
+2026-03-05 19:09:37,803 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83629
+2026-03-05 19:09:37,847 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83631
+2026-03-05 19:09:37,891 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83632
+2026-03-05 19:09:37,937 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83633
+2026-03-05 19:09:37,982 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83634
+2026-03-05 19:09:38,026 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83635
+2026-03-05 19:09:38,070 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83642
+2026-03-05 19:09:38,117 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83643
+2026-03-05 19:09:38,161 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83647
+2026-03-05 19:09:38,205 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83675
+2026-03-05 19:09:38,249 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83710
+2026-03-05 19:09:38,297 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83725
+2026-03-05 19:09:38,340 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83727
+2026-03-05 19:09:38,384 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83728
+2026-03-05 19:09:38,427 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83729
+2026-03-05 19:09:38,471 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83734
+2026-03-05 19:09:38,516 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83735
+2026-03-05 19:09:38,559 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83736
+2026-03-05 19:09:38,606 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83744
+2026-03-05 19:09:38,650 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83746
+2026-03-05 19:09:38,694 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83747
+2026-03-05 19:09:38,738 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83751
+2026-03-05 19:09:38,781 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-83773
+2026-03-05 19:09:38,826 - INFO - [TRAIN][EXTRACT] 427/427 feeds t�l�charg�s.
+2026-03-05 19:09:38,882 - INFO - [TRAIN][EXTRACT] 427 feeds GTFS � traiter.
+2026-03-05 19:09:43,601 - INFO - [TRAIN][EXTRACT]   mdb-1259 : 2811 stations
+2026-03-05 19:09:50,655 - INFO - [TRAIN][EXTRACT]   tdg-11681 : 17 stations
+2026-03-05 19:10:04,768 - INFO - [TRAIN][EXTRACT]   tdg-67595 : 471 stations
+2026-03-05 19:10:38,217 - INFO - [TRAIN][EXTRACT]   tdg-80921 : 471 stations
+2026-03-05 19:10:56,104 - INFO - [TRAIN][EXTRACT]   tdg-81559 : 400 stations
+2026-03-05 19:10:58,741 - INFO - [TRAIN][EXTRACT]   tdg-81653 : 18 stations
+2026-03-05 19:11:04,701 - INFO - [TRAIN][EXTRACT]   tdg-81942 : 200 stations
+2026-03-05 19:11:08,834 - INFO - [TRAIN][EXTRACT]   tdg-81969 : 304 stations
+2026-03-05 19:11:14,947 - INFO - [TRAIN][EXTRACT]   tdg-82285 : 46 stations
+2026-03-05 19:11:23,057 - INFO - [TRAIN][EXTRACT]   tdg-82386 : 16 stations
+2026-03-05 19:11:43,317 - INFO - [TRAIN][EXTRACT]   tdg-83448 : 9 stations
+2026-03-05 19:11:48,556 - INFO - [TRAIN][EXTRACT]   tdg-83582 : 2827 stations
+2026-03-05 19:11:49,350 - INFO - [TRAIN][EXTRACT]   tdg-83620 : 369 stations
+2026-03-05 19:11:52,728 - INFO - [TRAIN][EXTRACT]   tdg-83634 : 281 stations
+2026-03-05 19:11:54,520 - INFO - [TRAIN][EXTRACT]   tdg-83647 : 240 stations
+2026-03-05 19:11:56,346 - INFO - [TRAIN][EXTRACT]   tdg-83675 : 2819 stations
+2026-03-05 19:12:01,488 - INFO - [TRAIN][EXTRACT] Back on Track : 886 stations.
+2026-03-05 19:12:01,618 - INFO - [TRAIN][TRANSFORM] D�dup par nom : 7577 doublons fusionn�s.
+2026-03-05 19:12:01,688 - INFO - [TRAIN][TRANSFORM] D�dup g�o : 722 doublons fusionn�s.
+2026-03-05 19:12:01,773 - INFO - [TRAIN][TRANSFORM] Registre : 3886 stations canoniques, 1651 remappings.
+2026-03-05 19:12:18,456 - ERROR - [SQL] Erreur psycopg2 (fichier) : column "source_id" of relation "dim_station" does not exist
+LINE 1: ...try_code", "is_airport", "latitude", "longitude", "source_id...
+                                                             ^
+
+2026-03-05 19:12:18,505 - INFO - [TRAIN][LOAD] Traitement feed FR/mdb-1259...
+2026-03-05 19:12:18,681 - INFO - [TRAIN][LOAD]   6292 stop_ids remapp�s.
+2026-03-05 19:12:20,321 - INFO - [TRAIN][TRANSFORM] FR/mdb-1259 : tron�ons calcul�s.
+2026-03-05 19:12:57,948 - ERROR - [SQL] Erreur psycopg2 (fichier) : column "source_id" of relation "dim_route_train" does not exist
+LINE 1: ...dep_station_id", "arr_station_id", "distance_km", "source_id...
+                                                             ^
+
+2026-03-05 19:13:16,926 - INFO - [TRAIN][LOAD] Insertion de 9079 faits dans fact_emission...
+2026-03-05 19:13:20,957 - INFO - [TRAIN][LOAD] fact_emission � 9079 faits trait�s.
+2026-03-05 19:13:21,047 - INFO - [TRAIN][LOAD] Traitement feed FR/tdg-11681...
+2026-03-05 19:13:21,249 - INFO - [TRAIN][LOAD]   0 stop_ids remapp�s.
+2026-03-05 19:13:22,076 - INFO - [TRAIN][TRANSFORM] FR/tdg-11681 : tron�ons calcul�s.
+2026-03-05 19:13:24,287 - ERROR - [SQL] Erreur psycopg2 (fichier) : column "source_id" of relation "dim_route_train" does not exist
+LINE 1: ...dep_station_id", "arr_station_id", "distance_km", "source_id...
+                                                             ^
+
+2026-03-05 19:13:25,420 - INFO - [TRAIN][LOAD] Insertion de 36 faits dans fact_emission...
+2026-03-05 19:13:25,506 - INFO - [TRAIN][LOAD] fact_emission � 36 faits trait�s.
+2026-03-05 19:13:25,579 - INFO - [TRAIN][LOAD] Traitement feed FR/tdg-67595...
+2026-03-05 19:13:25,795 - INFO - [TRAIN][LOAD]   6032 stop_ids remapp�s.
+2026-03-05 19:13:26,769 - INFO - [TRAIN][TRANSFORM] FR/tdg-67595 : tron�ons calcul�s.
+2026-03-05 19:14:04,054 - ERROR - [SQL] Erreur psycopg2 (fichier) : column "source_id" of relation "dim_route_train" does not exist
+LINE 1: ...dep_station_id", "arr_station_id", "distance_km", "source_id...
+                                                             ^
+
+2026-03-05 19:14:23,102 - INFO - [TRAIN][LOAD] Insertion de 1250 faits dans fact_emission...
+2026-03-05 19:14:23,741 - INFO - [TRAIN][LOAD] fact_emission � 1250 faits trait�s.
+2026-03-05 19:14:23,819 - INFO - [TRAIN][LOAD] Traitement feed FR/tdg-80921...
+2026-03-05 19:14:24,255 - INFO - [TRAIN][LOAD]   38666 stop_ids remapp�s.
+2026-03-05 19:14:28,269 - INFO - [TRAIN][TRANSFORM] FR/tdg-80921 : tron�ons calcul�s.
+2026-03-05 19:15:12,958 - ERROR - [SQL] Erreur psycopg2 (fichier) : column "source_id" of relation "dim_route_train" does not exist
+LINE 1: ...dep_station_id", "arr_station_id", "distance_km", "source_id...
+                                                             ^
+
+2026-03-05 19:15:38,678 - INFO - [TRAIN][LOAD] Insertion de 1250 faits dans fact_emission...
+2026-03-05 19:15:39,435 - INFO - [TRAIN][LOAD] fact_emission � 1250 faits trait�s.
+2026-03-05 19:15:39,519 - INFO - [TRAIN][LOAD] Traitement feed FR/tdg-81559...
+2026-03-05 19:15:39,761 - INFO - [TRAIN][LOAD]   10 stop_ids remapp�s.
+2026-03-05 19:15:41,447 - INFO - [TRAIN][TRANSFORM] FR/tdg-81559 : tron�ons calcul�s.
+2026-03-05 19:16:18,904 - ERROR - [SQL] Erreur psycopg2 (fichier) : column "source_id" of relation "dim_route_train" does not exist
+LINE 1: ...dep_station_id", "arr_station_id", "distance_km", "source_id...
+                                                             ^
+
+2026-03-05 19:16:37,719 - INFO - [TRAIN][LOAD] Insertion de 1201 faits dans fact_emission...
+2026-03-05 19:16:38,362 - INFO - [TRAIN][LOAD] fact_emission � 1201 faits trait�s.
+2026-03-05 19:16:38,441 - INFO - [TRAIN][LOAD] Traitement feed FR/tdg-81653...
+2026-03-05 19:16:38,598 - INFO - [TRAIN][LOAD]   9 stop_ids remapp�s.
+2026-03-05 19:16:39,263 - INFO - [TRAIN][TRANSFORM] FR/tdg-81653 : tron�ons calcul�s.
+2026-03-05 19:16:54,945 - ERROR - [TRAIN][LOAD] Erreur feed FR/tdg-81653 : An error occurred while calling o24482.collectToPython.
+: org.apache.spark.SparkException: Multiple failures in stage materialization.
+at org.apache.spark.sql.errors.QueryExecutionErrors$.multiFailuresInStageMaterializationError(QueryExecutionErrors.scala:1939)
+at org.apache.spark.sql.execution.adaptive.AdaptiveSparkPlanExec.cleanUpAndThrowException(AdaptiveSparkPlanExec.scala:900)
+at org.apache.spark.sql.execution.adaptive.AdaptiveSparkPlanExec.$anonfun$withFinalPlanUpdate$1(AdaptiveSparkPlanExec.scala:347)
+at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.scala:18)
+at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:804)
+at org.apache.spark.sql.execution.adaptive.AdaptiveSparkPlanExec.withFinalPlanUpdate(AdaptiveSparkPlanExec.scala:279)
+at org.apache.spark.sql.execution.adaptive.AdaptiveSparkPlanExec.executeCollect(AdaptiveSparkPlanExec.scala:402)
+at org.apache.spark.sql.classic.Dataset.$anonfun$collectToPython$1(Dataset.scala:2057)
+at org.apache.spark.sql.classic.Dataset.$anonfun$withAction$2(Dataset.scala:2234)
+at org.apache.spark.sql.execution.QueryExecution$.withInternalError(QueryExecution.scala:654)
+at org.apache.spark.sql.classic.Dataset.$anonfun$withAction$1(Dataset.scala:2232)
+at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId0$8(SQLExecution.scala:163)
+at org.apache.spark.sql.execution.SQLExecution$.withSessionTagsApplied(SQLExecution.scala:272)
+at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId0$7(SQLExecution.scala:125)
+at org.apache.spark.JobArtifactSet$.withActiveJobArtifactState(JobArtifactSet.scala:94)
+at org.apache.spark.sql.artifact.ArtifactManager.$anonfun$withResources$1(ArtifactManager.scala:112)
+at org.apache.spark.sql.artifact.ArtifactManager.withClassLoaderIfNeeded(ArtifactManager.scala:106)
+at org.apache.spark.sql.artifact.ArtifactManager.withResources(ArtifactManager.scala:111)
+at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId0$6(SQLExecution.scala:125)
+at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:295)
+at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId0$1(SQLExecution.scala:124)
+at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:804)
+at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId0(SQLExecution.scala:78)
+at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:237)
+at org.apache.spark.sql.classic.Dataset.withAction(Dataset.scala:2232)
+at org.apache.spark.sql.classic.Dataset.collectToPython(Dataset.scala:2054)
+at jdk.internal.reflect.GeneratedMethodAccessor88.invoke(Unknown Source)
+at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:374)
+at py4j.Gateway.invoke(Gateway.java:282)
+at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+at py4j.commands.CallCommand.execute(CallCommand.java:79)
+at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:184)
+at py4j.ClientServerConnection.run(ClientServerConnection.java:108)
+at java.base/java.lang.Thread.run(Thread.java:840)
+Suppressed: org.apache.spark.SparkNumberFormatException: [CAST_INVALID_INPUT] The value 'StopArea:OCE87765008' of the type "STRING" cannot be cast to "BIGINT" because it is malformed. Correct the value as per the syntax, or change its target type. Use `try_cast` to tolerate malformed input and return NULL instead. SQLSTATE: 22018
+== DataFrame ==
+"coalesce" was called from
+java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+
+at org.apache.spark.sql.errors.QueryExecutionErrors$.invalidInputInCastToNumberError(QueryExecutionErrors.scala:145)
+at org.apache.spark.sql.catalyst.util.UTF8StringUtils$.withException(UTF8StringUtils.scala:51)
+at org.apache.spark.sql.catalyst.util.UTF8StringUtils$.toLongExact(UTF8StringUtils.scala:31)
+at org.apache.spark.sql.catalyst.util.UTF8StringUtils.toLongExact(UTF8StringUtils.scala)
+at org.apache.spark.sql.catalyst.expressions.GeneratedClass$GeneratedIteratorForCodegenStage9.hashAgg_doAggregateWithKeys_0$(Unknown Source)
+at org.apache.spark.sql.catalyst.expressions.GeneratedClass$GeneratedIteratorForCodegenStage9.processNext(Unknown Source)
+at org.apache.spark.sql.execution.BufferedRowIterator.hasNext(BufferedRowIterator.java:43)
+at org.apache.spark.sql.execution.WholeStageCodegenEvaluatorFactory$WholeStageCodegenPartitionEvaluator$$anon$1.hasNext(WholeStageCodegenEvaluatorFactory.scala:50)
+at scala.collection.Iterator$$anon$9.hasNext(Iterator.scala:583)
+at org.apache.spark.shuffle.sort.BypassMergeSortShuffleWriter.write(BypassMergeSortShuffleWriter.java:143)
+at org.apache.spark.shuffle.ShuffleWriteProcessor.write(ShuffleWriteProcessor.scala:57)
+at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:111)
+at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:54)
+at org.apache.spark.TaskContext.runTaskWithListeners(TaskContext.scala:171)
+at org.apache.spark.scheduler.Task.run(Task.scala:147)
+at org.apache.spark.executor.Executor$TaskRunner.$anonfun$run$5(Executor.scala:647)
+at org.apache.spark.util.SparkErrorUtils.tryWithSafeFinally(SparkErrorUtils.scala:80)
+at org.apache.spark.util.SparkErrorUtils.tryWithSafeFinally$(SparkErrorUtils.scala:77)
+at org.apache.spark.util.Utils$.tryWithSafeFinally(Utils.scala:99)
+at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:650)
+at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+... 1 more
+Caused by: [CIRCULAR REFERENCE: org.apache.spark.SparkNumberFormatException: [CAST_INVALID_INPUT] The value 'StopArea:OCE87765008' of the type "STRING" cannot be cast to "BIGINT" because it is malformed. Correct the value as per the syntax, or change its target type. Use `try_cast` to tolerate malformed input and return NULL instead. SQLSTATE: 22018
+== DataFrame ==
+"coalesce" was called from
+java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+]
+
+2026-03-05 19:16:55,029 - INFO - [TRAIN][LOAD] Traitement feed FR/tdg-81942...
+2026-03-05 19:16:55,236 - INFO - [TRAIN][LOAD]   199 stop_ids remapp�s.
+2026-03-05 19:16:56,574 - INFO - [TRAIN][TRANSFORM] FR/tdg-81942 : tron�ons calcul�s.
+2026-03-05 19:17:34,065 - ERROR - [SQL] Erreur psycopg2 (fichier) : column "source_id" of relation "dim_route_train" does not exist
+LINE 1: ...dep_station_id", "arr_station_id", "distance_km", "source_id...
+                                                             ^
+
+2026-03-05 19:17:54,135 - INFO - [TRAIN][LOAD] Insertion de 404 faits dans fact_emission...
+2026-03-05 19:17:54,418 - INFO - [TRAIN][LOAD] fact_emission � 404 faits trait�s.
+2026-03-05 19:17:54,499 - INFO - [TRAIN][LOAD] Traitement feed FR/tdg-81969...
+2026-03-05 19:17:54,767 - INFO - [TRAIN][LOAD]   11741 stop_ids remapp�s.
+2026-03-05 19:17:57,782 - INFO - [TRAIN][TRANSFORM] FR/tdg-81969 : tron�ons calcul�s.
+2026-03-05 19:18:43,317 - ERROR - [SQL] Erreur psycopg2 (fichier) : column "source_id" of relation "dim_route_train" does not exist
+LINE 1: ...dep_station_id", "arr_station_id", "distance_km", "source_id...
+                                                             ^
+
+2026-03-05 19:19:05,235 - INFO - [TRAIN][LOAD] Insertion de 874 faits dans fact_emission...
+2026-03-05 19:19:05,785 - INFO - [TRAIN][LOAD] fact_emission � 874 faits trait�s.
+2026-03-05 19:19:05,868 - INFO - [TRAIN][LOAD] Traitement feed FR/tdg-82285...
+2026-03-05 19:19:06,012 - INFO - [TRAIN][LOAD]   0 stop_ids remapp�s.
+2026-03-05 19:19:06,650 - INFO - [TRAIN][TRANSFORM] FR/tdg-82285 : tron�ons calcul�s.
+2026-03-05 19:19:07,652 - ERROR - [SQL] Erreur psycopg2 (fichier) : column "source_id" of relation "dim_route_train" does not exist
+LINE 1: ...dep_station_id", "arr_station_id", "distance_km", "source_id...
+                                                             ^
+
+2026-03-05 19:19:08,175 - INFO - [TRAIN][LOAD] Insertion de 90 faits dans fact_emission...
+2026-03-05 19:19:08,295 - INFO - [TRAIN][LOAD] fact_emission � 90 faits trait�s.
+2026-03-05 19:19:08,371 - INFO - [TRAIN][LOAD] Traitement feed FR/tdg-82386...
+2026-03-05 19:19:08,552 - INFO - [TRAIN][LOAD]   1 stop_ids remapp�s.
+2026-03-05 19:19:09,183 - INFO - [TRAIN][TRANSFORM] FR/tdg-82386 : tron�ons calcul�s.
+2026-03-05 19:19:25,964 - ERROR - [TRAIN][LOAD] Erreur feed FR/tdg-82386 : [CAST_INVALID_INPUT] The value 'AST-TER-StopPoint:OCECar TER-87763029' of the type "STRING" cannot be cast to "BIGINT" because it is malformed. Correct the value as per the syntax, or change its target type. Use `try_cast` to tolerate malformed input and return NULL instead. SQLSTATE: 22018
+== DataFrame ==
+"coalesce" was called from
+java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+
+2026-03-05 19:19:26,048 - INFO - [TRAIN][LOAD] Traitement feed FR/tdg-83448...
+2026-03-05 19:19:26,221 - INFO - [TRAIN][LOAD]   5 stop_ids remapp�s.
+2026-03-05 19:19:27,000 - INFO - [TRAIN][TRANSFORM] FR/tdg-83448 : tron�ons calcul�s.
+2026-03-05 19:19:42,273 - ERROR - [TRAIN][LOAD] Erreur feed FR/tdg-83448 : An error occurred while calling o27170.collectToPython.
+: org.apache.spark.SparkException: Multiple failures in stage materialization.
+at org.apache.spark.sql.errors.QueryExecutionErrors$.multiFailuresInStageMaterializationError(QueryExecutionErrors.scala:1939)
+at org.apache.spark.sql.execution.adaptive.AdaptiveSparkPlanExec.cleanUpAndThrowException(AdaptiveSparkPlanExec.scala:900)
+at org.apache.spark.sql.execution.adaptive.AdaptiveSparkPlanExec.$anonfun$withFinalPlanUpdate$1(AdaptiveSparkPlanExec.scala:347)
+at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.scala:18)
+at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:804)
+at org.apache.spark.sql.execution.adaptive.AdaptiveSparkPlanExec.withFinalPlanUpdate(AdaptiveSparkPlanExec.scala:279)
+at org.apache.spark.sql.execution.adaptive.AdaptiveSparkPlanExec.executeCollect(AdaptiveSparkPlanExec.scala:402)
+at org.apache.spark.sql.classic.Dataset.$anonfun$collectToPython$1(Dataset.scala:2057)
+at org.apache.spark.sql.classic.Dataset.$anonfun$withAction$2(Dataset.scala:2234)
+at org.apache.spark.sql.execution.QueryExecution$.withInternalError(QueryExecution.scala:654)
+at org.apache.spark.sql.classic.Dataset.$anonfun$withAction$1(Dataset.scala:2232)
+at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId0$8(SQLExecution.scala:163)
+at org.apache.spark.sql.execution.SQLExecution$.withSessionTagsApplied(SQLExecution.scala:272)
+at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId0$7(SQLExecution.scala:125)
+at org.apache.spark.JobArtifactSet$.withActiveJobArtifactState(JobArtifactSet.scala:94)
+at org.apache.spark.sql.artifact.ArtifactManager.$anonfun$withResources$1(ArtifactManager.scala:112)
+at org.apache.spark.sql.artifact.ArtifactManager.withClassLoaderIfNeeded(ArtifactManager.scala:106)
+at org.apache.spark.sql.artifact.ArtifactManager.withResources(ArtifactManager.scala:111)
+at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId0$6(SQLExecution.scala:125)
+at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:295)
+at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId0$1(SQLExecution.scala:124)
+at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:804)
+at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId0(SQLExecution.scala:78)
+at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:237)
+at org.apache.spark.sql.classic.Dataset.withAction(Dataset.scala:2232)
+at org.apache.spark.sql.classic.Dataset.collectToPython(Dataset.scala:2054)
+at jdk.internal.reflect.GeneratedMethodAccessor88.invoke(Unknown Source)
+at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:374)
+at py4j.Gateway.invoke(Gateway.java:282)
+at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+at py4j.commands.CallCommand.execute(CallCommand.java:79)
+at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:184)
+at py4j.ClientServerConnection.run(ClientServerConnection.java:108)
+at java.base/java.lang.Thread.run(Thread.java:840)
+Suppressed: org.apache.spark.SparkNumberFormatException: [CAST_INVALID_INPUT] The value 'ST:9520' of the type "STRING" cannot be cast to "BIGINT" because it is malformed. Correct the value as per the syntax, or change its target type. Use `try_cast` to tolerate malformed input and return NULL instead. SQLSTATE: 22018
+== DataFrame ==
+"coalesce" was called from
+jdk.internal.reflect.GeneratedMethodAccessor165.invoke(Unknown Source)
+
+at org.apache.spark.sql.errors.QueryExecutionErrors$.invalidInputInCastToNumberError(QueryExecutionErrors.scala:145)
+at org.apache.spark.sql.catalyst.util.UTF8StringUtils$.withException(UTF8StringUtils.scala:51)
+at org.apache.spark.sql.catalyst.util.UTF8StringUtils$.toLongExact(UTF8StringUtils.scala:31)
+at org.apache.spark.sql.catalyst.util.UTF8StringUtils.toLongExact(UTF8StringUtils.scala)
+at org.apache.spark.sql.catalyst.expressions.GeneratedClass$GeneratedIteratorForCodegenStage9.hashAgg_doAggregateWithKeys_0$(Unknown Source)
+at org.apache.spark.sql.catalyst.expressions.GeneratedClass$GeneratedIteratorForCodegenStage9.processNext(Unknown Source)
+at org.apache.spark.sql.execution.BufferedRowIterator.hasNext(BufferedRowIterator.java:43)
+at org.apache.spark.sql.execution.WholeStageCodegenEvaluatorFactory$WholeStageCodegenPartitionEvaluator$$anon$1.hasNext(WholeStageCodegenEvaluatorFactory.scala:50)
+at scala.collection.Iterator$$anon$9.hasNext(Iterator.scala:583)
+at org.apache.spark.shuffle.sort.BypassMergeSortShuffleWriter.write(BypassMergeSortShuffleWriter.java:143)
+at org.apache.spark.shuffle.ShuffleWriteProcessor.write(ShuffleWriteProcessor.scala:57)
+at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:111)
+at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:54)
+at org.apache.spark.TaskContext.runTaskWithListeners(TaskContext.scala:171)
+at org.apache.spark.scheduler.Task.run(Task.scala:147)
+at org.apache.spark.executor.Executor$TaskRunner.$anonfun$run$5(Executor.scala:647)
+at org.apache.spark.util.SparkErrorUtils.tryWithSafeFinally(SparkErrorUtils.scala:80)
+at org.apache.spark.util.SparkErrorUtils.tryWithSafeFinally$(SparkErrorUtils.scala:77)
+at org.apache.spark.util.Utils$.tryWithSafeFinally(Utils.scala:99)
+at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:650)
+at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+... 1 more
+Caused by: [CIRCULAR REFERENCE: org.apache.spark.SparkNumberFormatException: [CAST_INVALID_INPUT] The value 'ST:9520' of the type "STRING" cannot be cast to "BIGINT" because it is malformed. Correct the value as per the syntax, or change its target type. Use `try_cast` to tolerate malformed input and return NULL instead. SQLSTATE: 22018
+== DataFrame ==
+"coalesce" was called from
+jdk.internal.reflect.GeneratedMethodAccessor165.invoke(Unknown Source)
+]
+
+2026-03-05 19:19:42,356 - INFO - [TRAIN][LOAD] Traitement feed FR/tdg-83582...
+2026-03-05 19:19:42,539 - INFO - [TRAIN][LOAD]   6422 stop_ids remapp�s.
+2026-03-05 19:19:44,068 - INFO - [TRAIN][TRANSFORM] FR/tdg-83582 : tron�ons calcul�s.
+2026-03-05 19:20:27,374 - ERROR - [SQL] Erreur psycopg2 (fichier) : column "source_id" of relation "dim_route_train" does not exist
+LINE 1: ...dep_station_id", "arr_station_id", "distance_km", "source_id...
+                                                             ^
+
+2026-03-05 19:20:54,574 - INFO - [TRAIN][LOAD] Insertion de 9324 faits dans fact_emission...
+2026-03-05 19:21:02,405 - INFO - [TRAIN][LOAD] fact_emission � 9324 faits trait�s.
+2026-03-05 19:21:02,498 - INFO - [TRAIN][LOAD] Traitement feed FR/tdg-83620...
+2026-03-05 19:21:02,721 - INFO - [TRAIN][LOAD]   602 stop_ids remapp�s.
+2026-03-05 19:21:03,873 - INFO - [TRAIN][TRANSFORM] FR/tdg-83620 : tron�ons calcul�s.
+2026-03-05 19:21:53,603 - ERROR - [SQL] Erreur psycopg2 (fichier) : column "source_id" of relation "dim_route_train" does not exist
+LINE 1: ...dep_station_id", "arr_station_id", "distance_km", "source_id...
+                                                             ^
+
+2026-03-05 19:22:18,779 - INFO - [TRAIN][LOAD] Insertion de 1147 faits dans fact_emission...
+2026-03-05 19:22:19,705 - INFO - [TRAIN][LOAD] fact_emission � 1147 faits trait�s.
+2026-03-05 19:22:19,793 - INFO - [TRAIN][LOAD] Traitement feed FR/tdg-83634...
+2026-03-05 19:22:20,279 - INFO - [TRAIN][LOAD]   25270 stop_ids remapp�s.
+2026-03-05 19:22:23,947 - INFO - [TRAIN][TRANSFORM] FR/tdg-83634 : tron�ons calcul�s.
+2026-03-05 19:23:30,251 - ERROR - [SQL] Erreur psycopg2 (fichier) : column "source_id" of relation "dim_route_train" does not exist
+LINE 1: ...dep_station_id", "arr_station_id", "distance_km", "source_id...
+                                                             ^
+
+2026-03-05 19:24:03,127 - INFO - [TRAIN][LOAD] Insertion de 776 faits dans fact_emission...
+2026-03-05 19:24:03,879 - INFO - [TRAIN][LOAD] fact_emission � 776 faits trait�s.
+2026-03-05 19:24:03,977 - INFO - [TRAIN][LOAD] Traitement feed FR/tdg-83647...
+2026-03-05 19:24:04,205 - INFO - [TRAIN][LOAD]   461 stop_ids remapp�s.
+2026-03-05 19:24:05,359 - INFO - [TRAIN][TRANSFORM] FR/tdg-83647 : tron�ons calcul�s.
+2026-03-05 19:24:49,408 - ERROR - [SQL] Erreur psycopg2 (fichier) : column "source_id" of relation "dim_route_train" does not exist
+LINE 1: ...dep_station_id", "arr_station_id", "distance_km", "source_id...
+                                                             ^
+
+2026-03-05 19:25:11,032 - INFO - [TRAIN][LOAD] Insertion de 585 faits dans fact_emission...
+2026-03-05 19:25:11,704 - INFO - [TRAIN][LOAD] fact_emission � 585 faits trait�s.
+2026-03-05 19:25:11,792 - INFO - [TRAIN][LOAD] Traitement feed FR/tdg-83675...
+2026-03-05 19:25:12,073 - INFO - [TRAIN][LOAD]   6298 stop_ids remapp�s.
+2026-03-05 19:25:13,982 - INFO - [TRAIN][TRANSFORM] FR/tdg-83675 : tron�ons calcul�s.
+2026-03-05 19:26:11,095 - ERROR - [SQL] Erreur psycopg2 (fichier) : column "source_id" of relation "dim_route_train" does not exist
+LINE 1: ...dep_station_id", "arr_station_id", "distance_km", "source_id...
+                                                             ^
+
+2026-03-05 19:26:37,753 - INFO - [TRAIN][LOAD] Insertion de 9106 faits dans fact_emission...
+2026-03-05 19:26:43,121 - INFO - [TRAIN][LOAD] fact_emission � 9106 faits trait�s.
+2026-03-05 19:26:43,201 - INFO - [TRAIN][LOAD] Back on Track (trains de nuit)...
+2026-03-05 19:27:17,160 - ERROR - [SQL] Erreur psycopg2 (fichier) : column "source_id" of relation "dim_route_train" does not exist
+LINE 1: ...dep_station_id", "arr_station_id", "distance_km", "source_id...
+                                                             ^
+
+2026-03-05 19:27:33,540 - INFO - [TRAIN][LOAD] Insertion de 1697 faits dans fact_emission...
+2026-03-05 19:27:34,636 - INFO - [TRAIN][LOAD] fact_emission � 1697 faits trait�s.
+2026-03-05 19:27:34,681 - INFO - [TRAIN][LOAD] Back on Track : 0 routes ins�r�es.
+2026-03-05 19:27:34,810 - INFO - [AVION][LOAD] Vidage des tables avion...
+2026-03-05 19:27:34,968 - INFO - [AVION][EXTRACT] A�roports : ./airports.csv
+2026-03-05 19:27:35,655 - INFO - [AVION][EXTRACT] 71174 a�roports charg�s.
+2026-03-05 19:27:35,703 - INFO - [AVION][EXTRACT] 12 mois a traiter (202501 -> 202512).
+2026-03-05 19:27:35,749 - INFO - [AVION][EXTRACT] T�l�chargement : 202501
+2026-03-05 19:27:39,379 - INFO - [AVION][EXTRACT] 202501 t�l�charg� (33.9 Mo).
+2026-03-05 19:27:39,428 - INFO - [AVION][EXTRACT] T�l�chargement : 202502
+2026-03-05 19:27:40,279 - INFO - [AVION][EXTRACT] 202502 t�l�charg� (35.0 Mo).
+2026-03-05 19:27:40,328 - INFO - [AVION][EXTRACT] T�l�chargement : 202503
+2026-03-05 19:27:42,155 - INFO - [AVION][EXTRACT] 202503 t�l�charg� (41.0 Mo).
+2026-03-05 19:27:42,209 - INFO - [AVION][EXTRACT] T�l�chargement : 202504
+2026-03-05 19:27:45,518 - INFO - [AVION][EXTRACT] 202504 t�l�charg� (44.9 Mo).
+2026-03-05 19:27:45,567 - INFO - [AVION][EXTRACT] T�l�chargement : 202505
+2026-03-05 19:27:46,913 - INFO - [AVION][EXTRACT] 202505 t�l�charg� (50.4 Mo).
+2026-03-05 19:27:46,964 - INFO - [AVION][EXTRACT] T�l�chargement : 202506
+2026-03-05 19:27:48,725 - INFO - [AVION][EXTRACT] 202506 t�l�charg� (52.4 Mo).
+2026-03-05 19:27:48,777 - INFO - [AVION][EXTRACT] T�l�chargement : 202507
+2026-03-05 19:27:53,478 - INFO - [AVION][EXTRACT] 202507 t�l�charg� (55.3 Mo).
+2026-03-05 19:27:53,532 - INFO - [AVION][EXTRACT] T�l�chargement : 202508
+2026-03-05 19:27:54,683 - INFO - [AVION][EXTRACT] 202508 t�l�charg� (52.2 Mo).
+2026-03-05 19:27:54,732 - INFO - [AVION][EXTRACT] T�l�chargement : 202509
+2026-03-05 19:27:55,627 - INFO - [AVION][EXTRACT] 202509 t�l�charg� (44.0 Mo).
+2026-03-05 19:27:55,677 - INFO - [AVION][EXTRACT] T�l�chargement : 202510
+2026-03-05 19:27:56,790 - INFO - [AVION][EXTRACT] 202510 t�l�charg� (40.3 Mo).
+2026-03-05 19:27:56,837 - INFO - [AVION][EXTRACT] T�l�chargement : 202511
+2026-03-05 19:27:57,711 - INFO - [AVION][EXTRACT] 202511 t�l�charg� (31.9 Mo).
+2026-03-05 19:27:57,762 - INFO - [AVION][EXTRACT] T�l�chargement : 202512
+2026-03-05 19:28:00,706 - INFO - [AVION][EXTRACT] 202512 t�l�charg� (32.9 Mo).
+2026-03-05 19:28:00,755 - INFO - [AVION][EXTRACT] 12/12 mois disponibles en cache.
+2026-03-05 19:28:00,843 - INFO - [AVION][TRANSFORM] Lecture de 12 fichiers parquet via PySpark...
+2026-03-05 19:28:02,770 - INFO - [SPARK] Session arr�t�e.
+2026-03-05 19:28:02,917 - INFO - Closing down clientserver connection
