@@ -2,7 +2,7 @@
   "title": "RailCarbon — Train vs Avion & Santé ETL",
   "uid": "railcarbon-main",
   "schemaVersion": 38,
-  "version": 4,
+  "version": 5,
   "refresh": "30s",
   "time": { "from": "now-7d", "to": "now" },
   "timezone": "browser",
@@ -10,391 +10,207 @@
 
   "panels": [
 
-    {
-      "id": 100,
-      "title": "Vue d'ensemble",
-      "type": "row",
-      "collapsed": false,
-      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 1 },
-      "panels": []
-    },
+    { "id": 100, "title": "KPIs Globaux", "type": "row", "collapsed": false, "gridPos": { "x": 0, "y": 0, "w": 24, "h": 1 }, "panels": [] },
 
-    {
-      "id": 1,
-      "title": "Gares train",
-      "type": "stat",
-      "gridPos": { "x": 0, "y": 1, "w": 4, "h": 4 },
+    { "id": 1, "title": "Gares train", "type": "stat", "gridPos": { "x": 0, "y": 1, "w": 4, "h": 4 },
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
       "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.dim_station WHERE is_airport = FALSE;", "format": "table" }],
       "options": { "colorMode": "background", "graphMode": "none", "textMode": "auto", "reduceOptions": { "calcs": ["lastNotNull"] } },
       "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "dark-green" }, "displayName": "Gares train" } }
     },
 
-    {
-      "id": 2,
-      "title": "Aeroports",
-      "type": "stat",
-      "gridPos": { "x": 4, "y": 1, "w": 4, "h": 4 },
+    { "id": 2, "title": "Aeroports", "type": "stat", "gridPos": { "x": 4, "y": 1, "w": 4, "h": 4 },
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
       "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.dim_station WHERE is_airport = TRUE;", "format": "table" }],
       "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
       "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "dark-blue" }, "displayName": "Aeroports" } }
     },
 
-    {
-      "id": 3,
-      "title": "Routes train",
-      "type": "stat",
-      "gridPos": { "x": 8, "y": 1, "w": 4, "h": 4 },
+    { "id": 3, "title": "Routes train", "type": "stat", "gridPos": { "x": 8, "y": 1, "w": 4, "h": 4 },
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
       "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.dim_route_train;", "format": "table" }],
       "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
       "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "green" }, "displayName": "Routes train" } }
     },
 
-    {
-      "id": 4,
-      "title": "Routes avion",
-      "type": "stat",
-      "gridPos": { "x": 12, "y": 1, "w": 4, "h": 4 },
+    { "id": 4, "title": "Routes avion", "type": "stat", "gridPos": { "x": 12, "y": 1, "w": 4, "h": 4 },
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
       "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.dim_route_avion;", "format": "table" }],
       "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
       "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "blue" }, "displayName": "Routes avion" } }
     },
 
-    {
-      "id": 5,
-      "title": "Faits emission",
-      "type": "stat",
-      "gridPos": { "x": 16, "y": 1, "w": 4, "h": 4 },
+    { "id": 5, "title": "Faits CO2 totaux", "type": "stat", "gridPos": { "x": 16, "y": 1, "w": 4, "h": 4 },
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
       "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.fact_emission;", "format": "table" }],
       "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "purple" }, "displayName": "Faits" } }
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "purple" }, "displayName": "Faits CO2" } }
     },
 
-    {
-      "id": 6,
-      "title": "Runs ETL total",
-      "type": "stat",
-      "gridPos": { "x": 20, "y": 1, "w": 4, "h": 4 },
+    { "id": 6, "title": "Sources de donnees", "type": "stat", "gridPos": { "x": 20, "y": 1, "w": 4, "h": 4 },
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.etl_run_log;", "format": "table" }],
+      "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.dim_source;", "format": "table" }],
       "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "orange" }, "displayName": "Runs ETL" } }
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "orange" }, "displayName": "Sources" } }
     },
 
-    {
-      "id": 60,
-      "title": "Routes train de jour",
-      "type": "stat",
-      "gridPos": { "x": 0, "y": 5, "w": 4, "h": 2 },
+    { "id": 200, "title": "Avion pollue X fois plus que le train", "type": "stat", "gridPos": { "x": 0, "y": 5, "w": 6, "h": 4 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{ "refId": "A", "rawSql": "SELECT ROUND((SELECT AVG(co2_kg_passenger) FROM mart.fact_emission WHERE transport_mode = 'avion') / NULLIF((SELECT AVG(co2_kg_passenger) FROM mart.fact_emission WHERE transport_mode = 'train'), 0), 1) AS val;", "format": "table" }],
+      "options": { "colorMode": "background", "graphMode": "none", "textMode": "value_and_name", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "unit": "x", "color": { "mode": "fixed", "fixedColor": "dark-red" }, "displayName": "Facteur CO2 avion / train" } }
+    },
+
+    { "id": 201, "title": "CO2 economise si avion -> train (tonnes)", "type": "stat", "gridPos": { "x": 6, "y": 5, "w": 6, "h": 4 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{ "refId": "A", "rawSql": "SELECT ROUND(((SELECT AVG(co2_kg_passenger) FROM mart.fact_emission WHERE transport_mode = 'avion') - (SELECT AVG(co2_kg_passenger) FROM mart.fact_emission WHERE transport_mode = 'train')) * (SELECT COUNT(*) FROM mart.fact_emission WHERE transport_mode = 'avion') / 1000.0) AS val;", "format": "table" }],
+      "options": { "colorMode": "background", "graphMode": "none", "textMode": "value_and_name", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "unit": "t", "color": { "mode": "fixed", "fixedColor": "dark-green" }, "displayName": "CO2 economise potentiel" } }
+    },
+
+    { "id": 60, "title": "Routes train de jour", "type": "stat", "gridPos": { "x": 12, "y": 5, "w": 4, "h": 4 },
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
       "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.dim_route_train WHERE is_night_train = FALSE;", "format": "table" }],
       "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
       "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "light-green" }, "displayName": "Trains de jour" } }
     },
 
-    {
-      "id": 61,
-      "title": "Routes train de nuit",
-      "type": "stat",
-      "gridPos": { "x": 4, "y": 5, "w": 4, "h": 2 },
+    { "id": 61, "title": "Routes train de nuit", "type": "stat", "gridPos": { "x": 16, "y": 5, "w": 4, "h": 4 },
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
       "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.dim_route_train WHERE is_night_train = TRUE;", "format": "table" }],
       "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
       "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "dark-purple" }, "displayName": "Trains de nuit" } }
     },
 
-    {
-      "id": 101,
-      "title": "Surveillance ETL",
-      "type": "row",
-      "collapsed": false,
-      "gridPos": { "x": 0, "y": 5, "w": 24, "h": 1 },
-      "panels": []
-    },
-
-    {
-      "id": 10,
-      "title": "Logs ETL en temps reel",
-      "type": "logs",
-      "gridPos": { "x": 0, "y": 6, "w": 14, "h": 7 },
-      "datasource": { "type": "loki", "uid": "Loki" },
-      "targets": [{
-        "refId": "A",
-        "expr": "{application=\"railcarbon-etl\"}",
-        "legendFormat": "{{level}}"
-      }],
-      "options": {
-        "showTime": true, "showLabels": true,
-        "wrapLogMessage": true, "sortOrder": "Descending",
-        "dedupStrategy": "none"
-      }
-    },
-
-    {
-      "id": 11,
-      "title": "Historique des runs ETL",
-      "type": "table",
-      "gridPos": { "x": 14, "y": 6, "w": 10, "h": 7 },
+    { "id": 62, "title": "Pays couverts (gares)", "type": "stat", "gridPos": { "x": 20, "y": 5, "w": 4, "h": 4 },
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{
-        "refId": "A",
-        "rawSql": "SELECT run_id, TO_CHAR(started_at, 'DD/MM HH24:MI') AS debut, COALESCE(ROUND(duration_s) || ' s', '...') AS duree, mois_traites AS mois, airports_charges AS airports, routes_chargees AS routes, erreurs, statut FROM mart.etl_run_log ORDER BY run_id DESC LIMIT 20;",
-        "format": "table"
-      }],
-      "fieldConfig": {
-        "overrides": [{
-          "matcher": { "id": "byName", "options": "statut" },
-          "properties": [
-            { "id": "custom.displayMode", "value": "color-background" },
-            { "id": "mappings", "value": [
-              { "type": "value", "options": { "succes":   { "color": "green",  "index": 0 } } },
-              { "type": "value", "options": { "erreur":   { "color": "red",    "index": 1 } } },
-              { "type": "value", "options": { "en_cours": { "color": "orange", "index": 2 } } }
-            ]}
-          ]
-        }]
-      },
-      "options": { "sortBy": [{ "displayName": "run_id", "desc": true }] }
-    },
-
-    {
-      "id": 12,
-      "title": "Erreurs & Warnings ETL",
-      "type": "logs",
-      "gridPos": { "x": 0, "y": 13, "w": 14, "h": 5 },
-      "datasource": { "type": "loki", "uid": "Loki" },
-      "targets": [{
-        "refId": "A",
-        "expr": "{application=\"railcarbon-etl\"} |= \"ERROR\" or {application=\"railcarbon-etl\"} |= \"WARNING\"",
-        "legendFormat": "{{level}}"
-      }],
-      "options": {
-        "showTime": true, "wrapLogMessage": true, "sortOrder": "Descending",
-        "showLabels": false
-      }
-    },
-
-    {
-      "id": 13,
-      "title": "Duree des runs ETL (secondes)",
-      "type": "timeseries",
-      "gridPos": { "x": 14, "y": 13, "w": 10, "h": 5 },
-      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{
-        "refId": "A",
-        "rawSql": "SELECT started_at AS \"time\", duration_s AS \"Duree (s)\", erreurs AS \"Erreurs\" FROM mart.etl_run_log WHERE started_at IS NOT NULL ORDER BY started_at;",
-        "format": "time_series"
-      }],
-      "fieldConfig": {
-        "defaults": { "color": { "mode": "palette-classic" }, "unit": "s" },
-        "overrides": [{
-          "matcher": { "id": "byName", "options": "Erreurs" },
-          "properties": [
-            { "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } },
-            { "id": "custom.drawStyle", "value": "bars" }
-          ]
-        }]
-      },
-      "options": {
-        "legend": { "displayMode": "list", "placement": "bottom" },
-        "tooltip": { "mode": "multi" }
-      }
-    },
-
-    {
-      "id": 102,
-      "title": "Emissions CO2 — Comparaisons",
-      "type": "row",
-      "collapsed": false,
-      "gridPos": { "x": 0, "y": 18, "w": 24, "h": 1 },
-      "panels": []
-    },
-
-    {
-      "id": 20,
-      "title": "CO2 moyen avion (kg/pax)",
-      "type": "stat",
-      "gridPos": { "x": 0, "y": 19, "w": 6, "h": 4 },
-      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{ "refId": "A", "rawSql": "SELECT ROUND(AVG(co2_kg_passenger)::numeric, 1) AS val FROM mart.fact_emission WHERE transport_mode = 'avion';", "format": "table" }],
+      "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(DISTINCT country_code) AS val FROM mart.dim_station WHERE is_airport = FALSE;", "format": "table" }],
       "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "fieldConfig": { "defaults": { "unit": "kg", "color": { "mode": "fixed", "fixedColor": "dark-blue" }, "displayName": "Avion CO2/pax" } }
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "light-blue" }, "displayName": "Pays couverts" } }
     },
 
-    {
-      "id": 21,
-      "title": "CO2 moyen train (kg/pax)",
-      "type": "stat",
-      "gridPos": { "x": 6, "y": 19, "w": 6, "h": 4 },
+    { "id": 102, "title": "Comparaison CO2 — Train vs Avion", "type": "row", "collapsed": false, "gridPos": { "x": 0, "y": 9, "w": 24, "h": 1 }, "panels": [] },
+
+    { "id": 20, "title": "CO2 moyen avion (kg/pax)", "type": "stat", "gridPos": { "x": 0, "y": 10, "w": 6, "h": 4 },
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{ "refId": "A", "rawSql": "SELECT ROUND(AVG(co2_kg_passenger)::numeric, 1) AS val FROM mart.fact_emission WHERE transport_mode = 'train';", "format": "table" }],
+      "targets": [{ "refId": "A", "rawSql": "SELECT ROUND(AVG(co2_kg_passenger)::numeric, 2) AS val FROM mart.fact_emission WHERE transport_mode = 'avion';", "format": "table" }],
       "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "fieldConfig": { "defaults": { "unit": "kg", "color": { "mode": "fixed", "fixedColor": "dark-green" }, "displayName": "Train CO2/pax" } }
+      "fieldConfig": { "defaults": { "unit": "kg", "color": { "mode": "fixed", "fixedColor": "dark-blue" }, "displayName": "Avion CO2 moyen/pax" } }
     },
 
-    {
-      "id": 22,
-      "title": "Routes avion avec CO2 EASA exact",
-      "type": "stat",
-      "gridPos": { "x": 12, "y": 19, "w": 6, "h": 4 },
+    { "id": 21, "title": "CO2 moyen train (kg/pax)", "type": "stat", "gridPos": { "x": 6, "y": 10, "w": 6, "h": 4 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{ "refId": "A", "rawSql": "SELECT ROUND(AVG(co2_kg_passenger)::numeric, 3) AS val FROM mart.fact_emission WHERE transport_mode = 'train';", "format": "table" }],
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "unit": "kg", "color": { "mode": "fixed", "fixedColor": "dark-green" }, "displayName": "Train CO2 moyen/pax" } }
+    },
+
+    { "id": 22, "title": "Routes avion avec CO2 EASA exact", "type": "stat", "gridPos": { "x": 12, "y": 10, "w": 6, "h": 4 },
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
       "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.dim_route_avion r JOIN mart.dim_vehicle_avion v ON v.icao_typecode = r.dominant_typecode;", "format": "table" }],
       "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "green" }, "displayName": "CO2 EASA exact" } }
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "green" }, "displayName": "Avec EASA exact" } }
     },
 
-    {
-      "id": 23,
-      "title": "Train vs Avion — repartition des faits",
-      "type": "piechart",
-      "gridPos": { "x": 18, "y": 19, "w": 6, "h": 4 },
+    { "id": 23, "title": "Repartition des faits CO2", "type": "piechart", "gridPos": { "x": 18, "y": 10, "w": 6, "h": 4 },
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
       "targets": [{ "refId": "A", "rawSql": "SELECT transport_mode AS mode, COUNT(*) AS faits FROM mart.fact_emission GROUP BY transport_mode;", "format": "table" }],
       "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" } } },
-      "options": {
-        "displayLabels": ["percent", "name"],
-        "legend": { "displayMode": "list", "placement": "right" }
-      }
+      "options": { "displayLabels": ["percent", "name"], "legend": { "displayMode": "list", "placement": "right" }, "reduceOptions": { "values": true, "calcs": ["lastNotNull"], "fields": "" } }
     },
 
-    {
-      "id": 30,
-      "title": "Top 15 — Economies CO2 train vs avion (kg/passager)",
-      "type": "barchart",
-      "gridPos": { "x": 0, "y": 23, "w": 16, "h": 11 },
+    { "id": 32, "title": "CO2 moyen par mode (kg/passager)", "type": "bargauge", "gridPos": { "x": 0, "y": 14, "w": 8, "h": 8 },
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{
-        "refId": "A",
-        "rawSql": "SELECT COALESCE(sa.city, ra.dep_station_id) || ' -> ' || COALESCE(sb.city, ra.arr_station_id) AS route, ROUND(CAST(fa.co2_kg_passenger AS numeric), 1) AS \"Avion (kg/pax)\", ROUND(CAST(ft.co2_kg_passenger AS numeric), 1) AS \"Train (kg/pax)\", ROUND(CAST(fa.co2_kg_passenger - ft.co2_kg_passenger AS numeric), 1) AS \"Economie\" FROM mart.fact_emission fa JOIN mart.dim_route_avion ra ON ra.route_avion_id = fa.route_avion_id JOIN mart.dim_station sa ON sa.station_id = ra.dep_station_id JOIN mart.dim_station sb ON sb.station_id = ra.arr_station_id JOIN mart.dim_route_train rt ON (rt.dep_station_id IN (SELECT station_id FROM mart.dim_station WHERE city = sa.city AND is_airport = FALSE) AND rt.arr_station_id IN (SELECT station_id FROM mart.dim_station WHERE city = sb.city AND is_airport = FALSE)) JOIN mart.fact_emission ft ON ft.route_train_id = rt.route_train_id WHERE fa.transport_mode = 'avion' AND ft.transport_mode = 'train' AND fa.co2_kg_passenger > ft.co2_kg_passenger ORDER BY (fa.co2_kg_passenger - ft.co2_kg_passenger) DESC LIMIT 15;",
+      "targets": [{ "refId": "A", "rawSql": "SELECT ROUND(AVG(CASE WHEN transport_mode = 'avion' THEN co2_kg_passenger END)::numeric, 2) AS \"Avion\", ROUND(AVG(CASE WHEN transport_mode = 'train' THEN co2_kg_passenger END)::numeric, 3) AS \"Train\" FROM mart.fact_emission;", "format": "table" }],
+      "fieldConfig": {
+        "defaults": { "unit": "kg", "color": { "mode": "palette-classic" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 1 }, { "color": "red", "value": 3 }] } }
+      },
+      "options": { "orientation": "horizontal", "displayMode": "gradient", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "/.*/" } }
+    },
+
+    { "id": 33, "title": "Routes avion par categorie de service", "type": "piechart", "gridPos": { "x": 8, "y": 14, "w": 8, "h": 8 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{ "refId": "A", "rawSql": "SELECT COALESCE(v.service_type, 'Inconnu') AS categorie, COUNT(r.*) AS routes FROM mart.dim_route_avion r LEFT JOIN mart.dim_vehicle_avion v ON v.icao_typecode = r.dominant_typecode GROUP BY v.service_type ORDER BY routes DESC;", "format": "table" }],
+      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" } } },
+      "options": { "displayLabels": ["percent", "name"], "legend": { "displayMode": "list", "placement": "right" }, "reduceOptions": { "values": true, "calcs": ["lastNotNull"], "fields": "" } }
+    },
+
+    { "id": 203, "title": "CO2 moyen avion par categorie de service (kg/pax)", "type": "bargauge", "gridPos": { "x": 16, "y": 14, "w": 8, "h": 8 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{ "refId": "A", "rawSql": "SELECT ROUND(AVG(CASE WHEN v.service_type = 'long_courrier' THEN fe.co2_kg_passenger END)::numeric, 2) AS \"Long courrier\", ROUND(AVG(CASE WHEN v.service_type = 'court_moyen_courrier' THEN fe.co2_kg_passenger END)::numeric, 2) AS \"Court/Moyen courrier\", ROUND(AVG(CASE WHEN v.service_type = 'regional' THEN fe.co2_kg_passenger END)::numeric, 2) AS \"Regional\", ROUND(AVG(CASE WHEN v.service_type IS NULL THEN fe.co2_kg_passenger END)::numeric, 2) AS \"Inconnu\" FROM mart.fact_emission fe JOIN mart.dim_route_avion ra ON ra.route_avion_id = fe.route_avion_id LEFT JOIN mart.dim_vehicle_avion v ON v.icao_typecode = ra.dominant_typecode WHERE fe.transport_mode = 'avion';", "format": "table" }],
+      "fieldConfig": {
+        "defaults": { "unit": "kg", "color": { "mode": "palette-classic" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 5 }, { "color": "red", "value": 10 }] } }
+      },
+      "options": { "orientation": "horizontal", "displayMode": "gradient", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "/.*/" } }
+    },
+
+    { "id": 30, "title": "Top 15 — Economies CO2 train vs avion (kg/passager)", "type": "barchart", "gridPos": { "x": 0, "y": 22, "w": 16, "h": 11 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{ "refId": "A",
+        "rawSql": "SELECT COALESCE(sa.city, ra.dep_station_id) || ' -> ' || COALESCE(sb.city, ra.arr_station_id) AS route, ROUND(CAST(fa.co2_kg_passenger AS numeric), 1) AS \"Avion (kg/pax)\", ROUND(CAST(ft.co2_kg_passenger AS numeric), 1) AS \"Train (kg/pax)\", ROUND(CAST(fa.co2_kg_passenger - ft.co2_kg_passenger AS numeric), 1) AS \"Economie\" FROM mart.fact_emission fa JOIN mart.dim_route_avion ra ON ra.route_avion_id = fa.route_avion_id JOIN mart.dim_station sa ON sa.station_id = ra.dep_station_id JOIN mart.dim_station sb ON sb.station_id = ra.arr_station_id JOIN mart.dim_route_train rt ON (rt.dep_station_id IN (SELECT station_id FROM mart.dim_station WHERE city ILIKE sa.city || '%' AND is_airport = FALSE) AND rt.arr_station_id IN (SELECT station_id FROM mart.dim_station WHERE city ILIKE sb.city || '%' AND is_airport = FALSE)) JOIN mart.fact_emission ft ON ft.route_train_id = rt.route_train_id WHERE fa.transport_mode = 'avion' AND ft.transport_mode = 'train' AND fa.co2_kg_passenger > ft.co2_kg_passenger ORDER BY (fa.co2_kg_passenger - ft.co2_kg_passenger) DESC LIMIT 15;",
         "format": "table"
       }],
       "fieldConfig": {
         "defaults": { "color": { "mode": "palette-classic" } },
         "overrides": [
-          {
-            "matcher": { "id": "byName", "options": "Avion (kg/pax)" },
-            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "blue" } }]
-          },
-          {
-            "matcher": { "id": "byName", "options": "Train (kg/pax)" },
-            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } }]
-          },
-          {
-            "matcher": { "id": "byName", "options": "Economie" },
-            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "orange" } }]
-          }
+          { "matcher": { "id": "byName", "options": "Avion (kg/pax)" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "blue" } }] },
+          { "matcher": { "id": "byName", "options": "Train (kg/pax)" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } }] },
+          { "matcher": { "id": "byName", "options": "Economie" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "orange" } }] }
         ]
       },
-      "options": {
-        "xField": "route",
-        "orientation": "horizontal",
-        "groupWidth": 0.7,
-        "legend": { "displayMode": "list", "placement": "bottom" }
-      }
+      "options": { "xField": "route", "orientation": "horizontal", "groupWidth": 0.7, "legend": { "displayMode": "list", "placement": "bottom" } }
     },
 
-    {
-      "id": 31,
-      "title": "Top 10 typecodes avion dominants",
-      "type": "barchart",
-      "gridPos": { "x": 16, "y": 23, "w": 8, "h": 11 },
+    { "id": 31, "title": "Top 10 typecodes avion dominants", "type": "barchart", "gridPos": { "x": 16, "y": 22, "w": 8, "h": 11 },
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{
-        "refId": "A",
-        "rawSql": "SELECT COALESCE(r.dominant_typecode, 'Inconnu') AS typecode, COUNT(*) AS routes FROM mart.dim_route_avion r GROUP BY r.dominant_typecode ORDER BY routes DESC LIMIT 10;",
-        "format": "table"
-      }],
+      "targets": [{ "refId": "A", "rawSql": "SELECT COALESCE(r.dominant_typecode, 'Inconnu') AS typecode, COUNT(*) AS routes FROM mart.dim_route_avion r GROUP BY r.dominant_typecode ORDER BY routes DESC LIMIT 10;", "format": "table" }],
       "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" } } },
-      "options": {
-        "xField": "typecode", "orientation": "vertical",
-        "legend": { "displayMode": "list", "placement": "bottom" }
-      }
+      "options": { "xField": "typecode", "orientation": "vertical", "legend": { "displayMode": "list", "placement": "bottom" } }
     },
 
-    {
-      "id": 32,
-      "title": "CO2 moyen par mode (kg/passager)",
-      "type": "bargauge",
-      "gridPos": { "x": 0, "y": 34, "w": 8, "h": 8 },
+    { "id": 202, "title": "Top 15 routes avion les plus polluantes", "type": "table", "gridPos": { "x": 0, "y": 33, "w": 24, "h": 8 },
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{
-        "refId": "A",
-        "rawSql": "SELECT transport_mode AS mode, ROUND(AVG(co2_kg_passenger)::numeric, 2) AS co2_moyen FROM mart.fact_emission GROUP BY transport_mode ORDER BY co2_moyen DESC;",
+      "targets": [{ "refId": "A",
+        "rawSql": "SELECT ROW_NUMBER() OVER (ORDER BY fe.co2_kg_passenger DESC) AS \"#\", sa.station_name || ' -> ' || sb.station_name AS \"Route\", ROUND(fe.co2_kg_passenger::numeric, 2) AS \"CO2 kg/pax\", ROUND(ra.distance_km::numeric, 0) AS \"Distance km\", COALESCE(ra.dominant_typecode, '?') AS \"Type avion\", COALESCE(v.service_type, 'Inconnu') AS \"Categorie\", sa.country_code || ' -> ' || sb.country_code AS \"Pays\" FROM mart.fact_emission fe JOIN mart.dim_route_avion ra ON ra.route_avion_id = fe.route_avion_id JOIN mart.dim_station sa ON sa.station_id = ra.dep_station_id JOIN mart.dim_station sb ON sb.station_id = ra.arr_station_id LEFT JOIN mart.dim_vehicle_avion v ON v.icao_typecode = ra.dominant_typecode WHERE fe.transport_mode = 'avion' ORDER BY fe.co2_kg_passenger DESC LIMIT 15;",
         "format": "table"
       }],
       "fieldConfig": {
-        "defaults": { "unit": "kg", "color": { "mode": "palette-classic" },
-          "thresholds": { "mode": "absolute", "steps": [
-            { "color": "green", "value": null },
-            { "color": "yellow", "value": 50 },
-            { "color": "red", "value": 150 }
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "CO2 kg/pax" }, "properties": [
+            { "id": "custom.displayMode", "value": "color-background" },
+            { "id": "thresholds", "value": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 10 }, { "color": "orange", "value": 20 }, { "color": "red", "value": 35 }] } },
+            { "id": "color", "value": { "mode": "thresholds" } }
           ]}
-        },
-        "overrides": [{ "matcher": { "id": "byName", "options": "co2_moyen" }, "properties": [{ "id": "displayName", "value": "CO2 moyen" }] }]
+        ]
       },
-      "options": {
-        "orientation": "horizontal",
-        "displayMode": "gradient",
-        "reduceOptions": { "calcs": ["lastNotNull"] }
-      }
+      "options": { "sortBy": [{ "displayName": "CO2 kg/pax", "desc": true }] }
     },
 
-    {
-      "id": 33,
-      "title": "Routes avion par categorie de service",
-      "type": "piechart",
-      "gridPos": { "x": 8, "y": 34, "w": 8, "h": 8 },
+    { "id": 106, "title": "Analyse Avion", "type": "row", "collapsed": false, "gridPos": { "x": 0, "y": 41, "w": 24, "h": 1 }, "panels": [] },
+
+    { "id": 34, "title": "Distribution CO2 avion par tranche de distance", "type": "table", "gridPos": { "x": 0, "y": 42, "w": 8, "h": 10 },
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{
-        "refId": "A",
-        "rawSql": "SELECT COALESCE(v.service_type, 'Inconnu') AS categorie, COUNT(r.*) AS routes FROM mart.dim_route_avion r LEFT JOIN mart.dim_vehicle_avion v ON v.icao_typecode = r.dominant_typecode GROUP BY v.service_type ORDER BY routes DESC;",
+      "targets": [{ "refId": "A",
+        "rawSql": "SELECT CASE WHEN ra.distance_km < 500 THEN '< 500 km' WHEN ra.distance_km < 1000 THEN '500-1000 km' WHEN ra.distance_km < 2000 THEN '1000-2000 km' WHEN ra.distance_km < 5000 THEN '2000-5000 km' ELSE '> 5000 km' END AS \"Tranche\", COUNT(*) AS \"Routes\", ROUND(AVG(fe.co2_kg_passenger)::numeric, 2) AS \"CO2 moy (kg/pax)\", ROUND(MIN(fe.co2_kg_passenger)::numeric, 2) AS \"CO2 min\", ROUND(MAX(fe.co2_kg_passenger)::numeric, 2) AS \"CO2 max\" FROM mart.fact_emission fe JOIN mart.dim_route_avion ra ON ra.route_avion_id = fe.route_avion_id WHERE fe.transport_mode = 'avion' AND ra.distance_km IS NOT NULL GROUP BY 1 ORDER BY MIN(ra.distance_km);",
+        "format": "table"
+      }]
+    },
+
+    { "id": 205, "title": "Top 15 pays — routes avion (depart)", "type": "barchart", "gridPos": { "x": 8, "y": 42, "w": 16, "h": 10 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{ "refId": "A",
+        "rawSql": "SELECT CASE s.country_code WHEN 'DE' THEN 'Allemagne' WHEN 'FR' THEN 'France' WHEN 'BE' THEN 'Belgique' WHEN 'NL' THEN 'Pays-Bas' WHEN 'CH' THEN 'Suisse' WHEN 'AT' THEN 'Autriche' WHEN 'IT' THEN 'Italie' WHEN 'ES' THEN 'Espagne' WHEN 'PT' THEN 'Portugal' WHEN 'PL' THEN 'Pologne' WHEN 'CZ' THEN 'Rep. Tcheque' WHEN 'SK' THEN 'Slovaquie' WHEN 'HU' THEN 'Hongrie' WHEN 'RO' THEN 'Roumanie' WHEN 'SE' THEN 'Suede' WHEN 'NO' THEN 'Norvege' WHEN 'DK' THEN 'Danemark' WHEN 'FI' THEN 'Finlande' WHEN 'GB' THEN 'Royaume-Uni' WHEN 'IE' THEN 'Irlande' WHEN 'LU' THEN 'Luxembourg' WHEN 'GR' THEN 'Grece' WHEN 'HR' THEN 'Croatie' WHEN 'TR' THEN 'Turquie' ELSE COALESCE(s.country_code, 'Inconnu') END AS pays, COUNT(*) AS routes FROM mart.dim_route_avion ra JOIN mart.dim_station s ON s.station_id = ra.dep_station_id GROUP BY s.country_code ORDER BY routes DESC LIMIT 15;",
         "format": "table"
       }],
-      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" } } },
-      "options": {
-        "displayLabels": ["percent", "name"],
-        "legend": { "displayMode": "list", "placement": "right" }
-      }
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "blue" } } },
+      "options": { "xField": "pays", "orientation": "horizontal", "legend": { "displayMode": "list", "placement": "bottom" } }
     },
 
-    {
-      "id": 34,
-      "title": "Distribution CO2 avion par distance",
-      "type": "table",
-      "gridPos": { "x": 16, "y": 34, "w": 8, "h": 8 },
+    { "id": 107, "title": "Analyse Train", "type": "row", "collapsed": false, "gridPos": { "x": 0, "y": 52, "w": 24, "h": 1 }, "panels": [] },
+
+    { "id": 70, "title": "Repartition routes : jour vs nuit", "type": "piechart", "gridPos": { "x": 0, "y": 53, "w": 6, "h": 8 },
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{
-        "refId": "A",
-        "rawSql": "SELECT CASE WHEN distance_km < 500 THEN '< 500 km' WHEN distance_km < 1000 THEN '500-1000 km' WHEN distance_km < 2000 THEN '1000-2000 km' ELSE '> 2000 km' END AS tranche, COUNT(*) AS routes, ROUND(AVG(co2_total_kg)::numeric, 0) AS co2_moy_kg FROM mart.dim_route_avion WHERE distance_km IS NOT NULL GROUP BY 1 ORDER BY MIN(distance_km);",
-        "format": "table"
-      }],
-      "options": { "sortBy": [{ "displayName": "tranche" }] }
-    },
-
-    {
-      "id": 105,
-      "title": "Trains de jour vs nuit — repartition",
-      "type": "row",
-      "collapsed": false,
-      "gridPos": { "x": 0, "y": 42, "w": 24, "h": 1 },
-      "panels": []
-    },
-
-    {
-      "id": 70,
-      "title": "Repartition routes : jour vs nuit",
-      "type": "piechart",
-      "gridPos": { "x": 0, "y": 43, "w": 6, "h": 8 },
-      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{
-        "refId": "A",
-        "rawSql": "SELECT CASE WHEN is_night_train THEN 'Nuit' ELSE 'Jour' END AS type, COUNT(*) AS routes FROM mart.dim_route_train GROUP BY is_night_train;",
-        "format": "table"
-      }],
+      "targets": [{ "refId": "A", "rawSql": "SELECT CASE WHEN is_night_train THEN 'Nuit' ELSE 'Jour' END AS type, COUNT(*) AS routes FROM mart.dim_route_train GROUP BY is_night_train;", "format": "table" }],
       "fieldConfig": {
         "defaults": { "color": { "mode": "palette-classic" } },
         "overrides": [
@@ -402,40 +218,33 @@
           { "matcher": { "id": "byName", "options": "Jour" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "light-green" } }] }
         ]
       },
-      "options": {
-        "displayLabels": ["percent", "name"],
-        "legend": { "displayMode": "list", "placement": "bottom" }
-      }
+      "options": { "displayLabels": ["percent", "name"], "legend": { "displayMode": "list", "placement": "bottom" }, "reduceOptions": { "values": true, "calcs": ["lastNotNull"], "fields": "" } }
     },
 
-    {
-      "id": 71,
-      "title": "CO2 moyen : jour vs nuit (kg/pax)",
-      "type": "bargauge",
-      "gridPos": { "x": 6, "y": 43, "w": 6, "h": 8 },
+    { "id": 71, "title": "CO2 moyen : jour vs nuit (kg/pax)", "type": "bargauge", "gridPos": { "x": 6, "y": 53, "w": 6, "h": 8 },
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{
-        "refId": "A",
+      "targets": [{ "refId": "A",
         "rawSql": "SELECT ROUND(AVG(CASE WHEN rt.is_night_train = FALSE THEN fe.co2_kg_passenger END)::numeric, 3) AS \"Train de jour\", ROUND(AVG(CASE WHEN rt.is_night_train = TRUE THEN fe.co2_kg_passenger END)::numeric, 3) AS \"Train de nuit\" FROM mart.fact_emission fe JOIN mart.dim_route_train rt ON rt.route_train_id = fe.route_train_id WHERE fe.transport_mode = 'train';",
         "format": "table"
       }],
-      "fieldConfig": {
-        "defaults": { "unit": "kg", "color": { "mode": "palette-classic" },
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
-        }
-      },
+      "fieldConfig": { "defaults": { "unit": "kg", "color": { "mode": "palette-classic" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } } },
       "options": { "orientation": "horizontal", "displayMode": "gradient", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "/.*/" } }
     },
 
-    {
-      "id": 72,
-      "title": "Volume de routes par operateur / source",
-      "type": "barchart",
-      "gridPos": { "x": 12, "y": 43, "w": 12, "h": 8 },
+    { "id": 204, "title": "Top 15 pays — routes train (depart)", "type": "barchart", "gridPos": { "x": 12, "y": 53, "w": 12, "h": 8 },
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{
-        "refId": "A",
-        "rawSql": "SELECT COALESCE(s.source_name, 'Inconnu') AS operateur, COUNT(rt.route_train_id) AS routes_train, COUNT(ra.route_avion_id) AS routes_avion FROM mart.dim_source s LEFT JOIN mart.dim_route_train rt ON rt.source_id = s.source_id LEFT JOIN mart.dim_route_avion ra ON ra.source_id = s.source_id GROUP BY s.source_name ORDER BY routes_train DESC LIMIT 15;",
+      "targets": [{ "refId": "A",
+        "rawSql": "SELECT CASE s.country_code WHEN 'DE' THEN 'Allemagne' WHEN 'FR' THEN 'France' WHEN 'BE' THEN 'Belgique' WHEN 'NL' THEN 'Pays-Bas' WHEN 'CH' THEN 'Suisse' WHEN 'AT' THEN 'Autriche' WHEN 'IT' THEN 'Italie' WHEN 'ES' THEN 'Espagne' WHEN 'PT' THEN 'Portugal' WHEN 'PL' THEN 'Pologne' WHEN 'CZ' THEN 'Rep. Tcheque' WHEN 'SK' THEN 'Slovaquie' WHEN 'HU' THEN 'Hongrie' WHEN 'SE' THEN 'Suede' WHEN 'GB' THEN 'Royaume-Uni' WHEN 'LU' THEN 'Luxembourg' WHEN 'DK' THEN 'Danemark' WHEN 'NO' THEN 'Norvege' WHEN 'FI' THEN 'Finlande' WHEN 'HR' THEN 'Croatie' ELSE COALESCE(s.country_code, 'Inconnu') END AS pays, COUNT(*) AS routes FROM mart.dim_route_train rt JOIN mart.dim_station s ON s.station_id = rt.dep_station_id GROUP BY s.country_code ORDER BY routes DESC LIMIT 15;",
+        "format": "table"
+      }],
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "green" } } },
+      "options": { "xField": "pays", "orientation": "horizontal", "legend": { "displayMode": "list", "placement": "bottom" } }
+    },
+
+    { "id": 72, "title": "Volume de routes par operateur GTFS", "type": "barchart", "gridPos": { "x": 0, "y": 61, "w": 24, "h": 8 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{ "refId": "A",
+        "rawSql": "SELECT COALESCE(s.source_name, 'Inconnu') AS operateur, COUNT(rt.route_train_id) AS routes_train, COUNT(ra.route_avion_id) AS routes_avion FROM mart.dim_source s LEFT JOIN mart.dim_route_train rt ON rt.source_id = s.source_id LEFT JOIN mart.dim_route_avion ra ON ra.source_id = s.source_id GROUP BY s.source_name HAVING COUNT(rt.route_train_id) > 0 OR COUNT(ra.route_avion_id) > 0 ORDER BY routes_train DESC LIMIT 15;",
         "format": "table"
       }],
       "fieldConfig": {
@@ -448,24 +257,12 @@
       "options": { "xField": "operateur", "orientation": "horizontal", "legend": { "displayMode": "list", "placement": "bottom" } }
     },
 
-    {
-      "id": 103,
-      "title": "Carte des stations & aeroports",
-      "type": "row",
-      "collapsed": false,
-      "gridPos": { "x": 0, "y": 51, "w": 24, "h": 1 },
-      "panels": []
-    },
+    { "id": 103, "title": "Couverture Geographique", "type": "row", "collapsed": false, "gridPos": { "x": 0, "y": 69, "w": 24, "h": 1 }, "panels": [] },
 
-    {
-      "id": 40,
-      "title": "Gares & Aeroports en Europe",
-      "type": "geomap",
-      "gridPos": { "x": 0, "y": 52, "w": 24, "h": 14 },
+    { "id": 40, "title": "Gares & Aeroports en Europe", "type": "geomap", "gridPos": { "x": 0, "y": 70, "w": 24, "h": 14 },
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{
-        "refId": "A",
-        "rawSql": "SELECT station_name AS name, latitude, longitude, CASE WHEN is_airport THEN 'Aeroport' ELSE 'Gare' END AS type, COALESCE(city, station_name) AS ville, CASE country_code WHEN 'DE' THEN 'Allemagne' WHEN 'FR' THEN 'France' WHEN 'BE' THEN 'Belgique' WHEN 'NL' THEN 'Pays-Bas' WHEN 'CH' THEN 'Suisse' WHEN 'AT' THEN 'Autriche' WHEN 'IT' THEN 'Italie' WHEN 'ES' THEN 'Espagne' WHEN 'PT' THEN 'Portugal' WHEN 'PL' THEN 'Pologne' WHEN 'CZ' THEN 'Republique tcheque' WHEN 'SK' THEN 'Slovaquie' WHEN 'HU' THEN 'Hongrie' WHEN 'RO' THEN 'Roumanie' WHEN 'BG' THEN 'Bulgarie' WHEN 'HR' THEN 'Croatie' WHEN 'SI' THEN 'Slovenie' WHEN 'SE' THEN 'Suede' WHEN 'NO' THEN 'Norvege' WHEN 'DK' THEN 'Danemark' WHEN 'FI' THEN 'Finlande' WHEN 'GB' THEN 'Royaume-Uni' WHEN 'IE' THEN 'Irlande' WHEN 'LU' THEN 'Luxembourg' WHEN 'GR' THEN 'Grece' ELSE COALESCE(country_code, 'Inconnu') END AS pays FROM mart.dim_station WHERE latitude IS NOT NULL AND longitude IS NOT NULL AND latitude BETWEEN 35 AND 72 AND longitude BETWEEN -25 AND 45 LIMIT 8000;",
+      "targets": [{ "refId": "A",
+        "rawSql": "SELECT station_name AS name, latitude, longitude, CASE WHEN is_airport THEN 'Aeroport' ELSE 'Gare' END AS type, COALESCE(city, station_name) AS ville, CASE country_code WHEN 'DE' THEN 'Allemagne' WHEN 'FR' THEN 'France' WHEN 'BE' THEN 'Belgique' WHEN 'NL' THEN 'Pays-Bas' WHEN 'CH' THEN 'Suisse' WHEN 'AT' THEN 'Autriche' WHEN 'IT' THEN 'Italie' WHEN 'ES' THEN 'Espagne' WHEN 'PT' THEN 'Portugal' WHEN 'PL' THEN 'Pologne' WHEN 'CZ' THEN 'Rep. Tcheque' WHEN 'SK' THEN 'Slovaquie' WHEN 'HU' THEN 'Hongrie' WHEN 'RO' THEN 'Roumanie' WHEN 'BG' THEN 'Bulgarie' WHEN 'HR' THEN 'Croatie' WHEN 'SI' THEN 'Slovenie' WHEN 'SE' THEN 'Suede' WHEN 'NO' THEN 'Norvege' WHEN 'DK' THEN 'Danemark' WHEN 'FI' THEN 'Finlande' WHEN 'GB' THEN 'Royaume-Uni' WHEN 'IE' THEN 'Irlande' WHEN 'LU' THEN 'Luxembourg' WHEN 'GR' THEN 'Grece' ELSE COALESCE(country_code, 'Inconnu') END AS pays FROM mart.dim_station WHERE latitude IS NOT NULL AND longitude IS NOT NULL AND latitude BETWEEN 35 AND 72 AND longitude BETWEEN -25 AND 45 LIMIT 8000;",
         "format": "table"
       }],
       "options": {
@@ -473,200 +270,136 @@
         "controls": { "showZoom": true, "mouseWheelZoom": true, "showScale": true },
         "basemap": { "type": "default" },
         "layers": [{
-          "type": "markers",
-          "name": "Stations",
-          "config": {
-            "size": { "fixed": 4, "min": 2, "max": 8 },
-            "color": { "fixed": "green" },
-            "fillOpacity": 80,
-            "showLegend": true
-          },
-          "location": {
-            "mode": "coords",
-            "latitude": "latitude",
-            "longitude": "longitude"
-          },
+          "type": "markers", "name": "Stations",
+          "config": { "size": { "fixed": 4, "min": 2, "max": 8 }, "color": { "fixed": "green" }, "fillOpacity": 80, "showLegend": true },
+          "location": { "mode": "coords", "latitude": "latitude", "longitude": "longitude" },
           "tooltip": true
         }]
       }
     },
 
-    {
-      "id": 104,
-      "title": "Qualite des donnees",
-      "type": "row",
-      "collapsed": false,
-      "gridPos": { "x": 0, "y": 66, "w": 24, "h": 1 },
-      "panels": []
+    { "id": 101, "title": "Surveillance ETL", "type": "row", "collapsed": false, "gridPos": { "x": 0, "y": 84, "w": 24, "h": 1 }, "panels": [] },
+
+    { "id": 10, "title": "Logs ETL en temps reel", "type": "logs", "gridPos": { "x": 0, "y": 85, "w": 14, "h": 7 },
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "targets": [{ "refId": "A", "expr": "{application=\"railcarbon-etl\"}", "legendFormat": "{{level}}" }],
+      "options": { "showTime": true, "showLabels": true, "wrapLogMessage": true, "sortOrder": "Descending", "dedupStrategy": "none" }
     },
 
-    {
-      "id": 50,
-      "title": "Routes avion sans CO2",
-      "type": "stat",
-      "gridPos": { "x": 0, "y": 67, "w": 6, "h": 4 },
+    { "id": 11, "title": "Historique des runs ETL", "type": "table", "gridPos": { "x": 14, "y": 85, "w": 10, "h": 7 },
       "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.dim_route_avion WHERE co2_total_kg IS NULL;", "format": "table" }],
-      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "fieldConfig": { "defaults": { "displayName": "Sans CO2",
-        "thresholds": { "mode": "absolute", "steps": [
-          { "color": "green", "value": null },
-          { "color": "orange", "value": 100 },
-          { "color": "red", "value": 1000 }
-        ]},
-        "color": { "mode": "thresholds" }
-      }}
-    },
-
-    {
-      "id": 51,
-      "title": "Routes sans typecode dominant",
-      "type": "stat",
-      "gridPos": { "x": 6, "y": 67, "w": 6, "h": 4 },
-      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.dim_route_avion WHERE dominant_typecode IS NULL;", "format": "table" }],
-      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "fieldConfig": { "defaults": { "displayName": "Sans typecode",
-        "thresholds": { "mode": "absolute", "steps": [
-          { "color": "green", "value": null },
-          { "color": "orange", "value": 1000 },
-          { "color": "red", "value": 5000 }
-        ]},
-        "color": { "mode": "thresholds" }
-      }}
-    },
-
-    {
-      "id": 52,
-      "title": "Stations sans coordonnees GPS",
-      "type": "stat",
-      "gridPos": { "x": 12, "y": 67, "w": 6, "h": 4 },
-      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.dim_station WHERE latitude IS NULL OR longitude IS NULL;", "format": "table" }],
-      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "fieldConfig": { "defaults": { "displayName": "Sans GPS",
-        "thresholds": { "mode": "absolute", "steps": [
-          { "color": "green", "value": null },
-          { "color": "orange", "value": 50 },
-          { "color": "red", "value": 200 }
-        ]},
-        "color": { "mode": "thresholds" }
-      }}
-    },
-
-    {
-      "id": 53,
-      "title": "Stations sans ville (city)",
-      "type": "stat",
-      "gridPos": { "x": 18, "y": 67, "w": 6, "h": 4 },
-      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.dim_station WHERE city IS NULL OR city = '';", "format": "table" }],
-      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "fieldConfig": { "defaults": { "displayName": "Sans ville",
-        "thresholds": { "mode": "absolute", "steps": [
-          { "color": "green", "value": null },
-          { "color": "orange", "value": 100 },
-          { "color": "red", "value": 500 }
-        ]},
-        "color": { "mode": "thresholds" }
-      }}
-    },
-
-    {
-      "id": 54,
-      "title": "Routes train sans faits (orphelines)",
-      "type": "stat",
-      "gridPos": { "x": 0, "y": 71, "w": 6, "h": 4 },
-      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.dim_route_train rt LEFT JOIN mart.fact_emission fe ON fe.route_train_id = rt.route_train_id WHERE fe.route_train_id IS NULL;", "format": "table" }],
-      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "fieldConfig": { "defaults": { "displayName": "Routes orphelines",
-        "thresholds": { "mode": "absolute", "steps": [
-          { "color": "green", "value": null },
-          { "color": "orange", "value": 100 },
-          { "color": "red", "value": 1000 }
-        ]},
-        "color": { "mode": "thresholds" }
-      }}
-    },
-
-    {
-      "id": 55,
-      "title": "Faits CO2 nuls ou negatifs",
-      "type": "stat",
-      "gridPos": { "x": 6, "y": 71, "w": 6, "h": 4 },
-      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.fact_emission WHERE co2_kg_passenger IS NULL OR co2_kg_passenger <= 0;", "format": "table" }],
-      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "fieldConfig": { "defaults": { "displayName": "CO2 nuls/negatifs",
-        "thresholds": { "mode": "absolute", "steps": [
-          { "color": "green", "value": null },
-          { "color": "orange", "value": 1 },
-          { "color": "red", "value": 100 }
-        ]},
-        "color": { "mode": "thresholds" }
-      }}
-    },
-
-    {
-      "id": 56,
-      "title": "Avion : typecodes ICAO sans vehicule connu",
-      "type": "stat",
-      "gridPos": { "x": 12, "y": 71, "w": 6, "h": 4 },
-      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.dim_route_avion r LEFT JOIN mart.dim_vehicle_avion v ON v.icao_typecode = r.dominant_typecode WHERE v.vehicle_avion_id IS NULL AND r.dominant_typecode IS NOT NULL;", "format": "table" }],
-      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "fieldConfig": { "defaults": { "displayName": "ICAO sans match",
-        "thresholds": { "mode": "absolute", "steps": [
-          { "color": "green", "value": null },
-          { "color": "orange", "value": 50 },
-          { "color": "red", "value": 200 }
-        ]},
-        "color": { "mode": "thresholds" }
-      }}
-    },
-
-    {
-      "id": 57,
-      "title": "Taux couverture CO2 avion (%)",
-      "type": "stat",
-      "gridPos": { "x": 18, "y": 71, "w": 6, "h": 4 },
-      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{ "refId": "A", "rawSql": "SELECT ROUND(100.0 * COUNT(co2_total_kg) / NULLIF(COUNT(*), 0), 1) AS val FROM mart.dim_route_avion;", "format": "table" }],
-      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
-      "fieldConfig": { "defaults": { "unit": "percent", "displayName": "Couverture CO2 avion",
-        "thresholds": { "mode": "absolute", "steps": [
-          { "color": "red", "value": null },
-          { "color": "orange", "value": 70 },
-          { "color": "green", "value": 90 }
-        ]},
-        "color": { "mode": "thresholds" }
-      }}
-    },
-
-    {
-      "id": 58,
-      "title": "Tableau recapitulatif qualite",
-      "type": "table",
-      "gridPos": { "x": 0, "y": 75, "w": 24, "h": 7 },
-      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
-      "targets": [{
-        "refId": "A",
-        "rawSql": "SELECT 'Routes train orphelines' AS metrique, COUNT(*) AS valeur, CASE WHEN COUNT(*) = 0 THEN 'OK' WHEN COUNT(*) < 1000 THEN 'Warning' ELSE 'Erreur' END AS statut FROM mart.dim_route_train rt LEFT JOIN mart.fact_emission fe ON fe.route_train_id = rt.route_train_id WHERE fe.route_train_id IS NULL UNION ALL SELECT 'Faits CO2 nuls', COUNT(*), CASE WHEN COUNT(*) = 0 THEN 'OK' WHEN COUNT(*) < 100 THEN 'Warning' ELSE 'Erreur' END FROM mart.fact_emission WHERE co2_kg_passenger IS NULL OR co2_kg_passenger <= 0 UNION ALL SELECT 'Routes avion sans CO2', COUNT(*), CASE WHEN COUNT(*) = 0 THEN 'OK' WHEN COUNT(*) < 100 THEN 'Warning' ELSE 'Erreur' END FROM mart.dim_route_avion WHERE co2_total_kg IS NULL UNION ALL SELECT 'ICAO sans vehicule connu', COUNT(*), CASE WHEN COUNT(*) = 0 THEN 'OK' WHEN COUNT(*) < 200 THEN 'Warning' ELSE 'Erreur' END FROM mart.dim_route_avion r LEFT JOIN mart.dim_vehicle_avion v ON v.icao_typecode = r.dominant_typecode WHERE v.vehicle_avion_id IS NULL AND r.dominant_typecode IS NOT NULL UNION ALL SELECT 'Stations sans GPS', COUNT(*), CASE WHEN COUNT(*) = 0 THEN 'OK' WHEN COUNT(*) < 200 THEN 'Warning' ELSE 'Erreur' END FROM mart.dim_station WHERE latitude IS NULL OR longitude IS NULL ORDER BY statut DESC;",
+      "targets": [{ "refId": "A",
+        "rawSql": "SELECT run_id, TO_CHAR(started_at, 'DD/MM HH24:MI') AS debut, COALESCE(ROUND(duration_s) || ' s', '...') AS duree, mois_traites AS mois, airports_charges AS airports, routes_chargees AS routes, erreurs, statut FROM mart.etl_run_log ORDER BY run_id DESC LIMIT 20;",
         "format": "table"
       }],
       "fieldConfig": {
-        "overrides": [{
-          "matcher": { "id": "byName", "options": "statut" },
-          "properties": [
-            { "id": "custom.displayMode", "value": "color-background" },
-            { "id": "mappings", "value": [
-              { "type": "value", "options": { "OK":      { "color": "green",  "index": 0 } } },
-              { "type": "value", "options": { "Warning": { "color": "orange", "index": 1 } } },
-              { "type": "value", "options": { "Erreur":  { "color": "red",    "index": 2 } } }
-            ]}
-          ]
-        }]
+        "overrides": [{ "matcher": { "id": "byName", "options": "statut" }, "properties": [
+          { "id": "custom.displayMode", "value": "color-background" },
+          { "id": "mappings", "value": [
+            { "type": "value", "options": { "succes":   { "color": "green",  "index": 0 } } },
+            { "type": "value", "options": { "erreur":   { "color": "red",    "index": 1 } } },
+            { "type": "value", "options": { "en_cours": { "color": "orange", "index": 2 } } }
+          ]}
+        ]}]
+      },
+      "options": { "sortBy": [{ "displayName": "run_id", "desc": true }] }
+    },
+
+    { "id": 12, "title": "Erreurs & Warnings ETL", "type": "logs", "gridPos": { "x": 0, "y": 92, "w": 14, "h": 5 },
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "targets": [{ "refId": "A", "expr": "{application=\"railcarbon-etl\"} |= \"ERROR\" or {application=\"railcarbon-etl\"} |= \"WARNING\"", "legendFormat": "{{level}}" }],
+      "options": { "showTime": true, "wrapLogMessage": true, "sortOrder": "Descending", "showLabels": false }
+    },
+
+    { "id": 13, "title": "Duree des runs ETL (secondes)", "type": "timeseries", "gridPos": { "x": 14, "y": 92, "w": 10, "h": 5 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{ "refId": "A",
+        "rawSql": "SELECT started_at AS \"time\", duration_s AS \"Duree (s)\", erreurs AS \"Erreurs\" FROM mart.etl_run_log WHERE started_at IS NOT NULL ORDER BY started_at;",
+        "format": "time_series"
+      }],
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "unit": "s" },
+        "overrides": [{ "matcher": { "id": "byName", "options": "Erreurs" }, "properties": [
+          { "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } },
+          { "id": "custom.drawStyle", "value": "bars" }
+        ]}]
+      },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
+    },
+
+    { "id": 104, "title": "Qualite des donnees", "type": "row", "collapsed": false, "gridPos": { "x": 0, "y": 97, "w": 24, "h": 1 }, "panels": [] },
+
+    { "id": 50, "title": "Routes avion sans CO2", "type": "stat", "gridPos": { "x": 0, "y": 98, "w": 6, "h": 4 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.dim_route_avion WHERE co2_total_kg IS NULL;", "format": "table" }],
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "displayName": "Sans CO2", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 100 }, { "color": "red", "value": 1000 }] }, "color": { "mode": "thresholds" } } }
+    },
+
+    { "id": 51, "title": "Routes sans typecode dominant", "type": "stat", "gridPos": { "x": 6, "y": 98, "w": 6, "h": 4 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.dim_route_avion WHERE dominant_typecode IS NULL;", "format": "table" }],
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "displayName": "Sans typecode", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 1000 }, { "color": "red", "value": 5000 }] }, "color": { "mode": "thresholds" } } }
+    },
+
+    { "id": 52, "title": "Stations sans coordonnees GPS", "type": "stat", "gridPos": { "x": 12, "y": 98, "w": 6, "h": 4 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.dim_station WHERE latitude IS NULL OR longitude IS NULL;", "format": "table" }],
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "displayName": "Sans GPS", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 50 }, { "color": "red", "value": 200 }] }, "color": { "mode": "thresholds" } } }
+    },
+
+    { "id": 53, "title": "Stations sans ville (city)", "type": "stat", "gridPos": { "x": 18, "y": 98, "w": 6, "h": 4 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.dim_station WHERE city IS NULL OR city = '';", "format": "table" }],
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "displayName": "Sans ville", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 100 }, { "color": "red", "value": 500 }] }, "color": { "mode": "thresholds" } } }
+    },
+
+    { "id": 54, "title": "Routes train sans faits (orphelines)", "type": "stat", "gridPos": { "x": 0, "y": 102, "w": 6, "h": 4 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.dim_route_train rt LEFT JOIN mart.fact_emission fe ON fe.route_train_id = rt.route_train_id WHERE fe.route_train_id IS NULL;", "format": "table" }],
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "displayName": "Routes orphelines", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 100 }, { "color": "red", "value": 1000 }] }, "color": { "mode": "thresholds" } } }
+    },
+
+    { "id": 55, "title": "Faits CO2 nuls ou negatifs", "type": "stat", "gridPos": { "x": 6, "y": 102, "w": 6, "h": 4 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.fact_emission WHERE co2_kg_passenger IS NULL OR co2_kg_passenger <= 0;", "format": "table" }],
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "displayName": "CO2 nuls/negatifs", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 1 }, { "color": "red", "value": 100 }] }, "color": { "mode": "thresholds" } } }
+    },
+
+    { "id": 56, "title": "Typecodes ICAO sans vehicule connu", "type": "stat", "gridPos": { "x": 12, "y": 102, "w": 6, "h": 4 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{ "refId": "A", "rawSql": "SELECT COUNT(*) AS val FROM mart.dim_route_avion r LEFT JOIN mart.dim_vehicle_avion v ON v.icao_typecode = r.dominant_typecode WHERE v.vehicle_avion_id IS NULL AND r.dominant_typecode IS NOT NULL;", "format": "table" }],
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "displayName": "ICAO sans match", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 50 }, { "color": "red", "value": 200 }] }, "color": { "mode": "thresholds" } } }
+    },
+
+    { "id": 57, "title": "Taux couverture CO2 avion (%)", "type": "stat", "gridPos": { "x": 18, "y": 102, "w": 6, "h": 4 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{ "refId": "A", "rawSql": "SELECT ROUND(100.0 * COUNT(co2_total_kg) / NULLIF(COUNT(*), 0), 1) AS val FROM mart.dim_route_avion;", "format": "table" }],
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "unit": "percent", "displayName": "Couverture CO2 avion", "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "orange", "value": 70 }, { "color": "green", "value": 90 }] }, "color": { "mode": "thresholds" } } }
+    },
+
+    { "id": 58, "title": "Tableau recapitulatif qualite", "type": "table", "gridPos": { "x": 0, "y": 106, "w": 24, "h": 7 },
+      "datasource": { "type": "postgres", "uid": "PostgreSQL" },
+      "targets": [{ "refId": "A",
+        "rawSql": "SELECT 'Routes train orphelines' AS metrique, COUNT(*) AS valeur, CASE WHEN COUNT(*) = 0 THEN 'OK' WHEN COUNT(*) < 1000 THEN 'Warning' ELSE 'Erreur' END AS statut FROM mart.dim_route_train rt LEFT JOIN mart.fact_emission fe ON fe.route_train_id = rt.route_train_id WHERE fe.route_train_id IS NULL UNION ALL SELECT 'Faits CO2 nuls', COUNT(*), CASE WHEN COUNT(*) = 0 THEN 'OK' WHEN COUNT(*) < 100 THEN 'Warning' ELSE 'Erreur' END FROM mart.fact_emission WHERE co2_kg_passenger IS NULL OR co2_kg_passenger <= 0 UNION ALL SELECT 'Routes avion sans CO2', COUNT(*), CASE WHEN COUNT(*) = 0 THEN 'OK' WHEN COUNT(*) < 100 THEN 'Warning' ELSE 'Erreur' END FROM mart.dim_route_avion WHERE co2_total_kg IS NULL UNION ALL SELECT 'ICAO sans vehicule connu', COUNT(*), CASE WHEN COUNT(*) = 0 THEN 'OK' WHEN COUNT(*) < 200 THEN 'Warning' ELSE 'Erreur' END FROM mart.dim_route_avion r LEFT JOIN mart.dim_vehicle_avion v ON v.icao_typecode = r.dominant_typecode WHERE v.vehicle_avion_id IS NULL AND r.dominant_typecode IS NOT NULL UNION ALL SELECT 'Stations sans GPS', COUNT(*), CASE WHEN COUNT(*) = 0 THEN 'OK' WHEN COUNT(*) < 200 THEN 'Warning' ELSE 'Erreur' END FROM mart.dim_station WHERE latitude IS NULL OR longitude IS NULL UNION ALL SELECT 'Stations sans ville', COUNT(*), CASE WHEN COUNT(*) = 0 THEN 'OK' WHEN COUNT(*) < 500 THEN 'Warning' ELSE 'Erreur' END FROM mart.dim_station WHERE city IS NULL OR city = '' ORDER BY statut DESC;",
+        "format": "table"
+      }],
+      "fieldConfig": {
+        "overrides": [{ "matcher": { "id": "byName", "options": "statut" }, "properties": [
+          { "id": "custom.displayMode", "value": "color-background" },
+          { "id": "mappings", "value": [
+            { "type": "value", "options": { "OK":      { "color": "green",  "index": 0 } } },
+            { "type": "value", "options": { "Warning": { "color": "orange", "index": 1 } } },
+            { "type": "value", "options": { "Erreur":  { "color": "red",    "index": 2 } } }
+          ]}
+        ]}]
       }
     }
 

@@ -835,6 +835,24 @@ def train_build_station_registry(all_stations: list) -> tuple:
          "source_id": s.get("source_id")}
         for cid, s in canonical_by_id.items()
     ]
+
+    # ── Correction country_code par reverse geocoding GPS ─────────────
+    try:
+        import reverse_geocode
+        coords = [(s["latitude"], s["longitude"]) for s in canonical_stations]
+        geo_results = reverse_geocode.search(coords)
+        corrected = 0
+        for station, geo in zip(canonical_stations, geo_results):
+            real_cc = geo.get("country_code", station["country_code"])
+            if real_cc and real_cc != station["country_code"]:
+                station["country_code"] = real_cc
+                corrected += 1
+        logger.info("[TRAIN][TRANSFORM] Reverse geocoding : %d country_code corrigés.", corrected)
+    except ImportError:
+        logger.warning("[TRAIN][TRANSFORM] reverse_geocode non installé — country_code hérité du feed GTFS.")
+    except Exception as _geo_err:
+        logger.warning("[TRAIN][TRANSFORM] Reverse geocoding échoué (%s) — country_code inchangés.", _geo_err)
+
     logger.info(
         "[TRAIN][TRANSFORM] Registre : %d stations canoniques, %d remappings.",
         len(canonical_stations), len(global_mapping),
@@ -1356,6 +1374,95 @@ EASA_TO_ICAO: dict = {
     "Falcon 7X":  "F7X",
 }
 
+# Données CO2 pour les typecodes OPDI non couverts par l'EASA CO2 Database.
+# Sources : ICAO Environmental Technical Manual, EUROCONTROL/BADA, littérature.
+# Unité co2_per_km : identique à dim_vehicle_avion (kg CO2 / km, total aéronef).
+# Principe : on scale à partir des valeurs EASA connues avec les facteurs publiés.
+OPDI_SUPPLEMENT: dict = {
+    # ── Boeing 737 family ──────────────────────────────────────────────────────
+    "B738": ("Boeing 737-800",          0.820, "court_moyen_courrier", "Boeing"),   # CEO, +12% vs NEO
+    "B38M": ("Boeing 737 MAX 8",        0.730, "court_moyen_courrier", "Boeing"),   # proxy A20N
+    "B39M": ("Boeing 737 MAX 9",        0.800, "court_moyen_courrier", "Boeing"),   # légèrement plus grand
+    "B37M": ("Boeing 737 MAX 7",        0.710, "court_moyen_courrier", "Boeing"),
+    "B737": ("Boeing 737-700",          0.760, "court_moyen_courrier", "Boeing"),
+    "B739": ("Boeing 737-900ER",        0.880, "court_moyen_courrier", "Boeing"),
+    "B752": ("Boeing 757-200",          0.990, "court_moyen_courrier", "Boeing"),
+    "B763": ("Boeing 767-300ER",        1.550, "long_courrier",        "Boeing"),
+    "B77W": ("Boeing 777-300ER",        1.850, "long_courrier",        "Boeing"),
+    "B772": ("Boeing 777-200ER",        1.720, "long_courrier",        "Boeing"),
+    "B788": ("Boeing 787-8 Dreamliner", 1.400, "long_courrier",        "Boeing"),
+    "B789": ("Boeing 787-9 Dreamliner", 1.480, "long_courrier",        "Boeing"),
+    "B78X": ("Boeing 787-10",           1.530, "long_courrier",        "Boeing"),
+    # ── Airbus CEO family ─────────────────────────────────────────────────────
+    "A318": ("Airbus A318",             0.800, "court_moyen_courrier", "Airbus"),
+    "A319": ("Airbus A319 CEO",         0.865, "court_moyen_courrier", "Airbus"),   # +15% vs A19N
+    "A320": ("Airbus A320 CEO",         0.837, "court_moyen_courrier", "Airbus"),   # +15% vs A20N
+    "A321": ("Airbus A321 CEO",         0.963, "court_moyen_courrier", "Airbus"),   # +12% vs A21N
+    "A332": ("Airbus A330-200 CEO",     1.660, "long_courrier",        "Airbus"),
+    "A333": ("Airbus A330-300 CEO",     1.720, "long_courrier",        "Airbus"),
+    # ── Embraer jets ─────────────────────────────────────────────────────────
+    "E170": ("Embraer 170",             0.580, "court_moyen_courrier", "Embraer"),
+    "E175": ("Embraer 175",             0.600, "court_moyen_courrier", "Embraer"),
+    "E190": ("Embraer 190",             0.620, "court_moyen_courrier", "Embraer"),
+    "E195": ("Embraer 195",             0.650, "court_moyen_courrier", "Embraer"),
+    "E290": ("Embraer E190-E2",         0.560, "court_moyen_courrier", "Embraer"),  # E2 generation
+    "E295": ("Embraer E195-E2",         0.620, "court_moyen_courrier", "Embraer"),
+    # ── Bombardier CRJ ───────────────────────────────────────────────────────
+    "CRJ2": ("Bombardier CRJ-200",      0.440, "regional",             "Bombardier"),
+    "CRJ7": ("Bombardier CRJ-700",      0.500, "regional",             "Bombardier"),
+    "CRJ9": ("Bombardier CRJ-900",      0.550, "regional",             "Bombardier"),
+    "CRJX": ("Bombardier CRJ-1000",     0.580, "regional",             "Bombardier"),
+    # ── Turboprops & business jets (OPDI inclut l'aviation d'affaires) ────────
+    "PC12": ("Pilatus PC-12",           0.450, "regional",             "Pilatus"),
+    "PC24": ("Pilatus PC-24",           0.520, "regional",             "Pilatus"),
+    "BE20": ("Beechcraft King Air 200", 0.380, "regional",             "Beechcraft"),
+    "TBM7": ("TBM 700",                 0.350, "regional",             "Daher"),
+    "E55P": ("Embraer Phenom 300",      0.420, "regional",             "Embraer"),
+    "C56X": ("Cessna Citation Sovereign",0.430,"regional",             "Cessna"),
+    "C25A": ("Cessna Citation CJ2",     0.360, "regional",             "Cessna"),
+    "C25B": ("Cessna Citation CJ3",     0.370, "regional",             "Cessna"),
+    "C510": ("Cessna Citation Mustang", 0.320, "regional",             "Cessna"),
+    "C172": ("Cessna 172 Skyhawk",      0.180, "regional",             "Cessna"),
+    "CL35": ("Bombardier Challenger 350",0.500,"regional",             "Bombardier"),
+    "CL60": ("Bombardier Challenger 600",0.620,"court_moyen_courrier", "Bombardier"),
+    "C68A": ("Cessna Citation Latitude", 0.400,"regional",             "Cessna"),
+    "S22T": ("Socata TB-20 Trinidad",   0.200, "regional",             "Socata"),
+    "EC45": ("Airbus H145 helicopter",  0.400, "regional",             "Airbus Helicopters"),
+}
+
+
+def avion_seed_opdi_vehicles_psql() -> int:
+    """
+    Insère dans dim_vehicle_avion les types d'avions OPDI non couverts par l'EASA
+    CO2 Database, en utilisant des valeurs CO2 publiées (ICAO ETM, BADA, littérature).
+    Idempotent via ON CONFLICT (label).
+    Retourne le nombre d'entrées insérées/mises à jour.
+    """
+    logger.info("[AVION][LOAD] dim_vehicle_avion (supplement OPDI) : %d types", len(OPDI_SUPPLEMENT))
+    try:
+        def esc(v):
+            return "NULL" if v is None else f"'{str(v).replace(chr(39), chr(39)*2)}'"
+
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".sql", delete=False, encoding="utf-8"
+        ) as f:
+            tmp = f.name
+            for icao_tc, (label, co2_per_km, service_type, manufacturer) in OPDI_SUPPLEMENT.items():
+                f.write(
+                    f"INSERT INTO mart.dim_vehicle_avion "
+                    f"(label, co2_per_km, service_type, icao_typecode, manufacturer) "
+                    f"VALUES ({esc(label)}, {co2_per_km}, {esc(service_type)}, {esc(icao_tc)}, {esc(manufacturer)}) "
+                    f"ON CONFLICT (label) DO NOTHING;\n"
+                )
+        ok = _run_sql_file(tmp)
+        os.remove(tmp)
+        if ok:
+            logger.info("[AVION][LOAD] dim_vehicle_avion supplement — %d types insérés.", len(OPDI_SUPPLEMENT))
+        return len(OPDI_SUPPLEMENT) if ok else 0
+    except Exception as e:
+        logger.error("[AVION][LOAD] dim_vehicle_avion supplement — erreur : %s", e)
+        return 0
+
 
 def _avion_generate_urls() -> list:
     start_dt = datetime.strptime(START_DATE, "%Y%m")
@@ -1832,13 +1939,19 @@ def avion_update_co2_psql() -> None:
 def avion_insert_facts_psql() -> int:
     """
     Insère les faits avion dans fact_emission après calcul co2_total_kg.
+    Seules les routes avec un typecode reconnu (EASA ou supplement OPDI) sont insérées.
+    Les routes sans correspondance de véhicule sont exclues pour ne pas biaiser les stats.
     co2_kg_passenger = co2_total_kg / nb_passagers_moyen selon catégorie de service.
-      - regional           : 70 passagers
-      - court_moyen_courrier: 150 passagers
-      - long_courrier       : 280 passagers
-      - inconnu (NULL)      : 150 passagers par défaut
+      - regional            :  70 passagers
+      - court_moyen_courrier : 150 passagers
+      - long_courrier        : 280 passagers
     """
     logger.info("[AVION][LOAD] Insertion des faits avion dans fact_emission...")
+    # Supprime d'abord les faits fallback (vehicle_avion_id IS NULL) obsolètes
+    _run_sql(f"""
+        DELETE FROM {SCHEMA}.fact_emission
+        WHERE transport_mode = 'avion' AND vehicle_avion_id IS NULL;
+    """)
     ok = _run_sql(f"""
         INSERT INTO {SCHEMA}.fact_emission
             (transport_mode, route_avion_id, vehicle_avion_id, co2_kg_passenger)
@@ -1851,11 +1964,10 @@ def avion_insert_facts_psql() -> int:
                     WHEN v.service_type = 'regional'              THEN 70.0
                     WHEN v.service_type = 'court_moyen_courrier'  THEN 150.0
                     WHEN v.service_type = 'long_courrier'         THEN 280.0
-                    ELSE 150.0
                 END
             , 3)
         FROM {SCHEMA}.dim_route_avion r
-        LEFT JOIN (
+        JOIN (
             SELECT DISTINCT ON (icao_typecode)
                 vehicle_avion_id, service_type, icao_typecode
             FROM {SCHEMA}.dim_vehicle_avion
@@ -1863,9 +1975,19 @@ def avion_insert_facts_psql() -> int:
             ORDER BY icao_typecode, vehicle_avion_id
         ) v ON v.icao_typecode = r.dominant_typecode
         WHERE r.co2_total_kg IS NOT NULL
-        ON CONFLICT (route_avion_id, vehicle_avion_id) DO NOTHING;
+        ON CONFLICT (route_avion_id, vehicle_avion_id) DO UPDATE
+            SET co2_kg_passenger = EXCLUDED.co2_kg_passenger,
+                transport_mode   = EXCLUDED.transport_mode;
     """)
     if ok:
+        # Supprime les dim_route_avion sans fact_emission (typecode non reconnu)
+        _run_sql(f"""
+            DELETE FROM {SCHEMA}.dim_route_avion
+            WHERE route_avion_id NOT IN (
+                SELECT route_avion_id FROM {SCHEMA}.fact_emission
+                WHERE transport_mode = 'avion' AND route_avion_id IS NOT NULL
+            );
+        """)
         raw = _query_sql(f"SELECT COUNT(*) FROM {SCHEMA}.fact_emission WHERE transport_mode = 'avion';")
         n = int(raw.strip()) if raw and raw.strip().isdigit() else 0
         logger.info("[AVION][LOAD] fact_emission — %d faits avion insérés.", n)
@@ -2160,6 +2282,9 @@ def main() -> None:
                         )
                         if not ok_veh:
                             metrics["erreurs"] += 1
+
+                        # Complète avec les typecodes OPDI non couverts par l'EASA
+                        avion_seed_opdi_vehicles_psql()
 
                         n_stations = avion_load_stations_psql(
                             final_routes_df, airports_df,
