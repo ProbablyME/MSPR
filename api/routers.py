@@ -160,6 +160,14 @@ class LongestRouteResponse(BaseModel):
     distance_km: float
     transport_mode: str
 
+class RankingGreenerResponse(BaseModel):
+    dep_city: str
+    arr_city: str
+    train_co2_kg: float
+    plane_co2_kg: float
+    savings_kg: float
+    savings_percent: float
+
 # --- Stats ---
 
 class NetworkStatsResponse(BaseModel):
@@ -1086,6 +1094,57 @@ def get_common_cities(db: Session = Depends(get_db)):
 # 8. CLASSEMENTS & STATISTIQUES
 # ============================================================
 
+
+@router.get(
+    "/ranking/greener-routes",
+    response_model=List[RankingGreenerResponse],
+    tags=["Classements & Stats"],
+    summary="Top des trajets ou le train est le plus avantageux en CO2",
+)
+def ranking_greener_routes(
+    limit: int = Query(10, ge=1, le=100),
+    db: Session = Depends(get_db),
+):
+    query = text("""
+        WITH train_agg AS (
+            SELECT st_dep.city AS dep_city, st_arr.city AS arr_city, AVG(fe.co2_kg_passenger) AS train_co2
+            FROM mart.fact_emission fe
+            JOIN mart.dim_route_train rt ON fe.route_train_id = rt.route_train_id
+            JOIN mart.dim_station st_dep ON rt.dep_station_id = st_dep.station_id
+            JOIN mart.dim_station st_arr ON rt.arr_station_id = st_arr.station_id
+            WHERE fe.transport_mode = 'train'
+            GROUP BY st_dep.city, st_arr.city
+        ),
+        plane_agg AS (
+            SELECT st_dep.city AS dep_city, st_arr.city AS arr_city, AVG(fe.co2_kg_passenger) AS plane_co2
+            FROM mart.fact_emission fe
+            JOIN mart.dim_route_avion ra ON fe.route_avion_id = ra.route_avion_id
+            JOIN mart.dim_station st_dep ON ra.dep_station_id = st_dep.station_id
+            JOIN mart.dim_station st_arr ON ra.arr_station_id = st_arr.station_id
+            WHERE fe.transport_mode = 'avion'
+            GROUP BY st_dep.city, st_arr.city
+        ),
+        comparable AS (
+            SELECT t.dep_city, t.arr_city, t.train_co2, p.plane_co2,
+                   (p.plane_co2 - t.train_co2) AS savings_kg,
+                   ((p.plane_co2 - t.train_co2) / NULLIF(p.plane_co2, 0) * 100) AS savings_percent
+            FROM train_agg t
+            JOIN plane_agg p ON t.dep_city = p.dep_city AND t.arr_city = p.arr_city
+            WHERE t.train_co2 < p.plane_co2
+        )
+        SELECT dep_city, arr_city,
+               ROUND(train_co2::numeric, 3) AS train_co2_kg,
+               ROUND(plane_co2::numeric, 3) AS plane_co2_kg,
+               ROUND(savings_kg::numeric, 3) AS savings_kg,
+               ROUND(savings_percent::numeric, 1) AS savings_percent
+        FROM comparable
+        ORDER BY savings_percent DESC
+        LIMIT :limit
+    """)
+    rows = db.execute(query, {"limit": limit}).fetchall()
+    if not rows:
+        raise HTTPException(status_code=404, detail="Aucun trajet trouve.")
+    return [RankingGreenerResponse(**dict(r._mapping)) for r in rows]
 
 @router.get(
     "/ranking/longest-routes",
