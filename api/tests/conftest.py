@@ -1,15 +1,9 @@
-import sys
-import os
-
-# Ajoute api/ au path pour que les imports fonctionnent (from security import ..., etc.)
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 from unittest.mock import MagicMock
 import pytest
 from fastapi.testclient import TestClient
 
-from main import app
-from database import get_db
+from api.main import app
+from api.database import get_db
 
 # Token par défaut défini dans config.py
 TOKEN = "my-secret-token-123"

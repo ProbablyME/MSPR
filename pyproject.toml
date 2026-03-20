@@ -1,0 +1,39 @@
+[project]
+name = "railcarbon"
+version = "0.1.0"
+requires-python = ">=3.11"
+# Pas de dépendances obligatoires : chaque groupe est activé selon le besoin
+dependencies = []
+
+# ── Workspace uv ──────────────────────────────────────────────────────────────
+# Un seul uv.lock à la racine couvre tous les membres du workspace
+[tool.uv.workspace]
+members = ["api"]
+
+# ── Groupes de dépendances ────────────────────────────────────────────────────
+# ETL  : uv sync --group etl
+# Tests: uv sync --group dev   (railcarbon-api est installé via le workspace)
+
+[dependency-groups]
+
+etl = [
+    "pyspark>=3.5",
+    "psycopg2-binary>=2.9",
+    "openpyxl>=3.1",
+    "requests>=2.31",
+    "python-dateutil>=2.8",
+    "reverse-geocode>=1.6",
+    "python-logging-loki>=0.3",
+]
+
+dev = [
+    "pytest==8.1.1",
+    "pytest-cov==5.0.0",
+    "httpx==0.27.0",
+]
+
+# ── Configuration pytest ──────────────────────────────────────────────────────
+[tool.pytest.ini_options]
+testpaths = ["api/tests"]
+pythonpath = ["api/src", "api/tests"]
+addopts = "-v --cov=api --cov-report=term-missing --cov-report=html --cov-fail-under=80"

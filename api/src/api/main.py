@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends
 from fastapi.openapi.utils import get_openapi
-from security import verify_token
-import routers
+from .security import verify_token
+from . import routers
 
 tags_metadata = [
     {
