@@ -232,7 +232,7 @@
 2026-03-05 19:09:29,494 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81653
 2026-03-05 19:09:29,537 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81678
 2026-03-05 19:09:29,582 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81705
-2026-03-05 19:09:29,630 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81754
+2026-03-05 19:09:29,630 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-8 1754
 2026-03-05 19:09:29,682 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81770
 2026-03-05 19:09:29,727 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81773
 2026-03-05 19:09:29,770 - INFO - [TRAIN][EXTRACT] D�j� pr�sent : FR/tdg-81794
