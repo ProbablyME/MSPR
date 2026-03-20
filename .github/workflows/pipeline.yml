@@ -6,7 +6,7 @@
 #   - Push sur main                           → test + build + smoke-test
 #   - Pull Request vers main                  → job "test" uniquement
 #
-# Séquence sur main :
+# Séquence sur main  :
 #   test ──► build-and-push ──► smoke-test
 # ============================================================
 
@@ -80,6 +80,11 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Le driver "docker" par défaut ne supporte pas le cache GHA.
+      # setup-buildx bascule sur "docker-container" qui le supporte.
+      - name: Configurer Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Build et push l'image Docker
         uses: docker/build-push-action@v5
