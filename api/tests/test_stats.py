@@ -28,7 +28,12 @@ def _longest_row(**kwargs):
 # ---------------------------------------------------------------------------
 
 def test_ranking_greener_found(client, mock_db):
-    mock_db.execute.return_value.fetchall.return_value = [_ranking_row()]
+    from unittest.mock import MagicMock
+    # Remplace entièrement execute.return_value pour éviter
+    # que le fetchall.return_value=[] du conftest ne persiste
+    mock_db.execute.return_value = MagicMock(
+        fetchall=MagicMock(return_value=[_ranking_row()])
+    )
     r = client.get(GREENER_URL, headers=HEADERS)
     assert r.status_code == 200
     data = r.json()
@@ -43,7 +48,10 @@ def test_ranking_greener_not_found(client, mock_db):
 
 
 def test_ranking_greener_with_limit(client, mock_db):
-    mock_db.execute.return_value.fetchall.return_value = [_ranking_row()] * 5
+    from unittest.mock import MagicMock
+    mock_db.execute.return_value = MagicMock(
+        fetchall=MagicMock(return_value=[_ranking_row()] * 5)
+    )
     r = client.get(f"{GREENER_URL}?limit=5", headers=HEADERS)
     assert r.status_code == 200
     assert len(r.json()) == 5
