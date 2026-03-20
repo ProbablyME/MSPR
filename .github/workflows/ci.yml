@@ -1,0 +1,68 @@
+# ============================================================
+# CI — Intégration Continue
+# Déclenchement : chaque push sur n'importe quelle branche
+#                 + chaque Pull Request vers main
+# Objectif      : vérifier que les tests passent et que la
+#                 couverture de code atteint 80 %
+# ============================================================
+
+name: CI – Tests & Coverage
+
+on:
+  push:
+    branches: ["**"]          # tous les pushs sur toutes les branches
+  pull_request:
+    branches: [main]          # toute PR ciblant main
+
+jobs:
+  test:
+    name: Pytest + Coverage ≥ 80 %
+    runs-on: ubuntu-latest    # VM Ubuntu fournie gratuitement par GitHub
+
+    steps:
+      # ----------------------------------------------------------
+      # 1. Récupérer le code source du dépôt
+      # ----------------------------------------------------------
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      # ----------------------------------------------------------
+      # 2. Installer Python 3.11 (correspond à la version du Dockerfile)
+      # ----------------------------------------------------------
+      - name: Configurer Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"                        # mise en cache du répertoire pip entre les runs
+
+      # ----------------------------------------------------------
+      # 3. Installer toutes les dépendances (prod + test)
+      # ----------------------------------------------------------
+      - name: Installer les dépendances
+        run: pip install -r api/requirements.txt
+
+      # ----------------------------------------------------------
+      # 4. Lancer les tests avec mesure de couverture
+      #    - pytest lit pytest.ini à la racine du projet
+      #    - les tests sont dans api/tests/
+      #    - la DB est entièrement mockée → aucun PostgreSQL nécessaire
+      #    - --cov-fail-under=80 fait échouer le job si < 80 %
+      # ----------------------------------------------------------
+      - name: Lancer pytest avec coverage
+        env:
+          # Token par défaut utilisé dans les tests mockés
+          # Correspond à la valeur par défaut dans config.py
+          API_TOKEN: my-secret-token-123
+        run: pytest
+
+      # ----------------------------------------------------------
+      # 5. Publier le rapport de couverture HTML comme artefact
+      #    téléchargeable depuis l'interface GitHub Actions
+      # ----------------------------------------------------------
+      - name: Uploader le rapport de couverture HTML
+        if: always()                          # même si les tests échouent
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: htmlcov/                      # généré par --cov-report=html dans pytest.ini
+          retention-days: 7                   # conservation 7 jours
