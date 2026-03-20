@@ -11,7 +11,7 @@ __pycache__/
 *.pyo
 *.pkl
 
-# Environnement
+# Environnement — NE JAMAIS COMMITTER
 .env
 *.env
 
@@ -21,3 +21,8 @@ __pycache__/
 # IDE
 .vscode/
 .idea/
+
+# Tests & Coverage
+.coverage
+htmlcov/
+.pytest_cache/

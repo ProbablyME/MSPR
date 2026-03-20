@@ -1,0 +1,203 @@
+# ============================================================
+# CD — Livraison Continue
+# Déclenchement : uniquement sur push vers la branche main
+# Étapes        :
+#   1. Tests (porte qualité — on ne déploie jamais sans tests)
+#   2. Build de l'image Docker + push sur ghcr.io
+#   3. Smoke test : on démarre la stack complète directement
+#      dans le runner GitHub (PostgreSQL + API) et on vérifie
+#      que l'API répond → pas besoin de serveur externe
+# ============================================================
+
+name: CD – Build Docker & Smoke Test
+
+on:
+  push:
+    branches: [main]
+
+# GITHUB_TOKEN a besoin de l'autorisation d'écriture sur ghcr.io
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  # ============================================================
+  # JOB 1 — Tests unitaires (porte qualité)
+  # On ne build jamais une image sans avoir testé le code
+  # ============================================================
+  test:
+    name: Tests unitaires (coverage ≥ 80 %)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Configurer Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Installer les dépendances
+        run: pip install -r api/requirements.txt
+
+      - name: Lancer pytest
+        env:
+          API_TOKEN: my-secret-token-123
+        run: pytest
+
+  # ============================================================
+  # JOB 2 — Build Docker + Push ghcr.io
+  # Dépend du job "test" : bloqué si les tests échouent
+  # ============================================================
+  build-and-push:
+    name: Build image Docker & Push ghcr.io
+    runs-on: ubuntu-latest
+    needs: test
+
+    outputs:
+      # Transmet le tag exact de l'image au job suivant
+      image: ghcr.io/${{ github.repository }}/api:sha-${{ github.sha }}
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      # ----------------------------------------------------------
+      # Connexion à GitHub Container Registry
+      # GITHUB_TOKEN est fourni automatiquement — rien à configurer
+      # ----------------------------------------------------------
+      - name: Se connecter à ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # ----------------------------------------------------------
+      # Build et push avec deux tags :
+      #   :main          → tag stable de la branche
+      #   :sha-<commit>  → tag précis pour traçabilité
+      # ----------------------------------------------------------
+      - name: Build et push l'image Docker
+        uses: docker/build-push-action@v5
+        with:
+          context: ./api
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/api:main
+            ghcr.io/${{ github.repository }}/api:sha-${{ github.sha }}
+          cache-from: type=gha        # réutilise le cache du build précédent
+          cache-to: type=gha,mode=max
+
+  # ============================================================
+  # JOB 3 — Smoke test (environnement de test dans le runner)
+  #
+  # Le runner GitHub Ubuntu joue le rôle du "serveur de test".
+  # On démarre PostgreSQL + l'API avec docker compose,
+  # on attend que tout soit prêt, puis on vérifie que l'API
+  # répond correctement (health check + endpoint réel).
+  # Pas besoin de serveur externe.
+  # ============================================================
+  smoke-test:
+    name: Smoke test (stack complète dans le runner)
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    # Variables d'environnement du job — pas de secrets exposés dans les logs
+    env:
+      DB_USER: postgres
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_NAME: postgres
+      API_TOKEN: ${{ secrets.API_TOKEN }}
+      # Image exacte buildée par le job précédent
+      API_IMAGE: ${{ needs.build-and-push.outputs.image }}
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      # ----------------------------------------------------------
+      # Se connecter à ghcr.io pour pouvoir pull l'image
+      # ----------------------------------------------------------
+      - name: Se connecter à ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # ----------------------------------------------------------
+      # Démarrer la stack complète avec docker-compose.ci.yml
+      # PostgreSQL sera initialisé avec schema.sql + seed_data.sql
+      # L'API attend que Postgres soit healthy avant de démarrer
+      # ----------------------------------------------------------
+      - name: Démarrer la stack (PostgreSQL + API)
+        run: |
+          docker compose -f docker-compose.ci.yml up -d postgres api
+
+      # ----------------------------------------------------------
+      # Attendre que l'API soit opérationnelle
+      # On interroge /api/v1/health toutes les 5 secondes
+      # Timeout : 2 minutes (seed_data.sql peut prendre du temps)
+      # ----------------------------------------------------------
+      - name: Attendre que l'API soit prête
+        timeout-minutes: 2
+        run: |
+          echo "Attente du démarrage de l'API..."
+          until curl --silent --fail \
+            -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
+            http://localhost:8000/api/v1/health; do
+            echo "  → pas encore prête, nouvelle tentative dans 5s..."
+            sleep 5
+          done
+          echo "API opérationnelle !"
+
+      # ----------------------------------------------------------
+      # Vérifications fonctionnelles minimales
+      # On valide que les endpoints principaux répondent
+      # ----------------------------------------------------------
+      - name: Vérifier l'endpoint racine
+        run: |
+          curl --fail \
+            -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
+            http://localhost:8000/ \
+            | jq .
+
+      - name: Vérifier l'endpoint /stations
+        run: |
+          curl --fail \
+            -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
+            "http://localhost:8000/api/v1/stations?per_page=1" \
+            | jq '.total'
+
+      - name: Vérifier l'endpoint /sources
+        run: |
+          curl --fail \
+            -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
+            http://localhost:8000/api/v1/sources \
+            | jq 'length'
+
+      - name: Vérifier que l'auth fonctionne (token invalide → 401)
+        run: |
+          STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+            -H "Authorization: Bearer mauvais-token" \
+            http://localhost:8000/api/v1/stations)
+          [ "$STATUS" = "401" ] \
+            && echo "Auth OK : 401 reçu comme attendu" \
+            || (echo "ERREUR : statut inattendu $STATUS" && exit 1)
+
+      # ----------------------------------------------------------
+      # Afficher les logs de l'API en cas d'échec (debug)
+      # ----------------------------------------------------------
+      - name: Afficher les logs en cas d'échec
+        if: failure()
+        run: docker compose -f docker-compose.ci.yml logs api
+
+      # ----------------------------------------------------------
+      # Toujours arrêter les containers à la fin
+      # ----------------------------------------------------------
+      - name: Arrêter la stack
+        if: always()
+        run: docker compose -f docker-compose.ci.yml down -v

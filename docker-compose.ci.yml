@@ -1,0 +1,59 @@
+# ============================================================
+# docker-compose.ci.yml — Stack de test (pas de serveur requis)
+#
+# Utilisé par :
+#   - le pipeline CD (job smoke-test) — runner GitHub fait office
+#     d'environnement de test
+#   - localement pour reproduire exactement le même environnement
+#
+# L'API utilise une image pre-buildée depuis ghcr.io.
+# Toutes les valeurs sensibles viennent de variables d'environnement.
+#
+# Usage local :
+#   export DB_PASSWORD=xxx API_TOKEN=yyy API_IMAGE=ghcr.io/...
+#   docker compose -f docker-compose.ci.yml up -d
+# ============================================================
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: railcarbon_db_test
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}      # obligatoire — pas de valeur par défaut
+      POSTGRES_DB: ${DB_NAME:-postgres}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./seed_data.sql:/docker-entrypoint-initdb.d/02_seed_data.sql
+      - railcarbon_pgdata_test:/var/lib/postgresql/data
+    healthcheck:
+      # Vérifie que PostgreSQL accepte les connexions avant de démarrer l'API
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20          # seed_data.sql peut être long à charger
+
+  api:
+    # Image pre-buildée par le job build-and-push du pipeline CD
+    # La variable API_IMAGE est injectée par le runner GitHub
+    image: ${API_IMAGE}
+    container_name: railcarbon_api_test
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: ${DB_NAME:-postgres}
+      API_TOKEN: ${API_TOKEN}
+    depends_on:
+      postgres:
+        condition: service_healthy    # démarre seulement quand Postgres est prêt
+
+volumes:
+  railcarbon_pgdata_test:
