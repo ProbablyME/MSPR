@@ -68,7 +68,7 @@ jobs:
     if: github.ref == 'refs/heads/main'   # uniquement sur main
 
     outputs:
-      image: ghcr.io/${{ github.repository }}/api:sha-${{ github.sha }}
+      image: ${{ steps.image.outputs.name }}:sha-${{ github.sha }}
 
     steps:
       - name: Checkout du code
@@ -81,6 +81,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # ghcr.io exige des noms d'image entièrement en minuscules
+      - name: Calculer le nom d'image en minuscules
+        id: image
+        run: |
+          echo "name=ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')/api" >> $GITHUB_OUTPUT
+
       # Le driver "docker" par défaut ne supporte pas le cache GHA.
       # setup-buildx bascule sur "docker-container" qui le supporte.
       - name: Configurer Docker Buildx
@@ -92,8 +98,8 @@ jobs:
           context: ./api
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/api:main
-            ghcr.io/${{ github.repository }}/api:sha-${{ github.sha }}
+            ${{ steps.image.outputs.name }}:main
+            ${{ steps.image.outputs.name }}:sha-${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
