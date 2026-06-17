@@ -14,6 +14,10 @@ __pycache__/
 # Environnement — NE JAMAIS COMMITTER
 .env
 *.env
+.env.*
+# ...sauf les modèles d'exemple, qui DOIVENT être versionnés
+!.env.example
+!*.env.example
 
 # macOS
 .DS_Store
@@ -26,3 +30,13 @@ __pycache__/
 .coverage
 htmlcov/
 .pytest_cache/
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+frontend/playwright-report/
+frontend/test-results/
+frontend/.venv/
+
+# Environnement Python virtuel
+.venv/

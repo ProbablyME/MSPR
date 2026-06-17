@@ -1,3 +1,5 @@
+import heapq
+import math
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -6,6 +8,132 @@ from pydantic import BaseModel
 from .database import get_db
 
 router = APIRouter()
+
+# ============================================================
+# GRAPHE FERROVIAIRE (pour le calcul d'itinéraire multi-segments)
+# Les routes train sont des tronçons gare→gare consécutifs. Pour comparer
+# deux villes reliées par correspondances, on reconstruit le plus court chemin
+# (Dijkstra par distance) et on additionne les émissions CO2 de chaque tronçon.
+# Le graphe est mis en cache en mémoire (données statiques entre deux ETL).
+# ============================================================
+
+_TRAIN_GRAPH = None  # { dep_station_id: [(arr_station_id, distance_km, co2_kg)] }
+_GREENER_JOURNEYS = None  # cache du classement des trajets train > avion
+# Facteur de repli si un tronçon n'a pas de fait CO2 (kg CO2 / km / passager,
+# ordre de grandeur train régional électrique européen)
+TRAIN_CO2_PER_KM_FALLBACK = 0.035
+# Longueur maximale plausible d'un tronçon gare→gare consécutif (TGV/grande
+# ligne sans arrêt ≈ 400-660 km ; au-delà = aberration). Les liens > seuil sont
+# écartés (collisions de stop_id / coordonnées corrompues → téléportations).
+MAX_SEGMENT_KM = 700.0
+
+
+def _haversine(lat1, lon1, lat2, lon2) -> float:
+    r = 6371.0
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dp = math.radians(lat2 - lat1)
+    dl = math.radians(lon2 - lon1)
+    a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+    return 2 * r * math.asin(math.sqrt(a))
+
+
+def _load_train_graph(db: Session):
+    """
+    Construit (une fois) le graphe orienté des tronçons ferroviaires.
+
+    La distance de chaque tronçon est RECALCULÉE depuis les coordonnées réelles
+    des gares (et non la valeur stockée, parfois faussée). Les tronçons dont la
+    distance dépasse MAX_SEGMENT_KM sont écartés : ce sont des liens aberrants
+    issus de collisions de stop_id entre feeds (téléportations transfrontalières).
+    """
+    global _TRAIN_GRAPH
+    if _TRAIN_GRAPH is not None:
+        return _TRAIN_GRAPH
+    rows = db.execute(text("""
+        SELECT rt.dep_station_id, rt.arr_station_id, rt.distance_km,
+               sd.latitude AS dlat, sd.longitude AS dlon,
+               sa.latitude AS alat, sa.longitude AS alon,
+               fe.co2_kg_passenger
+        FROM mart.dim_route_train rt
+        JOIN mart.dim_station sd ON rt.dep_station_id = sd.station_id
+        JOIN mart.dim_station sa ON rt.arr_station_id = sa.station_id
+        LEFT JOIN mart.fact_emission fe
+          ON fe.route_train_id = rt.route_train_id AND fe.transport_mode = 'train'
+        WHERE sd.latitude IS NOT NULL AND sd.longitude IS NOT NULL
+          AND sa.latitude IS NOT NULL AND sa.longitude IS NOT NULL
+    """)).fetchall()
+    graph: dict = {}
+    for r in rows:
+        m = r._mapping
+        dist = _haversine(float(m["dlat"]), float(m["dlon"]),
+                          float(m["alat"]), float(m["alon"]))
+        if dist <= 0 or dist > MAX_SEGMENT_KM:
+            continue  # tronçon trop long → aberration (collision / coords corrompues)
+        # Cohérence : la distance stockée doit rester proche de la distance réelle.
+        # Un écart fort trahit une collision de stop_id (faux lien entre feeds).
+        stored = m["distance_km"]
+        if stored is not None and dist > 50:
+            stored = float(stored)
+            if stored < 0.4 * dist or stored > 2.5 * dist:
+                continue
+        co2 = m["co2_kg_passenger"]
+        co2 = float(co2) if co2 is not None else dist * TRAIN_CO2_PER_KM_FALLBACK
+        graph.setdefault(m["dep_station_id"], []).append((m["arr_station_id"], dist, co2))
+    _TRAIN_GRAPH = graph
+    return graph
+
+
+def _station_ids(db: Session, city: str) -> set:
+    """Stations ferroviaires d'une ville (tolère les suffixes de gare)."""
+    rows = db.execute(text("""
+        SELECT station_id FROM mart.dim_station
+        WHERE is_airport = FALSE AND (city ILIKE :c OR city ILIKE :cp)
+    """), {"c": city, "cp": f"{city} %"}).fetchall()
+    return {r._mapping["station_id"] for r in rows}
+
+
+def _shortest_train(graph: dict, dep_ids: set, arr_ids: set, max_dist: float = None):
+    """
+    Plus court chemin (Dijkstra par distance) d'une des gares de départ vers la
+    plus proche gare d'arrivée. Retourne (total_distance_km, total_co2_kg, chain)
+    ou (None, None, None) si aucun itinéraire. ``max_dist`` borne l'exploration.
+    """
+    if not dep_ids or not arr_ids or (dep_ids & arr_ids):
+        return None, None, None
+    INF = float("inf")
+    best = {sid: 0.0 for sid in dep_ids}
+    prev = {}
+    heap = [(0.0, sid) for sid in dep_ids]
+    heapq.heapify(heap)
+    target = None
+    while heap:
+        d, u = heapq.heappop(heap)
+        if d > best.get(u, INF):
+            continue
+        if u in arr_ids:
+            target = u
+            break
+        if max_dist is not None and d > max_dist:
+            continue  # élague les branches trop longues
+        for (v, ed, ec) in graph.get(u, ()):
+            nd = d + ed
+            if nd < best.get(v, INF):
+                best[v] = nd
+                prev[v] = (u, ed, ec)
+                heapq.heappush(heap, (nd, v))
+    if target is None:
+        return None, None, None
+    chain = []
+    u = target
+    co2_sum = 0.0
+    while u not in dep_ids:
+        p, ed, ec = prev[u]
+        chain.append(u)
+        co2_sum += ec
+        u = p
+    chain.append(u)
+    chain.reverse()
+    return round(best[target], 1), round(co2_sum, 3), chain
 
 # ============================================================
 # PYDANTIC MODELS
@@ -800,7 +928,11 @@ def compare_cities(
 
     dist_filter_train = ""
     dist_filter_avion = ""
-    params = {"dep_city": dep_city, "arr_city": arr_city}
+    # Tolère les suffixes de gare : "Berlin" matche aussi "Berlin Hbf", "Berlin Ostbahnhof"…
+    params = {
+        "dep_city": dep_city, "dep_city_p": f"{dep_city} %",
+        "arr_city": arr_city, "arr_city_p": f"{arr_city} %",
+    }
     if min_distance_km is not None:
         dist_filter_train = "AND rt.distance_km >= :min_dist"
         dist_filter_avion = "AND ra.distance_km >= :min_dist"
@@ -814,7 +946,7 @@ def compare_cities(
         JOIN mart.dim_vehicle_train vt ON fe.vehicle_train_id = vt.vehicle_train_id
         JOIN mart.dim_station st_dep ON rt.dep_station_id = st_dep.station_id
         JOIN mart.dim_station st_arr ON rt.arr_station_id = st_arr.station_id
-        WHERE st_dep.city ILIKE :dep_city AND st_arr.city ILIKE :arr_city
+        WHERE (st_dep.city ILIKE :dep_city OR st_dep.city ILIKE :dep_city_p) AND (st_arr.city ILIKE :arr_city OR st_arr.city ILIKE :arr_city_p)
           {night_filter} {dist_filter_train}
 
         UNION ALL
@@ -826,7 +958,7 @@ def compare_cities(
         JOIN mart.dim_vehicle_avion va ON fe.vehicle_avion_id = va.vehicle_avion_id
         JOIN mart.dim_station st_dep ON ra.dep_station_id = st_dep.station_id
         JOIN mart.dim_station st_arr ON ra.arr_station_id = st_arr.station_id
-        WHERE st_dep.city ILIKE :dep_city AND st_arr.city ILIKE :arr_city
+        WHERE (st_dep.city ILIKE :dep_city OR st_dep.city ILIKE :dep_city_p) AND (st_arr.city ILIKE :arr_city OR st_arr.city ILIKE :arr_city_p)
           {dist_filter_avion}
     """)
 
@@ -867,10 +999,13 @@ def compare_winner(
         LEFT JOIN mart.dim_route_avion ra ON fe.route_avion_id = ra.route_avion_id
         LEFT JOIN mart.dim_station st_dep ON COALESCE(rt.dep_station_id, ra.dep_station_id) = st_dep.station_id
         LEFT JOIN mart.dim_station st_arr ON COALESCE(rt.arr_station_id, ra.arr_station_id) = st_arr.station_id
-        WHERE st_dep.city ILIKE :dep_city AND st_arr.city ILIKE :arr_city
+        WHERE (st_dep.city ILIKE :dep_city OR st_dep.city ILIKE :dep_city_p) AND (st_arr.city ILIKE :arr_city OR st_arr.city ILIKE :arr_city_p)
     """)
 
-    row = db.execute(query, {"dep_city": dep_city, "arr_city": arr_city}).fetchone()
+    row = db.execute(query, {
+        "dep_city": dep_city, "dep_city_p": f"{dep_city} %",
+        "arr_city": arr_city, "arr_city_p": f"{arr_city} %",
+    }).fetchone()
     if not row or (row._mapping["train_co2"] is None and row._mapping["plane_co2"] is None):
         raise HTTPException(status_code=404, detail="Aucun trajet comparable trouve pour ces villes.")
 
@@ -925,12 +1060,15 @@ def compare_passengers(
         LEFT JOIN mart.dim_route_avion ra ON fe.route_avion_id = ra.route_avion_id
         LEFT JOIN mart.dim_station st_dep ON COALESCE(rt.dep_station_id, ra.dep_station_id) = st_dep.station_id
         LEFT JOIN mart.dim_station st_arr ON COALESCE(rt.arr_station_id, ra.arr_station_id) = st_arr.station_id
-        WHERE st_dep.city ILIKE :dep_city AND st_arr.city ILIKE :arr_city
+        WHERE (st_dep.city ILIKE :dep_city OR st_dep.city ILIKE :dep_city_p) AND (st_arr.city ILIKE :arr_city OR st_arr.city ILIKE :arr_city_p)
         GROUP BY fe.transport_mode, st_dep.city, st_arr.city
         ORDER BY fe.transport_mode
     """)
 
-    result = db.execute(query, {"dep_city": dep_city, "arr_city": arr_city}).fetchall()
+    result = db.execute(query, {
+        "dep_city": dep_city, "dep_city_p": f"{dep_city} %",
+        "arr_city": arr_city, "arr_city_p": f"{arr_city} %",
+    }).fetchall()
     if not result:
         raise HTTPException(status_code=404, detail="Aucun trajet trouve pour ces villes.")
 
@@ -948,6 +1086,118 @@ def compare_passengers(
         )
         for r in result
     ]
+
+
+# ============================================================
+# 6 bis. ITINÉRAIRE TRAIN MULTI-SEGMENTS (plus court chemin) vs AVION
+# ============================================================
+
+class JourneyResponse(BaseModel):
+    found: bool
+    dep_city: str
+    arr_city: str
+    nb_segments: int
+    total_distance_km: Optional[float]
+    train_co2_kg: Optional[float]
+    path_cities: List[str]
+    plane_co2_kg: Optional[float]
+    plane_distance_km: Optional[float]
+    greener_mode: Optional[str]
+    savings_kg: Optional[float]
+    savings_percent: Optional[float]
+
+
+@router.get(
+    "/compare/journey",
+    response_model=JourneyResponse,
+    tags=["Comparaison"],
+    summary="Itinéraire train (plus court chemin, CO2 cumulé) vs avion direct",
+)
+def compare_journey(
+    dep_city: str = Query(..., description="Ville de depart"),
+    arr_city: str = Query(..., description="Ville d'arrivee"),
+    db: Session = Depends(get_db),
+):
+    """
+    Reconstruit le trajet ferroviaire le plus court entre deux villes en
+    enchaînant les tronçons gare→gare (Dijkstra par distance), puis additionne
+    les émissions CO2 de chaque tronçon. Compare ensuite à l'avion direct.
+    """
+    graph = _load_train_graph(db)
+    dep_ids = _station_ids(db, dep_city)
+    arr_ids = _station_ids(db, arr_city)
+
+    # ── Avion direct (moyenne sur les vols de la paire de villes) ────────────
+    plane_row = db.execute(text("""
+        SELECT AVG(fe.co2_kg_passenger) AS plane_co2, AVG(ra.distance_km) AS dist
+        FROM mart.fact_emission fe
+        JOIN mart.dim_route_avion ra ON fe.route_avion_id = ra.route_avion_id
+        JOIN mart.dim_station sd ON ra.dep_station_id = sd.station_id
+        JOIN mart.dim_station sa ON ra.arr_station_id = sa.station_id
+        WHERE fe.transport_mode = 'avion'
+          AND (sd.city ILIKE :dc OR sd.city ILIKE :dcp)
+          AND (sa.city ILIKE :ac OR sa.city ILIKE :acp)
+    """), {
+        "dc": dep_city, "dcp": f"{dep_city} %",
+        "ac": arr_city, "acp": f"{arr_city} %",
+    }).fetchone()
+    plane_co2 = plane_row._mapping["plane_co2"]
+    plane_co2 = float(plane_co2) if plane_co2 is not None else None
+    plane_dist = plane_row._mapping["dist"]
+    plane_dist = float(plane_dist) if plane_dist is not None else None
+
+    # ── Plus court chemin ferroviaire (Dijkstra) ─────────────────────────────
+    path_cities: List[str] = []
+    nb_segments = 0
+    total_dist, train_co2, chain = _shortest_train(graph, dep_ids, arr_ids)
+
+    if chain is not None:
+        nb_segments = len(chain) - 1
+        # Villes des stations du chemin (collapse des doublons consécutifs)
+        cmap = {}
+        crows = db.execute(text("""
+            SELECT station_id, COALESCE(city, station_name) AS city
+            FROM mart.dim_station WHERE station_id = ANY(:ids)
+        """), {"ids": chain}).fetchall()
+        for cr in crows:
+            cmap[cr._mapping["station_id"]] = cr._mapping["city"]
+        for sid in chain:
+            city = cmap.get(sid, sid)
+            if not path_cities or path_cities[-1] != city:
+                path_cities.append(city)
+
+    # ── Comparaison ──────────────────────────────────────────────────────────
+    greener = savings_kg = savings_pct = None
+    if train_co2 is not None and plane_co2 is not None:
+        if train_co2 <= plane_co2:
+            greener = "train"
+            savings_kg = round(plane_co2 - train_co2, 3)
+            savings_pct = round(savings_kg / plane_co2 * 100, 1) if plane_co2 > 0 else 0.0
+        else:
+            greener = "avion"
+            savings_kg = round(train_co2 - plane_co2, 3)
+            savings_pct = round(savings_kg / train_co2 * 100, 1) if train_co2 > 0 else 0.0
+    elif train_co2 is not None:
+        greener = "train"
+    elif plane_co2 is not None:
+        greener = "avion"
+
+    if train_co2 is None and plane_co2 is None:
+        raise HTTPException(status_code=404, detail="Aucun trajet (train ou avion) trouve pour ces villes.")
+
+    return JourneyResponse(
+        found=train_co2 is not None,
+        dep_city=dep_city, arr_city=arr_city,
+        nb_segments=nb_segments,
+        total_distance_km=total_dist,
+        train_co2_kg=train_co2,
+        path_cities=path_cities,
+        plane_co2_kg=plane_co2,
+        plane_distance_km=round(plane_dist, 1) if plane_dist is not None else None,
+        greener_mode=greener,
+        savings_kg=savings_kg,
+        savings_percent=savings_pct,
+    )
 
 
 # ============================================================
@@ -1145,6 +1395,76 @@ def ranking_greener_routes(
     if not rows:
         raise HTTPException(status_code=404, detail="Aucun trajet trouve.")
     return [RankingGreenerResponse(**dict(r._mapping)) for r in rows]
+
+
+@router.get(
+    "/ranking/greener-journeys",
+    response_model=List[RankingGreenerResponse],
+    tags=["Classements & Stats"],
+    summary="Top trajets ou le train (itineraire multi-segments) bat l'avion",
+)
+def ranking_greener_journeys(
+    limit: int = Query(10, ge=1, le=50),
+    db: Session = Depends(get_db),
+):
+    """
+    Classement fondé sur des trajets RÉELS : pour les principales liaisons
+    aériennes (150-1200 km), on reconstruit l'itinéraire ferroviaire le plus
+    court (Dijkstra) et on compare les émissions. On ne garde que les trajets
+    où le train est plus écologique, triés par % d'économie. Résultat mis en cache.
+    """
+    global _GREENER_JOURNEYS
+    if _GREENER_JOURNEYS is None:
+        graph = _load_train_graph(db)
+        pairs = db.execute(text("""
+            SELECT sd.city AS dc, sa.city AS ac,
+                   AVG(fe.co2_kg_passenger) AS pco2, AVG(ra.distance_km) AS dist,
+                   COUNT(*) AS n
+            FROM mart.fact_emission fe
+            JOIN mart.dim_route_avion ra ON fe.route_avion_id = ra.route_avion_id
+            JOIN mart.dim_station sd ON ra.dep_station_id = sd.station_id
+            JOIN mart.dim_station sa ON ra.arr_station_id = sa.station_id
+            WHERE fe.transport_mode = 'avion'
+              AND sd.city IS NOT NULL AND sa.city IS NOT NULL AND sd.city <> sa.city
+            GROUP BY sd.city, sa.city
+            HAVING AVG(ra.distance_km) BETWEEN 150 AND 1200
+            ORDER BY COUNT(*) DESC
+            LIMIT 200
+        """)).fetchall()
+
+        sid_cache: dict = {}
+
+        def ids(city):
+            if city not in sid_cache:
+                sid_cache[city] = _station_ids(db, city)
+            return sid_cache[city]
+
+        seen = set()
+        results = []
+        for r in pairs:
+            m = r._mapping
+            dco, aco = m["dc"], m["ac"]
+            key = frozenset((dco, aco))
+            if key in seen:
+                continue
+            seen.add(key)
+            pco2 = float(m["pco2"])
+            pdist = float(m["dist"])
+            _, tco2, _ = _shortest_train(graph, ids(dco), ids(aco),
+                                         max_dist=max(pdist * 2.0, 1500.0))
+            if tco2 is None or tco2 >= pco2:
+                continue
+            sav = pco2 - tco2
+            results.append(RankingGreenerResponse(
+                dep_city=dco, arr_city=aco,
+                train_co2_kg=round(tco2, 3), plane_co2_kg=round(pco2, 3),
+                savings_kg=round(sav, 3), savings_percent=round(sav / pco2 * 100, 1),
+            ))
+        results.sort(key=lambda x: x.savings_percent, reverse=True)
+        _GREENER_JOURNEYS = results
+
+    return _GREENER_JOURNEYS[:limit]
+
 
 @router.get(
     "/ranking/longest-routes",

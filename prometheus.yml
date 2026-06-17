@@ -1,0 +1,22 @@
+# ============================================================
+# Configuration Prometheus — ObRail Europe
+# Scrape les métriques HTTP exposées par l'API FastAPI sur /metrics.
+# Grafana interroge ensuite Prometheus (latence, taux d'erreurs, débit).
+# ============================================================
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Métriques applicatives de l'API (prometheus-fastapi-instrumentator)
+  - job_name: railcarbon-api
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["api:8000"]
+        labels:
+          service: railcarbon-api
+
+  # Auto-surveillance de Prometheus
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]

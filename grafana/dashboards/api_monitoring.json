@@ -1,0 +1,103 @@
+{
+  "title": "API ObRail — Supervision (latence, erreurs, débit, logs)",
+  "uid": "railcarbon-api-monitoring",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "10s",
+  "time": { "from": "now-1h", "to": "now" },
+  "timezone": "browser",
+  "tags": ["railcarbon", "api", "monitoring", "prometheus"],
+
+  "panels": [
+
+    { "id": 100, "title": "Santé & SLA", "type": "row", "collapsed": false, "gridPos": { "x": 0, "y": 0, "w": 24, "h": 1 }, "panels": [] },
+
+    { "id": 1, "title": "Disponibilité API", "type": "stat", "gridPos": { "x": 0, "y": 1, "w": 6, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "refId": "A", "expr": "up{job=\"railcarbon-api\"}", "instant": true }],
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "displayName": "API up", "mappings": [
+        { "type": "value", "options": { "1": { "text": "EN LIGNE", "color": "green", "index": 0 } } },
+        { "type": "value", "options": { "0": { "text": "HORS LIGNE", "color": "red", "index": 1 } } }
+      ], "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] } } }
+    },
+
+    { "id": 2, "title": "Débit (req/s)", "type": "stat", "gridPos": { "x": 6, "y": 1, "w": 6, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "refId": "A", "expr": "sum(rate(http_request_duration_seconds_count{job=\"railcarbon-api\"}[5m]))", "instant": true }],
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "unit": "reqps", "displayName": "Requêtes/s", "color": { "mode": "fixed", "fixedColor": "blue" } } }
+    },
+
+    { "id": 3, "title": "Taux d'erreurs 5xx (%)", "type": "stat", "gridPos": { "x": 12, "y": 1, "w": 6, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "refId": "A", "expr": "100 * (sum(rate(http_request_duration_seconds_count{job=\"railcarbon-api\",status=~\"5..\"}[5m])) or vector(0)) / clamp_min(sum(rate(http_request_duration_seconds_count{job=\"railcarbon-api\"}[5m])), 1)", "instant": true }],
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "unit": "percent", "displayName": "Erreurs 5xx", "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 1 }, { "color": "red", "value": 5 }] } } }
+    },
+
+    { "id": 4, "title": "Latence p95 (ms)", "type": "stat", "gridPos": { "x": 18, "y": 1, "w": 6, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "refId": "A", "expr": "1000 * histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"railcarbon-api\"}[5m])) by (le))", "instant": true }],
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": { "defaults": { "unit": "ms", "displayName": "p95", "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 300 }, { "color": "red", "value": 1000 }] } } }
+    },
+
+    { "id": 101, "title": "Tendances", "type": "row", "collapsed": false, "gridPos": { "x": 0, "y": 5, "w": 24, "h": 1 }, "panels": [] },
+
+    { "id": 10, "title": "Débit par statut HTTP", "type": "timeseries", "gridPos": { "x": 0, "y": 6, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "refId": "A", "expr": "sum by (status) (rate(http_request_duration_seconds_count{job=\"railcarbon-api\"}[1m]))", "legendFormat": "{{status}}" }],
+      "fieldConfig": { "defaults": { "unit": "reqps", "color": { "mode": "palette-classic" }, "custom": { "drawStyle": "line", "fillOpacity": 15, "stacking": { "mode": "normal" } } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
+    },
+
+    { "id": 11, "title": "Latence p50 / p95 / p99 (ms)", "type": "timeseries", "gridPos": { "x": 12, "y": 6, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "1000 * histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{job=\"railcarbon-api\"}[5m])) by (le))", "legendFormat": "p50" },
+        { "refId": "B", "expr": "1000 * histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"railcarbon-api\"}[5m])) by (le))", "legendFormat": "p95" },
+        { "refId": "C", "expr": "1000 * histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{job=\"railcarbon-api\"}[5m])) by (le))", "legendFormat": "p99" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ms", "color": { "mode": "palette-classic" }, "custom": { "drawStyle": "line", "fillOpacity": 10 } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
+    },
+
+    { "id": 12, "title": "Requêtes par endpoint (top)", "type": "timeseries", "gridPos": { "x": 0, "y": 14, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "refId": "A", "expr": "sum by (handler) (rate(http_request_duration_seconds_count{job=\"railcarbon-api\"}[5m]))", "legendFormat": "{{handler}}" }],
+      "fieldConfig": { "defaults": { "unit": "reqps", "color": { "mode": "palette-classic" }, "custom": { "drawStyle": "line", "fillOpacity": 10 } } },
+      "options": { "legend": { "displayMode": "table", "placement": "right", "calcs": ["mean", "max"] }, "tooltip": { "mode": "multi" } }
+    },
+
+    { "id": 13, "title": "Erreurs 4xx vs 5xx (req/s)", "type": "timeseries", "gridPos": { "x": 12, "y": 14, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "sum(rate(http_request_duration_seconds_count{job=\"railcarbon-api\",status=~\"4..\"}[1m]))", "legendFormat": "4xx" },
+        { "refId": "B", "expr": "sum(rate(http_request_duration_seconds_count{job=\"railcarbon-api\",status=~\"5..\"}[1m]))", "legendFormat": "5xx" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "color": { "mode": "palette-classic" }, "custom": { "drawStyle": "bars", "fillOpacity": 60 } },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "4xx" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "orange" } }] },
+          { "matcher": { "id": "byName", "options": "5xx" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }] }
+        ]
+      },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
+    },
+
+    { "id": 102, "title": "Logs applicatifs API", "type": "row", "collapsed": false, "gridPos": { "x": 0, "y": 22, "w": 24, "h": 1 }, "panels": [] },
+
+    { "id": 20, "title": "Logs API en temps réel", "type": "logs", "gridPos": { "x": 0, "y": 23, "w": 14, "h": 8 },
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "targets": [{ "refId": "A", "expr": "{application=\"railcarbon-api\"}" }],
+      "options": { "showTime": true, "showLabels": true, "wrapLogMessage": true, "sortOrder": "Descending", "dedupStrategy": "none" }
+    },
+
+    { "id": 21, "title": "Erreurs & warnings API", "type": "logs", "gridPos": { "x": 14, "y": 23, "w": 10, "h": 8 },
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "targets": [{ "refId": "A", "expr": "{application=\"railcarbon-api\", level=~\"WARNING|ERROR\"}" }],
+      "options": { "showTime": true, "wrapLogMessage": true, "sortOrder": "Descending", "showLabels": false }
+    }
+
+  ]
+}

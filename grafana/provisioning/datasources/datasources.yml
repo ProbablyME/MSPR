@@ -10,6 +10,17 @@ datasources:
     version: 1
     editable: true
 
+  # ── Prometheus : métriques HTTP de l'API (latence, erreurs, débit) ─────────
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    uid: Prometheus
+    version: 1
+    editable: true
+    jsonData:
+      httpMethod: POST
+
   # ── PostgreSQL : données métier + santé BDD ────────────────────────────────
   - name: PostgreSQL
     type: postgres

@@ -4,9 +4,9 @@ services:
     container_name: railcarbon_db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: lpironti
-      POSTGRES_DB: postgres
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD requis (voir .env.example)}
+      POSTGRES_DB: ${DB_NAME:-postgres}
     ports:
       # 5432 est occupé par le PostgreSQL local → on expose sur 5433
       - "5433:5432"
@@ -17,6 +17,12 @@ services:
       - ./seed_data.sql:/docker-entrypoint-initdb.d/02_seed_data.sql
       # Persistance des données entre redémarrages
       - railcarbon_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # L'API ne démarre que lorsque Postgres accepte les connexions
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   pgadmin:
     image: dpage/pgadmin4
@@ -42,7 +48,23 @@ services:
       - railcarbon_loki_data:/loki
     command: -config.file=/etc/loki/local-config.yaml
 
-  # ── Grafana : dashboards logs + santé BDD ──────────────────────────────────
+  # ── Prometheus : métriques HTTP de l'API (latence, erreurs, débit) ─────────
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: railcarbon_prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - railcarbon_prometheus_data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=15d
+    depends_on:
+      - api
+
+  # ── Grafana : dashboards logs + santé BDD + monitoring API ─────────────────
   grafana:
     image: grafana/grafana:11.0.0
     container_name: railcarbon_grafana
@@ -63,6 +85,7 @@ services:
     depends_on:
       - loki
       - postgres
+      - prometheus
 
   # ── API FastAPI ─────────────────────────────────────────────────────────
   api:
@@ -74,16 +97,48 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DB_USER: postgres
-      DB_PASSWORD: lpironti
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD requis (voir .env.example)}
       DB_HOST: postgres
       DB_PORT: "5432"
-      DB_NAME: postgres
-      API_TOKEN: super-secret-temp-token
+      DB_NAME: ${DB_NAME:-postgres}
+      API_TOKEN: ${API_TOKEN:?API_TOKEN requis (voir .env.example)}
+      # Active l'envoi des logs applicatifs de l'API vers Loki
+      LOKI_URL: http://loki:3100/loki/api/v1/push
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      loki:
+        condition: service_started
+    healthcheck:
+      # "/" est public : vérifie que l'API répond sans jeton
+      test: ["CMD-SHELL", "python -c \"import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/').status==200 else 1)\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ── Frontend React/Vite (servi par nginx) ──────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: railcarbon_frontend
+    restart: unless-stopped
+    ports:
+      # Interface web accessible sur http://localhost:5173
+      - "5173:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
 volumes:
   railcarbon_pgdata:
   railcarbon_loki_data:
   railcarbon_grafana_data:
+  railcarbon_prometheus_data:
