@@ -1,12 +1,16 @@
+import os
 from unittest.mock import MagicMock
 import pytest
 from fastapi.testclient import TestClient
 
+# API_TOKEN n'a plus de valeur par défaut dans config.py : on l'injecte ici,
+# avant l'import de l'app, pour que Settings() se charge sans secret en dur.
+TOKEN = "test-token"
+os.environ["API_TOKEN"] = TOKEN
+
 from api.main import app
 from api.database import get_db
 
-# Token par défaut défini dans config.py
-TOKEN = "my-secret-token-123"
 HEADERS = {"Authorization": f"Bearer {TOKEN}"}
 
 

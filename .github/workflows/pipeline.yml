@@ -62,13 +62,72 @@ jobs:
           retention-days: 7
 
   # ============================================================
-  # JOB 2 — Build Docker 
+  # JOB 1b — Tests E2E Playwright (stack complète)
+  # Build local frontend+API+Postgres, puis parcours navigateur réel
+  # ============================================================
+  e2e:
+    name: Tests E2E (Playwright)
+    runs-on: ubuntu-latest
+    needs: test
+
+    env:
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      API_TOKEN: ${{ secrets.API_TOKEN }}
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Configurer Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Démarrer la stack (frontend + API + Postgres + Loki)
+        run: docker compose up -d --build postgres api frontend
+
+      - name: Attendre que le frontend et l'API soient prêts
+        timeout-minutes: 3
+        run: |
+          until curl --silent --fail http://localhost:8000/; do sleep 5; done
+          until curl --silent --fail http://localhost:5173/; do sleep 5; done
+
+      - name: Installer Playwright
+        working-directory: frontend
+        run: |
+          npm install
+          npx playwright install --with-deps chromium
+
+      - name: Lancer les tests E2E
+        working-directory: frontend
+        env:
+          BASE_URL: http://localhost:5173
+        run: npm run test:e2e
+
+      - name: Uploader le rapport Playwright
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: frontend/playwright-report/
+          retention-days: 7
+
+      - name: Logs de la stack en cas d'échec
+        if: failure()
+        run: docker compose logs api frontend
+
+      - name: Arrêter la stack
+        if: always()
+        run: docker compose down -v
+
+  # ============================================================
+  # JOB 2 — Build Docker
   # Exécuté uniquement sur main, après que les tests passent
   # ============================================================
   build-and-push:
     name: Build image Docker
     runs-on: ubuntu-latest
-    needs: test
+    needs: [test, e2e]
     if: github.ref == 'refs/heads/main'   # uniquement sur main
 
     outputs:
@@ -167,6 +226,12 @@ jobs:
             -H "Authorization: Bearer mauvais-token" \
             http://localhost:8000/api/v1/stations)
           [ "$STATUS" = "401" ] || (echo "Attendu 401, reçu $STATUS" && exit 1)
+
+      - name: Vérifier l'endpoint Prometheus /metrics (public, monitoring)
+        run: |
+          curl --silent --fail http://localhost:8000/metrics \
+            | grep -q "http_request_duration_seconds" \
+            || (echo "Métriques Prometheus absentes de /metrics" && exit 1)
 
       - name: Logs en cas d'échec
         if: failure()

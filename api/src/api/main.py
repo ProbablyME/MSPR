@@ -1,6 +1,9 @@
 from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
+from .config import settings
 from .security import verify_token
+from .observability import setup_observability
 from . import routers
 
 tags_metadata = [
@@ -66,15 +69,46 @@ Toutes les requetes necessitent un token Bearer dans le header `Authorization`.
 ```
 Authorization: Bearer <votre-token>
 ```
+
+### Correspondance avec le cahier des charges
+Certains endpoints portent un nom plus precis que celui du cahier des charges
+(renommage autorise). Table de correspondance :
+
+| Cahier des charges | Endpoint(s) reel(s)                          |
+|--------------------|----------------------------------------------|
+| `/trajets`         | `/routes/train` + `/routes/avion`            |
+| `/stats/volumes`   | `/stats/network` (+ `/stats/by-country`)     |
     """,
     version="2.0.0",
     openapi_tags=tags_metadata,
-    dependencies=[Depends(verify_token)],
     docs_url="/docs",
     redoc_url="/redoc",
 )
 
-app.include_router(routers.router, prefix="/api/v1")
+# CORS : autorise l'acces direct a l'API (hors reverse-proxy nginx) depuis les
+# origines configurees. Derriere nginx ce middleware est inoffensif ; il evite
+# de casser les appels directs (front en dev, outils externes).
+_cors_origins = settings.cors_origins_list
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_cors_origins,
+    # allow_credentials incompatible avec allow_origins=["*"] (spec CORS).
+    allow_credentials=_cors_origins != ["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# L'authentification protège uniquement les routes métier (/api/v1/*).
+# La racine "/" et l'endpoint Prometheus "/metrics" restent publics : ce dernier
+# doit être scrapable sans jeton par le service Prometheus interne.
+app.include_router(
+    routers.router,
+    prefix="/api/v1",
+    dependencies=[Depends(verify_token)],
+)
+
+# Logging applicatif (Loki) + export Prometheus /metrics.
+setup_observability(app)
 
 
 @app.get("/", tags=["Sante"], summary="Page d'accueil de l'API")
