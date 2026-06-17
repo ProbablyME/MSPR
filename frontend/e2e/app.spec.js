@@ -10,7 +10,7 @@ test.describe('Page d\'accueil & accessibilité', () => {
     await page.goto('/');
 
     await expect(page.getByRole('banner')).toBeVisible();
-    await expect(page.getByText('ObRail Europe')).toBeVisible();
+    await expect(page.getByText('ObRail Europe', { exact: true })).toBeVisible();
 
     // Navigation principale (RGAA : repère + liens)
     const nav = page.getByRole('navigation', { name: 'Navigation principale' });

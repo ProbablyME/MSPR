@@ -1381,6 +1381,7 @@ def ranking_greener_routes(
             FROM train_agg t
             JOIN plane_agg p ON t.dep_city = p.dep_city AND t.arr_city = p.arr_city
             WHERE t.train_co2 < p.plane_co2
+              AND t.dep_city <> t.arr_city          -- exclut les paires intra-ville
         )
         SELECT dep_city, arr_city,
                ROUND(train_co2::numeric, 3) AS train_co2_kg,
@@ -1486,7 +1487,10 @@ def ranking_longest_routes(
             FROM mart.dim_route_train rt
             JOIN mart.dim_station sd ON rt.dep_station_id = sd.station_id
             JOIN mart.dim_station sa ON rt.arr_station_id = sa.station_id
-            WHERE rt.distance_km IS NOT NULL
+            -- borne de plausibilite : un troncon gare-a-gare > 700 km est
+            -- aberrant (collision de stop_id entre feeds) et donc ecarte
+            WHERE rt.distance_km IS NOT NULL AND rt.distance_km <= 700
+              AND sd.city <> sa.city
         """)
     if transport_mode is None or transport_mode == "avion":
         parts.append("""
@@ -1723,6 +1727,105 @@ def get_latest_etl_run(db: Session = Depends(get_db)):
     if not row:
         raise HTTPException(status_code=404, detail="Aucun run ETL enregistre.")
     return EtlRunResponse(**dict(row._mapping))
+
+
+# ============================================================
+# 9 bis. SUPERVISION — INCIDENTS DÉTECTÉS
+# ============================================================
+
+class IncidentItem(BaseModel):
+    category: str            # 'service' | 'etl' | 'qualite'
+    label: str
+    severity: str            # 'ok' | 'warning' | 'error'
+    value: Optional[int]
+    detail: Optional[str]
+
+
+class IncidentsResponse(BaseModel):
+    api_status: str
+    database: str
+    last_etl_status: Optional[str]
+    incident_count: int      # nombre d'incidents (severity != ok)
+    incidents: List[IncidentItem]
+
+
+@router.get(
+    "/monitoring/incidents",
+    response_model=IncidentsResponse,
+    tags=["Sante"],
+    summary="Incidents détectés (santé service, ETL, qualité des données)",
+)
+def monitoring_incidents(db: Session = Depends(get_db)):
+    """
+    Agrège les anomalies détectées automatiquement : disponibilité du service,
+    dernier run ETL et contrôles de qualité des données. Alimente la vue de
+    supervision du frontend (feedback loop MLOps)."""
+    incidents: List[IncidentItem] = []
+
+    # ── Santé service / BDD ──────────────────────────────────────────────────
+    db_ok = True
+    try:
+        db.execute(text("SELECT 1")).fetchone()
+    except Exception:
+        db_ok = False
+    incidents.append(IncidentItem(
+        category="service", label="Connexion base de données",
+        severity="ok" if db_ok else "error",
+        value=None, detail="Connectée" if db_ok else "Inaccessible",
+    ))
+
+    # ── Dernier run ETL ──────────────────────────────────────────────────────
+    last_etl_status = None
+    etl = db.execute(text("""
+        SELECT statut, erreurs FROM mart.etl_run_log
+        ORDER BY started_at DESC LIMIT 1
+    """)).fetchone()
+    if etl is not None:
+        last_etl_status = etl._mapping["statut"]
+        errs = etl._mapping["erreurs"] or 0
+        sev = "ok" if (last_etl_status == "succes" and errs == 0) else \
+              ("warning" if errs and errs < 10 else "error")
+        incidents.append(IncidentItem(
+            category="etl", label="Dernier run ETL",
+            severity=sev, value=int(errs),
+            detail=f"statut={last_etl_status}, erreurs={errs}",
+        ))
+
+    # ── Contrôles qualité des données ────────────────────────────────────────
+    q = db.execute(text("""
+        SELECT
+          (SELECT COUNT(*) FROM mart.fact_emission WHERE co2_kg_passenger IS NULL OR co2_kg_passenger <= 0) AS co2_invalid,
+          (SELECT COUNT(*) FROM mart.dim_route_avion WHERE co2_total_kg IS NULL) AS avion_no_co2,
+          (SELECT COUNT(*) FROM mart.dim_station WHERE latitude IS NULL OR longitude IS NULL) AS no_gps,
+          (SELECT COUNT(*) FROM mart.dim_station WHERE city IS NULL OR city = '') AS no_city,
+          (SELECT COUNT(*) FROM mart.dim_route_train rt LEFT JOIN mart.fact_emission fe
+              ON fe.route_train_id = rt.route_train_id WHERE fe.route_train_id IS NULL) AS train_orphans
+    """)).fetchone()._mapping
+
+    def classify(value, warn, err):
+        return "ok" if value < warn else ("warning" if value < err else "error")
+
+    checks = [
+        ("qualite", "Faits CO₂ nuls ou négatifs", int(q["co2_invalid"]), 1, 100),
+        ("qualite", "Routes avion sans CO₂", int(q["avion_no_co2"]), 100, 1000),
+        ("qualite", "Stations sans coordonnées GPS", int(q["no_gps"]), 50, 200),
+        ("qualite", "Stations sans ville", int(q["no_city"]), 100, 500),
+        ("qualite", "Routes train sans faits (orphelines)", int(q["train_orphans"]), 100, 1000),
+    ]
+    for cat, label, value, warn, err in checks:
+        incidents.append(IncidentItem(
+            category=cat, label=label, severity=classify(value, warn, err),
+            value=value, detail=None,
+        ))
+
+    incident_count = sum(1 for i in incidents if i.severity != "ok")
+    return IncidentsResponse(
+        api_status="ok",
+        database="connected" if db_ok else "down",
+        last_etl_status=last_etl_status,
+        incident_count=incident_count,
+        incidents=incidents,
+    )
 
 
 # ============================================================

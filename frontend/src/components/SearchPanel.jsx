@@ -25,7 +25,7 @@ export default function SearchPanel({ onResult }) {
     const t = setTimeout(async () => {
       try {
         const data = await searchCities(fromQuery);
-        setFromOptions(data.data ?? []);
+        setFromOptions(Array.isArray(data) ? data : (data.data ?? []));
       } catch { /* réseau indisponible — on ignore silencieusement */ }
     }, 300);
     return () => clearTimeout(t);
@@ -36,7 +36,7 @@ export default function SearchPanel({ onResult }) {
     const t = setTimeout(async () => {
       try {
         const data = await searchCities(toQuery);
-        setToOptions(data.data ?? []);
+        setToOptions(Array.isArray(data) ? data : (data.data ?? []));
       } catch { /* réseau indisponible */ }
     }, 300);
     return () => clearTimeout(t);

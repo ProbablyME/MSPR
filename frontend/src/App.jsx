@@ -6,6 +6,7 @@ import StatsPanel       from './components/StatsPanel';
 import NightDayChart    from './components/NightDayChart';
 import CountryStatsTable from './components/CountryStatsTable';
 import GreenRoutesTable from './components/GreenRoutesTable';
+import IncidentsPanel    from './components/IncidentsPanel';
 
 export default function App() {
   const [comparison, setComparison] = useState(null);
@@ -33,6 +34,7 @@ export default function App() {
               <li><a href="#search">Comparer</a></li>
               <li><a href="#stats">Statistiques</a></li>
               <li><a href="#rankings">Classement</a></li>
+              <li><a href="#supervision">Supervision</a></li>
             </ul>
           </nav>
 
@@ -120,6 +122,22 @@ export default function App() {
               génère le plus d'économies de CO₂ par passager.
             </p>
             <GreenRoutesTable />
+          </div>
+        </section>
+
+        {/* Section Supervision */}
+        <section
+          id="supervision"
+          aria-labelledby="supervision-heading"
+          className="section section--dark"
+        >
+          <div className="container">
+            <h2 id="supervision-heading">Supervision & incidents</h2>
+            <p className="section-desc">
+              État du service, dernier traitement ETL et contrôles de qualité des
+              données, détectés automatiquement par le monitoring.
+            </p>
+            <IncidentsPanel />
           </div>
         </section>
 

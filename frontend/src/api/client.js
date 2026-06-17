@@ -26,8 +26,9 @@ async function get(path) {
   return response.json();
 }
 
-// ── Santé ──────────────────────────────────────────────────────────────────
+// ── Santé & supervision ─────────────────────────────────────────────────────
 export const fetchHealth = () => get('/health');
+export const fetchIncidents = () => get('/monitoring/incidents');
 
 // ── Statistiques ───────────────────────────────────────────────────────────
 export const fetchNetworkStats = () => get('/stats/network');

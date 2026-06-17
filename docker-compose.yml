@@ -15,6 +15,8 @@ services:
       - ./schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
       # Données réelles pré-chargées (export pg_dump)
       - ./seed_data.sql:/docker-entrypoint-initdb.d/02_seed_data.sql
+      # Correction des codes pays (géocodage inverse) appliquée après le seed
+      - ./seed_country_fix.sql:/docker-entrypoint-initdb.d/03_fix_country.sql
       # Persistance des données entre redémarrages
       - railcarbon_pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -29,8 +31,8 @@ services:
     container_name: railcarbon_pgadmin
     restart: unless-stopped
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@example.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
     ports:
       - "8080:80"
     depends_on:
@@ -72,8 +74,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
