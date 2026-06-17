@@ -70,6 +70,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
 
+    env:
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      API_TOKEN: ${{ secrets.API_TOKEN }}
+
     steps:
       - name: Checkout du code
         uses: actions/checkout@v4

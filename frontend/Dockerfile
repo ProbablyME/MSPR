@@ -10,6 +10,11 @@ RUN npm install --frozen-lockfile
 # Copie du reste du code source
 COPY . .
 
+# Jeton API injecté au build (Vite remplace import.meta.env.VITE_API_TOKEN
+# à la compilation). Fourni par docker-compose via build.args.
+ARG VITE_API_TOKEN
+ENV VITE_API_TOKEN=$VITE_API_TOKEN
+
 # Build de production (assets minifiés + hachés)
 RUN npm run build
 

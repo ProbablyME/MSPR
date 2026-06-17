@@ -123,6 +123,9 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        # Le frontend doit présenter le même jeton Bearer que l'API
+        VITE_API_TOKEN: ${VITE_API_TOKEN:-${API_TOKEN}}
     container_name: railcarbon_frontend
     restart: unless-stopped
     ports:
