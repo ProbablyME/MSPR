@@ -402,13 +402,19 @@ jobs:
       - name: Générer un token d'analyse Sonar
         id: sonar
         run: |
-          # 1er démarrage : Sonar force le changement du mot de passe admin par défaut.
+          # 1er démarrage : Sonar force le changement du mot de passe admin.
+          # Le nouveau mot de passe doit faire >= 12 caractères (politique Sonar).
+          NEWPW='Admin123456789!'
           curl -s -u admin:admin -X POST \
             "http://localhost:9000/api/users/change_password" \
-            -d "login=admin&previousPassword=admin&password=Admin12345!" || true
-          TOKEN=$(curl -s -u admin:Admin12345! -X POST \
+            -d "login=admin&previousPassword=admin&password=$NEWPW" || true
+          TOKEN=$(curl -s -u "admin:$NEWPW" -X POST \
             "http://localhost:9000/api/user_tokens/generate?name=ci-$GITHUB_RUN_ID" \
             | sed -E 's/.*"token":"([^"]+)".*/\1/')
+          if [ -z "$TOKEN" ]; then
+            echo "Echec de generation du token Sonar (mot de passe admin ?)." >&2
+            exit 1
+          fi
           echo "::add-mask::$TOKEN"
           echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
 
