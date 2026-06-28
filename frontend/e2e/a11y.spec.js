@@ -12,6 +12,13 @@ test.describe('Accessibilité (axe-core / RGAA)', () => {
 
     // Attendre le rendu principal avant l'audit.
     await expect(page.getByRole('main')).toBeVisible();
+    // Auditer l'état CHARGÉ (et non les placeholders transitoires) : on attend
+    // que plus aucun panneau ne soit en cours de chargement (aria-busy).
+    await page.waitForFunction(
+      () => !document.querySelector('[aria-busy="true"]'),
+      null,
+      { timeout: 20_000 },
+    );
 
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa'])

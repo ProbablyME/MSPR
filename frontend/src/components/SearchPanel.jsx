@@ -141,6 +141,7 @@ function CityInput({ id, label, placeholder, value, options, selectedCity, onCha
       <input
         id={id}
         type="text"
+        role="combobox"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
