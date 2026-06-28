@@ -495,11 +495,14 @@ def list_routes_train(
     params = {}
 
     if dep_city:
-        conditions.append("sd.city ILIKE :dep_city")
+        # Tolère les suffixes de gare : "Paris" matche "Paris", "Paris Gare de Lyon"…
+        conditions.append("(sd.city ILIKE :dep_city OR sd.city ILIKE :dep_city_p)")
         params["dep_city"] = dep_city
+        params["dep_city_p"] = f"{dep_city} %"
     if arr_city:
-        conditions.append("sa.city ILIKE :arr_city")
+        conditions.append("(sa.city ILIKE :arr_city OR sa.city ILIKE :arr_city_p)")
         params["arr_city"] = arr_city
+        params["arr_city_p"] = f"{arr_city} %"
     if is_night_train is not None:
         conditions.append("rt.is_night_train = :night")
         params["night"] = is_night_train
@@ -607,11 +610,14 @@ def list_routes_avion(
     params = {}
 
     if dep_city:
-        conditions.append("sd.city ILIKE :dep_city")
+        # Tolère les suffixes de gare : "Paris" matche "Paris", "Paris Gare de Lyon"…
+        conditions.append("(sd.city ILIKE :dep_city OR sd.city ILIKE :dep_city_p)")
         params["dep_city"] = dep_city
+        params["dep_city_p"] = f"{dep_city} %"
     if arr_city:
-        conditions.append("sa.city ILIKE :arr_city")
+        conditions.append("(sa.city ILIKE :arr_city OR sa.city ILIKE :arr_city_p)")
         params["arr_city"] = arr_city
+        params["arr_city_p"] = f"{arr_city} %"
     if country_code:
         conditions.append("sd.country_code = :cc")
         params["cc"] = country_code.upper()
@@ -818,11 +824,14 @@ def list_emissions(
         conditions.append("fe.transport_mode = :tm")
         params["tm"] = transport_mode
     if dep_city:
-        conditions.append("sd.city ILIKE :dep_city")
+        # Tolère les suffixes de gare : "Paris" matche "Paris", "Paris Gare de Lyon"…
+        conditions.append("(sd.city ILIKE :dep_city OR sd.city ILIKE :dep_city_p)")
         params["dep_city"] = dep_city
+        params["dep_city_p"] = f"{dep_city} %"
     if arr_city:
-        conditions.append("sa.city ILIKE :arr_city")
+        conditions.append("(sa.city ILIKE :arr_city OR sa.city ILIKE :arr_city_p)")
         params["arr_city"] = arr_city
+        params["arr_city_p"] = f"{arr_city} %"
 
     where = "WHERE " + " AND ".join(conditions) if conditions else ""
 
@@ -1256,7 +1265,8 @@ def search_departures(
 
     dist_filter = ""
     dist_filter_avion = ""
-    params = {"dep_city": dep_city}
+    # Tolère les suffixes de gare : "Paris" matche aussi "Paris Gare de Lyon"…
+    params = {"dep_city": dep_city, "dep_city_p": f"{dep_city} %"}
     if min_distance_km is not None:
         dist_filter = "AND rt.distance_km >= :min_dist"
         dist_filter_avion = "AND ra.distance_km >= :min_dist"
@@ -1269,7 +1279,7 @@ def search_departures(
             JOIN mart.dim_route_train rt ON fe.route_train_id = rt.route_train_id
             JOIN mart.dim_station st_dep ON rt.dep_station_id = st_dep.station_id
             JOIN mart.dim_station st_arr ON rt.arr_station_id = st_arr.station_id
-            WHERE fe.transport_mode = 'train' AND st_dep.city ILIKE :dep_city
+            WHERE fe.transport_mode = 'train' AND (st_dep.city ILIKE :dep_city OR st_dep.city ILIKE :dep_city_p)
               {night_filter} {dist_filter}
             GROUP BY st_arr.city, rt.distance_km
         ),
@@ -1279,7 +1289,7 @@ def search_departures(
             JOIN mart.dim_route_avion ra ON fe.route_avion_id = ra.route_avion_id
             JOIN mart.dim_station st_dep ON ra.dep_station_id = st_dep.station_id
             JOIN mart.dim_station st_arr ON ra.arr_station_id = st_arr.station_id
-            WHERE fe.transport_mode = 'avion' AND st_dep.city ILIKE :dep_city
+            WHERE fe.transport_mode = 'avion' AND (st_dep.city ILIKE :dep_city OR st_dep.city ILIKE :dep_city_p)
               {dist_filter_avion}
             GROUP BY st_arr.city, ra.distance_km
         )
