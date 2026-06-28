@@ -14,7 +14,7 @@ Usage :
 
 Variables d'environnement (défauts entre parenthèses) :
     DB_HOST (localhost) DB_PORT (5433) DB_NAME (postgres)
-    DB_USER (postgres)  DB_PASSWORD (lpironti)
+    DB_USER (postgres)  DB_PASSWORD (postgres)
 
 Idempotent : ne met à jour que les lignes dont le pays calculé diffère.
 """
@@ -31,7 +31,7 @@ def main() -> None:
         port=os.environ.get("DB_PORT", "5433"),
         dbname=os.environ.get("DB_NAME", "postgres"),
         user=os.environ.get("DB_USER", "postgres"),
-        password=os.environ.get("DB_PASSWORD", "lpironti"),
+        password=os.environ.get("DB_PASSWORD", "postgres"),
     )
     cur = conn.cursor()
     cur.execute("""

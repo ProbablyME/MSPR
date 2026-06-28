@@ -1,10 +1,11 @@
 import heapq
 import math
+
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
-from sqlalchemy import text
-from typing import List, Optional
 from pydantic import BaseModel
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+
 from .database import get_db
 
 router = APIRouter()
@@ -144,12 +145,12 @@ def _shortest_train(graph: dict, dep_ids: set, arr_ids: set, max_dist: float = N
 class StationResponse(BaseModel):
     station_id: str
     station_name: str
-    city: Optional[str]
+    city: str | None
     country_code: str
-    latitude: Optional[float]
-    longitude: Optional[float]
+    latitude: float | None
+    longitude: float | None
     is_airport: bool
-    source_id: Optional[int]
+    source_id: int | None
 
 class StationNearbyResponse(StationResponse):
     distance_km: float
@@ -158,46 +159,46 @@ class PaginatedStations(BaseModel):
     page: int
     per_page: int
     total: int
-    data: List[StationResponse]
+    data: list[StationResponse]
 
 # --- Routes Train ---
 
 class RouteTrainResponse(BaseModel):
     route_train_id: int
     dep_station_id: str
-    dep_station_name: Optional[str]
-    dep_city: Optional[str]
+    dep_station_name: str | None
+    dep_city: str | None
     arr_station_id: str
-    arr_station_name: Optional[str]
-    arr_city: Optional[str]
-    distance_km: Optional[float]
+    arr_station_name: str | None
+    arr_city: str | None
+    distance_km: float | None
     is_night_train: bool
 
 class PaginatedRoutesTrain(BaseModel):
     page: int
     per_page: int
     total: int
-    data: List[RouteTrainResponse]
+    data: list[RouteTrainResponse]
 
 # --- Routes Avion ---
 
 class RouteAvionResponse(BaseModel):
     route_avion_id: int
     dep_station_id: str
-    dep_station_name: Optional[str]
-    dep_city: Optional[str]
+    dep_station_name: str | None
+    dep_city: str | None
     arr_station_id: str
-    arr_station_name: Optional[str]
-    arr_city: Optional[str]
-    distance_km: Optional[float]
-    dominant_typecode: Optional[str]
-    co2_total_kg: Optional[float]
+    arr_station_name: str | None
+    arr_city: str | None
+    distance_km: float | None
+    dominant_typecode: str | None
+    co2_total_kg: float | None
 
 class PaginatedRoutesAvion(BaseModel):
     page: int
     per_page: int
     total: int
-    data: List[RouteAvionResponse]
+    data: list[RouteAvionResponse]
 
 # --- Vehicles ---
 
@@ -212,29 +213,29 @@ class VehicleAvionResponse(BaseModel):
     label: str
     co2_per_km: float
     service_type: str
-    icao_typecode: Optional[str]
-    mtom_kg: Optional[int]
-    num_engines: Optional[int]
-    manufacturer: Optional[str]
+    icao_typecode: str | None
+    mtom_kg: int | None
+    num_engines: int | None
+    manufacturer: str | None
 
 # --- Emissions ---
 
 class EmissionResponse(BaseModel):
     fact_id: int
     transport_mode: str
-    route_train_id: Optional[int]
-    vehicle_train_id: Optional[int]
-    route_avion_id: Optional[int]
-    vehicle_avion_id: Optional[int]
+    route_train_id: int | None
+    vehicle_train_id: int | None
+    route_avion_id: int | None
+    vehicle_avion_id: int | None
     co2_kg_passenger: float
-    dep_city: Optional[str]
-    arr_city: Optional[str]
+    dep_city: str | None
+    arr_city: str | None
 
 class PaginatedEmissions(BaseModel):
     page: int
     per_page: int
     total: int
-    data: List[EmissionResponse]
+    data: list[EmissionResponse]
 
 # --- Compare ---
 
@@ -250,10 +251,10 @@ class WinnerResponse(BaseModel):
     greener_mode: str
     dep_city: str
     arr_city: str
-    train_co2_kg: Optional[float]
-    plane_co2_kg: Optional[float]
-    savings_kg: Optional[float]
-    savings_percent: Optional[float]
+    train_co2_kg: float | None
+    plane_co2_kg: float | None
+    savings_kg: float | None
+    savings_percent: float | None
 
 class PassengersResponse(BaseModel):
     mode: str
@@ -275,10 +276,10 @@ class CitySearchResponse(BaseModel):
 
 class DepartureResponse(BaseModel):
     arr_city: str
-    distance_km: Optional[float]
-    train_co2_kg: Optional[float]
-    plane_co2_kg: Optional[float]
-    greener_mode: Optional[str]
+    distance_km: float | None
+    train_co2_kg: float | None
+    plane_co2_kg: float | None
+    greener_mode: str | None
 
 # --- Rankings ---
 
@@ -328,23 +329,23 @@ class SourceResponse(BaseModel):
     source_id: int
     source_name: str
     source_type: str
-    url: Optional[str]
-    version: Optional[str]
-    description: Optional[str]
-    loaded_at: Optional[str]
+    url: str | None
+    version: str | None
+    description: str | None
+    loaded_at: str | None
 
 class EtlRunResponse(BaseModel):
     run_id: int
-    started_at: Optional[str]
-    finished_at: Optional[str]
-    duration_s: Optional[float]
-    mois_traites: Optional[int]
-    airports_charges: Optional[int]
-    routes_chargees: Optional[int]
-    co2_exact: Optional[int]
-    co2_fallback: Optional[int]
-    erreurs: Optional[int]
-    statut: Optional[str]
+    started_at: str | None
+    finished_at: str | None
+    duration_s: float | None
+    mois_traites: int | None
+    airports_charges: int | None
+    routes_chargees: int | None
+    co2_exact: int | None
+    co2_fallback: int | None
+    erreurs: int | None
+    statut: str | None
 
 
 # ============================================================
@@ -360,10 +361,10 @@ class EtlRunResponse(BaseModel):
 def list_stations(
     page: int = Query(1, ge=1, description="Numéro de page"),
     per_page: int = Query(50, ge=1, le=500, description="Nombre d'éléments par page"),
-    country_code: Optional[str] = Query(None, min_length=2, max_length=2, description="Code pays ISO 2 lettres (ex: FR)"),
-    is_airport: Optional[bool] = Query(None, description="True = aéroports, False = gares, None = tous"),
-    city: Optional[str] = Query(None, description="Filtre exact sur la ville (ILIKE)"),
-    search: Optional[str] = Query(None, description="Recherche partielle sur le nom ou la ville"),
+    country_code: str | None = Query(None, min_length=2, max_length=2, description="Code pays ISO 2 lettres (ex: FR)"),
+    is_airport: bool | None = Query(None, description="True = aéroports, False = gares, None = tous"),
+    city: str | None = Query(None, description="Filtre exact sur la ville (ILIKE)"),
+    search: str | None = Query(None, description="Recherche partielle sur le nom ou la ville"),
     db: Session = Depends(get_db),
 ):
     conditions = []
@@ -422,7 +423,7 @@ def get_station(station_id: str, db: Session = Depends(get_db)):
 
 @router.get(
     "/stations/nearby",
-    response_model=List[StationNearbyResponse],
+    response_model=list[StationNearbyResponse],
     tags=["Stations"],
     summary="Stations proches d'un point GPS",
 )
@@ -430,7 +431,7 @@ def stations_nearby(
     lat: float = Query(..., ge=-90, le=90, description="Latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Longitude"),
     radius_km: float = Query(50, ge=1, le=500, description="Rayon de recherche en km"),
-    is_airport: Optional[bool] = Query(None, description="Filtrer aéroports ou gares"),
+    is_airport: bool | None = Query(None, description="Filtrer aéroports ou gares"),
     limit: int = Query(20, ge=1, le=100, description="Nombre max de résultats"),
     db: Session = Depends(get_db),
 ):
@@ -483,22 +484,25 @@ def stations_nearby(
 def list_routes_train(
     page: int = Query(1, ge=1),
     per_page: int = Query(50, ge=1, le=500),
-    dep_city: Optional[str] = Query(None, description="Ville de départ (ILIKE)"),
-    arr_city: Optional[str] = Query(None, description="Ville d'arrivée (ILIKE)"),
-    is_night_train: Optional[bool] = Query(None, description="True = trains de nuit uniquement"),
-    country_code: Optional[str] = Query(None, min_length=2, max_length=2, description="Code pays (départ)"),
-    min_distance_km: Optional[float] = Query(None, ge=0, description="Distance minimale en km"),
+    dep_city: str | None = Query(None, description="Ville de départ (ILIKE)"),
+    arr_city: str | None = Query(None, description="Ville d'arrivée (ILIKE)"),
+    is_night_train: bool | None = Query(None, description="True = trains de nuit uniquement"),
+    country_code: str | None = Query(None, min_length=2, max_length=2, description="Code pays (départ)"),
+    min_distance_km: float | None = Query(None, ge=0, description="Distance minimale en km"),
     db: Session = Depends(get_db),
 ):
     conditions = []
     params = {}
 
     if dep_city:
-        conditions.append("sd.city ILIKE :dep_city")
+        # Tolère les suffixes de gare : "Paris" matche "Paris", "Paris Gare de Lyon"…
+        conditions.append("(sd.city ILIKE :dep_city OR sd.city ILIKE :dep_city_p)")
         params["dep_city"] = dep_city
+        params["dep_city_p"] = f"{dep_city} %"
     if arr_city:
-        conditions.append("sa.city ILIKE :arr_city")
+        conditions.append("(sa.city ILIKE :arr_city OR sa.city ILIKE :arr_city_p)")
         params["arr_city"] = arr_city
+        params["arr_city_p"] = f"{arr_city} %"
     if is_night_train is not None:
         conditions.append("rt.is_night_train = :night")
         params["night"] = is_night_train
@@ -596,21 +600,24 @@ def get_route_train(route_train_id: int, db: Session = Depends(get_db)):
 def list_routes_avion(
     page: int = Query(1, ge=1),
     per_page: int = Query(50, ge=1, le=500),
-    dep_city: Optional[str] = Query(None, description="Ville de départ (ILIKE)"),
-    arr_city: Optional[str] = Query(None, description="Ville d'arrivée (ILIKE)"),
-    country_code: Optional[str] = Query(None, min_length=2, max_length=2, description="Code pays (départ)"),
-    min_distance_km: Optional[float] = Query(None, ge=0, description="Distance minimale en km"),
+    dep_city: str | None = Query(None, description="Ville de départ (ILIKE)"),
+    arr_city: str | None = Query(None, description="Ville d'arrivée (ILIKE)"),
+    country_code: str | None = Query(None, min_length=2, max_length=2, description="Code pays (départ)"),
+    min_distance_km: float | None = Query(None, ge=0, description="Distance minimale en km"),
     db: Session = Depends(get_db),
 ):
     conditions = []
     params = {}
 
     if dep_city:
-        conditions.append("sd.city ILIKE :dep_city")
+        # Tolère les suffixes de gare : "Paris" matche "Paris", "Paris Gare de Lyon"…
+        conditions.append("(sd.city ILIKE :dep_city OR sd.city ILIKE :dep_city_p)")
         params["dep_city"] = dep_city
+        params["dep_city_p"] = f"{dep_city} %"
     if arr_city:
-        conditions.append("sa.city ILIKE :arr_city")
+        conditions.append("(sa.city ILIKE :arr_city OR sa.city ILIKE :arr_city_p)")
         params["arr_city"] = arr_city
+        params["arr_city_p"] = f"{arr_city} %"
     if country_code:
         conditions.append("sd.country_code = :cc")
         params["cc"] = country_code.upper()
@@ -700,12 +707,12 @@ def get_route_avion(route_avion_id: int, db: Session = Depends(get_db)):
 
 @router.get(
     "/vehicles/train",
-    response_model=List[VehicleTrainResponse],
+    response_model=list[VehicleTrainResponse],
     tags=["Vehicules"],
     summary="Liste des types de trains",
 )
 def list_vehicles_train(
-    service_type: Optional[str] = Query(None, description="Filtre par type de service"),
+    service_type: str | None = Query(None, description="Filtre par type de service"),
     db: Session = Depends(get_db),
 ):
     condition = "WHERE service_type ILIKE :st" if service_type else ""
@@ -728,14 +735,14 @@ def list_vehicles_train(
 
 @router.get(
     "/vehicles/avion",
-    response_model=List[VehicleAvionResponse],
+    response_model=list[VehicleAvionResponse],
     tags=["Vehicules"],
     summary="Liste des types d'avions",
 )
 def list_vehicles_avion(
-    service_type: Optional[str] = Query(None, description="Filtre par type de service (regional, court_moyen_courrier, long_courrier)"),
-    manufacturer: Optional[str] = Query(None, description="Filtre par constructeur (ILIKE)"),
-    icao_typecode: Optional[str] = Query(None, description="Filtre par code ICAO type (ex: A20N)"),
+    service_type: str | None = Query(None, description="Filtre par type de service (regional, court_moyen_courrier, long_courrier)"),
+    manufacturer: str | None = Query(None, description="Filtre par constructeur (ILIKE)"),
+    icao_typecode: str | None = Query(None, description="Filtre par code ICAO type (ex: A20N)"),
     db: Session = Depends(get_db),
 ):
     conditions = []
@@ -806,9 +813,9 @@ def get_vehicle_avion(vehicle_avion_id: int, db: Session = Depends(get_db)):
 def list_emissions(
     page: int = Query(1, ge=1),
     per_page: int = Query(50, ge=1, le=500),
-    transport_mode: Optional[str] = Query(None, description="'train' ou 'avion'"),
-    dep_city: Optional[str] = Query(None, description="Ville de depart (ILIKE)"),
-    arr_city: Optional[str] = Query(None, description="Ville d'arrivee (ILIKE)"),
+    transport_mode: str | None = Query(None, description="'train' ou 'avion'"),
+    dep_city: str | None = Query(None, description="Ville de depart (ILIKE)"),
+    arr_city: str | None = Query(None, description="Ville d'arrivee (ILIKE)"),
     db: Session = Depends(get_db),
 ):
     conditions = []
@@ -817,11 +824,14 @@ def list_emissions(
         conditions.append("fe.transport_mode = :tm")
         params["tm"] = transport_mode
     if dep_city:
-        conditions.append("sd.city ILIKE :dep_city")
+        # Tolère les suffixes de gare : "Paris" matche "Paris", "Paris Gare de Lyon"…
+        conditions.append("(sd.city ILIKE :dep_city OR sd.city ILIKE :dep_city_p)")
         params["dep_city"] = dep_city
+        params["dep_city_p"] = f"{dep_city} %"
     if arr_city:
-        conditions.append("sa.city ILIKE :arr_city")
+        conditions.append("(sa.city ILIKE :arr_city OR sa.city ILIKE :arr_city_p)")
         params["arr_city"] = arr_city
+        params["arr_city_p"] = f"{arr_city} %"
 
     where = "WHERE " + " AND ".join(conditions) if conditions else ""
 
@@ -909,15 +919,15 @@ def get_emission(fact_id: int, db: Session = Depends(get_db)):
 
 @router.get(
     "/compare/cities",
-    response_model=List[CompareResponse],
+    response_model=list[CompareResponse],
     tags=["Comparaison"],
     summary="Compare CO2 train vs avion pour un trajet ville a ville",
 )
 def compare_cities(
     dep_city: str = Query(..., description="Ville de depart (ex: Paris)"),
     arr_city: str = Query(..., description="Ville d'arrivee (ex: Lyon)"),
-    train_type: Optional[str] = Query(None, description="Type de train : 'jour', 'nuit' ou None pour tous"),
-    min_distance_km: Optional[float] = Query(None, ge=0, description="Distance minimale en km"),
+    train_type: str | None = Query(None, description="Type de train : 'jour', 'nuit' ou None pour tous"),
+    min_distance_km: float | None = Query(None, ge=0, description="Distance minimale en km"),
     db: Session = Depends(get_db),
 ):
     night_filter = ""
@@ -1037,7 +1047,7 @@ def compare_winner(
 
 @router.get(
     "/compare/passengers",
-    response_model=List[PassengersResponse],
+    response_model=list[PassengersResponse],
     tags=["Comparaison"],
     summary="CO2 total pour N passagers avec equivalences",
 )
@@ -1097,14 +1107,14 @@ class JourneyResponse(BaseModel):
     dep_city: str
     arr_city: str
     nb_segments: int
-    total_distance_km: Optional[float]
-    train_co2_kg: Optional[float]
-    path_cities: List[str]
-    plane_co2_kg: Optional[float]
-    plane_distance_km: Optional[float]
-    greener_mode: Optional[str]
-    savings_kg: Optional[float]
-    savings_percent: Optional[float]
+    total_distance_km: float | None
+    train_co2_kg: float | None
+    path_cities: list[str]
+    plane_co2_kg: float | None
+    plane_distance_km: float | None
+    greener_mode: str | None
+    savings_kg: float | None
+    savings_percent: float | None
 
 
 @router.get(
@@ -1147,7 +1157,7 @@ def compare_journey(
     plane_dist = float(plane_dist) if plane_dist is not None else None
 
     # ── Plus court chemin ferroviaire (Dijkstra) ─────────────────────────────
-    path_cities: List[str] = []
+    path_cities: list[str] = []
     nb_segments = 0
     total_dist, train_co2, chain = _shortest_train(graph, dep_ids, arr_ids)
 
@@ -1206,7 +1216,7 @@ def compare_journey(
 
 @router.get(
     "/search/cities",
-    response_model=List[CitySearchResponse],
+    response_model=list[CitySearchResponse],
     tags=["Recherche"],
     summary="Autocomplete / recherche de villes disponibles",
 )
@@ -1237,14 +1247,14 @@ def search_cities(
 
 @router.get(
     "/search/departures",
-    response_model=List[DepartureResponse],
+    response_model=list[DepartureResponse],
     tags=["Recherche"],
     summary="Toutes les destinations depuis une ville avec CO2 par mode",
 )
 def search_departures(
     dep_city: str = Query(..., description="Ville de depart"),
-    train_type: Optional[str] = Query(None, description="'jour', 'nuit' ou None"),
-    min_distance_km: Optional[float] = Query(None, ge=0),
+    train_type: str | None = Query(None, description="'jour', 'nuit' ou None"),
+    min_distance_km: float | None = Query(None, ge=0),
     db: Session = Depends(get_db),
 ):
     night_filter = ""
@@ -1255,7 +1265,8 @@ def search_departures(
 
     dist_filter = ""
     dist_filter_avion = ""
-    params = {"dep_city": dep_city}
+    # Tolère les suffixes de gare : "Paris" matche aussi "Paris Gare de Lyon"…
+    params = {"dep_city": dep_city, "dep_city_p": f"{dep_city} %"}
     if min_distance_km is not None:
         dist_filter = "AND rt.distance_km >= :min_dist"
         dist_filter_avion = "AND ra.distance_km >= :min_dist"
@@ -1268,7 +1279,7 @@ def search_departures(
             JOIN mart.dim_route_train rt ON fe.route_train_id = rt.route_train_id
             JOIN mart.dim_station st_dep ON rt.dep_station_id = st_dep.station_id
             JOIN mart.dim_station st_arr ON rt.arr_station_id = st_arr.station_id
-            WHERE fe.transport_mode = 'train' AND st_dep.city ILIKE :dep_city
+            WHERE fe.transport_mode = 'train' AND (st_dep.city ILIKE :dep_city OR st_dep.city ILIKE :dep_city_p)
               {night_filter} {dist_filter}
             GROUP BY st_arr.city, rt.distance_km
         ),
@@ -1278,7 +1289,7 @@ def search_departures(
             JOIN mart.dim_route_avion ra ON fe.route_avion_id = ra.route_avion_id
             JOIN mart.dim_station st_dep ON ra.dep_station_id = st_dep.station_id
             JOIN mart.dim_station st_arr ON ra.arr_station_id = st_arr.station_id
-            WHERE fe.transport_mode = 'avion' AND st_dep.city ILIKE :dep_city
+            WHERE fe.transport_mode = 'avion' AND (st_dep.city ILIKE :dep_city OR st_dep.city ILIKE :dep_city_p)
               {dist_filter_avion}
             GROUP BY st_arr.city, ra.distance_km
         )
@@ -1347,7 +1358,7 @@ def get_common_cities(db: Session = Depends(get_db)):
 
 @router.get(
     "/ranking/greener-routes",
-    response_model=List[RankingGreenerResponse],
+    response_model=list[RankingGreenerResponse],
     tags=["Classements & Stats"],
     summary="Top des trajets ou le train est le plus avantageux en CO2",
 )
@@ -1400,7 +1411,7 @@ def ranking_greener_routes(
 
 @router.get(
     "/ranking/greener-journeys",
-    response_model=List[RankingGreenerResponse],
+    response_model=list[RankingGreenerResponse],
     tags=["Classements & Stats"],
     summary="Top trajets ou le train (itineraire multi-segments) bat l'avion",
 )
@@ -1469,12 +1480,12 @@ def ranking_greener_journeys(
 
 @router.get(
     "/ranking/longest-routes",
-    response_model=List[LongestRouteResponse],
+    response_model=list[LongestRouteResponse],
     tags=["Classements & Stats"],
     summary="Routes les plus longues par mode de transport",
 )
 def ranking_longest_routes(
-    transport_mode: Optional[str] = Query(None, description="'train' ou 'avion' (None = tous)"),
+    transport_mode: str | None = Query(None, description="'train' ou 'avion' (None = tous)"),
     limit: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db),
 ):
@@ -1579,12 +1590,12 @@ def stats_network(db: Session = Depends(get_db)):
 
 @router.get(
     "/stats/by-country",
-    response_model=List[CountryStatsResponse],
+    response_model=list[CountryStatsResponse],
     tags=["Classements & Stats"],
     summary="Statistiques agregees par pays",
 )
 def stats_by_country(
-    country_code: Optional[str] = Query(None, min_length=2, max_length=2, description="Filtrer un pays (ex: FR)"),
+    country_code: str | None = Query(None, min_length=2, max_length=2, description="Filtrer un pays (ex: FR)"),
     db: Session = Depends(get_db),
 ):
     cc_filter = ""
@@ -1624,7 +1635,7 @@ def stats_by_country(
 
 @router.get(
     "/stats/night-vs-day",
-    response_model=List[NightVsDayResponse],
+    response_model=list[NightVsDayResponse],
     tags=["Classements & Stats"],
     summary="Comparaison trains de jour vs trains de nuit",
 )
@@ -1660,7 +1671,7 @@ def stats_night_vs_day(db: Session = Depends(get_db)):
 
 @router.get(
     "/sources",
-    response_model=List[SourceResponse],
+    response_model=list[SourceResponse],
     tags=["Sources & ETL"],
     summary="Liste des sources de donnees (tracabilite RGPD)",
 )
@@ -1690,7 +1701,7 @@ def get_source(source_id: int, db: Session = Depends(get_db)):
 
 @router.get(
     "/etl/runs",
-    response_model=List[EtlRunResponse],
+    response_model=list[EtlRunResponse],
     tags=["Sources & ETL"],
     summary="Historique des executions ETL",
 )
@@ -1737,16 +1748,16 @@ class IncidentItem(BaseModel):
     category: str            # 'service' | 'etl' | 'qualite'
     label: str
     severity: str            # 'ok' | 'warning' | 'error'
-    value: Optional[int]
-    detail: Optional[str]
+    value: int | None
+    detail: str | None
 
 
 class IncidentsResponse(BaseModel):
     api_status: str
     database: str
-    last_etl_status: Optional[str]
+    last_etl_status: str | None
     incident_count: int      # nombre d'incidents (severity != ok)
-    incidents: List[IncidentItem]
+    incidents: list[IncidentItem]
 
 
 @router.get(
@@ -1760,7 +1771,7 @@ def monitoring_incidents(db: Session = Depends(get_db)):
     Agrège les anomalies détectées automatiquement : disponibilité du service,
     dernier run ETL et contrôles de qualité des données. Alimente la vue de
     supervision du frontend (feedback loop MLOps)."""
-    incidents: List[IncidentItem] = []
+    incidents: list[IncidentItem] = []
 
     # ── Santé service / BDD ──────────────────────────────────────────────────
     db_ok = True
@@ -1842,4 +1853,6 @@ def health_check(db: Session = Depends(get_db)):
         db.execute(text("SELECT 1")).fetchone()
         return {"status": "ok", "database": "connected"}
     except Exception as e:
-        raise HTTPException(status_code=503, detail=f"Base de donnees inaccessible: {str(e)}")
+        raise HTTPException(
+            status_code=503, detail=f"Base de donnees inaccessible: {str(e)}"
+        ) from e

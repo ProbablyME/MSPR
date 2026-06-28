@@ -1,4 +1,3 @@
-from unittest.mock import MagicMock
 from conftest import HEADERS, make_row
 
 HEALTH_URL = "/api/v1/health"

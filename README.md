@@ -34,6 +34,7 @@ en une application complète, testée, supervisée et déployable en une command
 | prometheus  | Métriques HTTP de l'API           | 9090  |
 | grafana     | Tableaux de bord                  | 3000  |
 | loki        | Agrégation des logs               | 3100  |
+| backup      | Sauvegarde auto BDD (pg_dump)     | —     |
 | pgadmin     | Administration BDD                | 8080  |
 
 ## Prérequis
@@ -71,7 +72,10 @@ API_TOKEN=<jeton-bearer-api>
 | Métriques Prometheus | http://localhost:8000/metrics    | public          |
 | Grafana              | http://localhost:3000            | admin / admin   |
 | Prometheus           | http://localhost:9090            | —               |
-| pgAdmin              | http://localhost:8080            | admin@example.com / admin |
+| pgAdmin (dev only)   | http://localhost:8080            | cf. `.env`      |
+
+> **pgAdmin** n'est pas dans la stack de production. Pour l'ajouter (dev) :
+> `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d`.
 
 L'API exige un en-tête `Authorization: Bearer <API_TOKEN>` sur `/api/v1/*`.
 Les routes `/`, `/docs` et `/metrics` sont publiques.
@@ -89,12 +93,21 @@ Les routes `/`, `/docs` et `/metrics` sont publiques.
 
 Documentation interactive complète : `/docs` (OpenAPI/Swagger).
 
-## Tests
+## Tests & qualité du code
 
 ```bash
-# Tests unitaires backend (pytest, couverture ≥ 80 %)
 uv sync --all-packages --group dev
+
+# Lint / qualité (Ruff) — périmètre service api/
+uv run ruff check api
+
+# Tests unitaires backend (pytest, couverture ≥ 80 %, DB mockée)
 uv run pytest
+
+# Tests d'INTÉGRATION (vraie base PostgreSQL seedée)
+docker compose -f docker-compose.ci.yml up -d postgres
+DB_HOST=localhost DB_PORT=5432 DB_PASSWORD=<pwd> API_TOKEN=test-token \
+  uv run pytest -m integration -o addopts="-v"
 
 # Tests E2E frontend (stack démarrée requise)
 cd frontend
@@ -103,14 +116,38 @@ npx playwright install --with-deps chromium
 BASE_URL=http://localhost:5173 npm run test:e2e
 ```
 
+Trois niveaux de tests : **unitaires** (logique pure + endpoints mockés),
+**intégration** (interopérabilité backend ↔ PostgreSQL réel, marqueur
+`@pytest.mark.integration`), **E2E** (parcours navigateur Playwright).
+
+### Analyse SonarQube (self-hosted)
+
+```bash
+# 1. Démarrer le serveur Sonar (séparé de l'app)
+docker compose -f docker-compose.sonar.yml up -d   # http://localhost:9000
+
+# 2. Générer la couverture puis lancer le scanner
+uv run pytest                                        # produit coverage.xml
+docker run --rm --network host \
+  -e SONAR_HOST_URL=http://localhost:9000 \
+  -e SONAR_TOKEN=<token-généré-dans-Sonar> \
+  -v "$PWD:/usr/src" sonarsource/sonar-scanner-cli
+```
+
+> Prérequis hôte : `sudo sysctl -w vm.max_map_count=262144` (Elasticsearch de Sonar).
+> Configuration du scan : [sonar-project.properties](sonar-project.properties).
+
 ## CI/CD
 
 Pipeline GitHub Actions ([.github/workflows/pipeline.yml](.github/workflows/pipeline.yml)) :
 
-1. **test** — install, pytest + couverture (toutes branches)
-2. **e2e** — stack Docker + parcours Playwright
-3. **build-and-push** — image Docker publiée sur ghcr.io (main)
-4. **smoke-test** — stack complète, vérifie API, auth (401) et `/metrics`
+1. **lint** — Ruff (qualité code, toutes branches, bloquant)
+2. **test** — pytest + couverture, export `coverage.xml` (toutes branches)
+3. **integration** — PostgreSQL seedé + suite `@pytest.mark.integration`
+4. **e2e** — stack Docker + parcours Playwright
+5. **build-and-push** — image Docker publiée sur ghcr.io (main)
+6. **smoke-test** — stack complète, vérifie API, auth (401) et `/metrics`
+7. **sonarqube** — analyse qualité self-hosted (main / déclenchement manuel)
 
 Secrets attendus (repo GitHub) : `DB_PASSWORD`, `API_TOKEN`.
 
@@ -119,7 +156,10 @@ Secrets attendus (repo GitHub) : `DB_PASSWORD`, `API_TOKEN`.
 - **Grafana** (:3000) : dashboard *« API ObRail — Supervision »* (disponibilité,
   latence p50/p95/p99, taux d'erreurs 4xx/5xx, débit, logs API) +
   dashboard métier *« RailCarbon »* (KPI, qualité des données, ETL).
-- **Prometheus** scrute `/metrics` (instrumentation `prometheus-fastapi-instrumentator`).
+- **Prometheus** scrute `/metrics` (instrumentation `prometheus-fastapi-instrumentator`)
+  et évalue des **règles d'alerte** ([alert.rules.yml](alert.rules.yml)) : API down,
+  taux d'erreurs 5xx > 5%, latence p95 > 1s → détection automatique d'incidents
+  (onglet *Alerts* de Prometheus).
 - **Loki** collecte les logs applicatifs (`application=railcarbon-api`) et ETL.
 
 ## Structure du dépôt
@@ -141,6 +181,13 @@ etl.py          Pipeline ETL (Spark) — alimentation de l'entrepôt
   requises au démarrage), modèles versionnés (`.env.example`).
 - Validation des entrées (Pydantic / `Query`), gestion d'erreurs HTTP explicite,
   journalisation centralisée (Loki).
+- **Conteneurs durcis** : API exécutée en utilisateur non-root, en-têtes de
+  sécurité nginx (CSP, X-Frame-Options, nosniff, Referrer-Policy), `.dockerignore`.
+- **Rate limiting** (slowapi) : 120 req/min/IP par défaut (`RATE_LIMIT_DEFAULT`),
+  réponse `429` au-delà — protection anti-abus / déni de service basique.
+- Grafana en lecture anonyme (`Viewer`) pour la démo ; l'édition reste protégée
+  par le compte admin (`GRAFANA_PASSWORD`).
 - Frontend visant la conformité **RGAA** (liens d'évitement, rôles ARIA,
-  alternatives textuelles, focus visible).
+  alternatives textuelles, focus visible), **vérifiée automatiquement** par
+  axe-core dans les tests E2E ([frontend/e2e/a11y.spec.js](frontend/e2e/a11y.spec.js)).
 - Aucune donnée personnelle traitée (données ouvertes GTFS / EASA / OPDI).

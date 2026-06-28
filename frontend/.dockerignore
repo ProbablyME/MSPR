@@ -1,4 +1,10 @@
+# Contexte de build de l'image frontend (multi-stage Vite + nginx).
+# node_modules est réinstallé dans l'image ; dist/ est régénéré.
 node_modules
 dist
 .git
 *.md
+playwright-report
+test-results
+.env
+*.log

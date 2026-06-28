@@ -109,13 +109,17 @@ export default function NightDayChart() {
       <dl className="chart-legend">
         <div>
           <dt>Jour</dt>
-          <dd>{day.toLocaleString('fr-FR')} <small>({pct(day)} %)</small></dd>
-          {dayCo2 != null && <small>{Number(dayCo2).toFixed(2)} kg CO₂/pax</small>}
+          <dd>
+            {day.toLocaleString('fr-FR')} <small>({pct(day)} %)</small>
+            {dayCo2 != null && <small className="legend-co2">{Number(dayCo2).toFixed(2)} kg CO₂/pax</small>}
+          </dd>
         </div>
         <div>
           <dt>Nuit</dt>
-          <dd>{night.toLocaleString('fr-FR')} <small>({pct(night)} %)</small></dd>
-          {nightCo2 != null && <small>{Number(nightCo2).toFixed(2)} kg CO₂/pax</small>}
+          <dd>
+            {night.toLocaleString('fr-FR')} <small>({pct(night)} %)</small>
+            {nightCo2 != null && <small className="legend-co2">{Number(nightCo2).toFixed(2)} kg CO₂/pax</small>}
+          </dd>
         </div>
       </dl>
     </div>

@@ -28,6 +28,7 @@ services:
     volumes:
       - ./schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
       - ./seed_data.sql:/docker-entrypoint-initdb.d/02_seed_data.sql
+      - ./seed_avion_co2_fix.sql:/docker-entrypoint-initdb.d/04_fix_avion_co2.sql
       - railcarbon_pgdata_test:/var/lib/postgresql/data
     healthcheck:
       # Vérifie que PostgreSQL accepte les connexions avant de démarrer l'API
@@ -38,8 +39,10 @@ services:
 
   api:
     # Image pre-buildée par le job build-and-push du pipeline CD
-    # La variable API_IMAGE est injectée par le runner GitHub
-    image: ${API_IMAGE}
+    # La variable API_IMAGE est injectée par le runner GitHub.
+    # Défaut inoffensif : permet de valider/parse le compose quand on ne démarre
+    # que `postgres` (job d'intégration) sans fournir API_IMAGE.
+    image: ${API_IMAGE:-postgres:16-alpine}
     container_name: railcarbon_api_test
     restart: unless-stopped
     ports:

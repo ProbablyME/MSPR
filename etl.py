@@ -140,7 +140,7 @@ DB_CONFIG = {
     "port":     os.environ.get("DB_PORT",     "5433"),
     "database": os.environ.get("DB_NAME",     "postgres"),
     "user":     os.environ.get("DB_USER",     "postgres"),
-    "password": os.environ.get("DB_PASSWORD", "lpironti"),
+    "password": os.environ.get("DB_PASSWORD", "postgres"),
 }
 
 
@@ -420,6 +420,22 @@ ALL_TRAIN_ROUTE_TYPES   = TGV_ROUTE_TYPES | INTERCITE_ROUTE_TYPES
 CO2_TGV_PER_100KM       = 0.29    # kg / 100 km (ADEME — TGV électrique)
 CO2_INTERCITE_PER_100KM = 0.90    # kg / 100 km (ADEME — Intercité diesel)
 CO2_NIGHTTRAIN_PER_100KM = 1.25   # kg / 100 km (trains de nuit — estimé Back on Track / EEA)
+
+# ── Facteurs d'émission AVION ────────────────────────────────────────────────
+# IMPORTANT : la « CO2 Metric Value (kg/km) » de la base EASA est une métrique de
+# CERTIFICATION (efficacité énergétique, ICAO Annexe 16 Vol. III), PAS une
+# émission réelle par km — elle sous-estime d'un ordre de grandeur les émissions
+# effectives. On ne l'utilise donc que pour DÉCRIRE les types d'avions
+# (dim_vehicle_avion), jamais pour calculer les émissions.
+# Les émissions sont calculées avec des facteurs ADEME Base Carbone
+# (kg CO2e / passager.km, hors trainées de condensation), par catégorie de vol.
+AVION_CO2_PER_PAX_KM = {
+    "regional":             0.230,   # courts trajets, moins efficaces / km
+    "court_moyen_courrier": 0.178,
+    "long_courrier":        0.152,
+}
+# Nombre de passagers moyen par catégorie (pour le total avion par vol).
+AVION_PAX = {"regional": 70, "court_moyen_courrier": 150, "long_courrier": 280}
 
 STATION_DEDUP_KM        = 0.15    # 150 m → même gare physique
 MAX_NAME_DEDUP_KM       = 50.0    # 50 km max pour fusionner des homonymes
@@ -1900,40 +1916,44 @@ def avion_load_routes_psql(final_routes_df, source_id: "int | None" = None) -> i
 
 def avion_update_co2_psql() -> None:
     """
-    Calcule co2_total_kg en deux passes SQL (psql) :
-      1. JOIN exact EASA : distance_km × co2_per_km du typecode dominant
-      2. Fallback catégorie ICAO : distance_km × AVG(co2_per_km) par tranche
+    Calcule co2_total_kg (émissions du vol entier) à partir des facteurs ADEME
+    par passager.km × nombre de passagers de la catégorie — et NON de la métrique
+    de certification EASA (cf. AVION_CO2_PER_PAX_KM). Deux passes :
+      1. catégorie du type d'avion dominant (service_type EASA/OPDI)
+      2. fallback par tranche de distance si le type n'est pas reconnu
          < 500 km → regional | < 4000 km → court_moyen_courrier | ≥ 4000 km → long_courrier
     """
-    logger.info("[AVION][LOAD] Calcul co2_total_kg...")
-    ok1 = _run_sql("""
+    reg = AVION_CO2_PER_PAX_KM["regional"] * AVION_PAX["regional"]
+    cmc = AVION_CO2_PER_PAX_KM["court_moyen_courrier"] * AVION_PAX["court_moyen_courrier"]
+    lc = AVION_CO2_PER_PAX_KM["long_courrier"] * AVION_PAX["long_courrier"]
+
+    logger.info("[AVION][LOAD] Calcul co2_total_kg (facteurs ADEME / passager.km)...")
+    ok1 = _run_sql(f"""
         UPDATE mart.dim_route_avion r
-        SET co2_total_kg = ROUND(r.distance_km::NUMERIC * v.co2_per_km, 3)
+        SET co2_total_kg = ROUND((r.distance_km * CASE v.service_type
+                WHEN 'regional'             THEN {reg}
+                WHEN 'court_moyen_courrier' THEN {cmc}
+                WHEN 'long_courrier'        THEN {lc}
+            END)::NUMERIC, 3)
         FROM mart.dim_vehicle_avion v
         WHERE v.icao_typecode = r.dominant_typecode
           AND r.distance_km IS NOT NULL;
     """)
     if ok1:
-        logger.info("[AVION][LOAD] co2_total_kg (exact EASA) : mise à jour OK.")
+        logger.info("[AVION][LOAD] co2_total_kg (catégorie type) : mise à jour OK.")
 
-    ok2 = _run_sql("""
+    ok2 = _run_sql(f"""
         UPDATE mart.dim_route_avion r
-        SET co2_total_kg = ROUND(
-            r.distance_km::NUMERIC * (
-                SELECT AVG(v.co2_per_km)
-                FROM mart.dim_vehicle_avion v
-                WHERE v.service_type = CASE
-                    WHEN r.distance_km <  500  THEN 'regional'
-                    WHEN r.distance_km < 4000  THEN 'court_moyen_courrier'
-                    ELSE                             'long_courrier'
-                END
-            ), 3
-        )
+        SET co2_total_kg = ROUND((r.distance_km * CASE
+                WHEN r.distance_km <  500  THEN {reg}
+                WHEN r.distance_km < 4000  THEN {cmc}
+                ELSE                            {lc}
+            END)::NUMERIC, 3)
         WHERE r.co2_total_kg IS NULL
           AND r.distance_km IS NOT NULL;
     """)
     if ok2:
-        logger.info("[AVION][LOAD] co2_total_kg (fallback catégorie ICAO) : mise à jour OK.")
+        logger.info("[AVION][LOAD] co2_total_kg (fallback distance) : mise à jour OK.")
 
 
 def avion_insert_facts_psql() -> int:

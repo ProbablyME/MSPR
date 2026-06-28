@@ -1,0 +1,23 @@
+# ============================================================
+# docker-compose.dev.yml — Override de développement (outils non-prod)
+#
+# pgAdmin n'est PAS requis par le cahier des charges et expose une console
+# d'administration : on le garde hors de la stack de production.
+#
+# Usage :
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+#   → ajoute pgAdmin (http://localhost:8080) à la stack standard.
+# ============================================================
+
+services:
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: railcarbon_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@example.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:?PGADMIN_PASSWORD requis (voir .env.example)}
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres

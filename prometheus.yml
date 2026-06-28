@@ -7,6 +7,10 @@ global:
   scrape_interval: 15s
   evaluation_interval: 15s
 
+# Règles d'alerte — détection automatique d'incidents (API down, erreurs, latence)
+rule_files:
+  - /etc/prometheus/alert.rules.yml
+
 scrape_configs:
   # Métriques applicatives de l'API (prometheus-fastapi-instrumentator)
   - job_name: railcarbon-api

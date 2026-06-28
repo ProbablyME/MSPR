@@ -17,12 +17,41 @@ on:
     branches: ["**"]
   pull_request:
     branches: [main]
+  workflow_dispatch:        # permet de lancer l'analyse SonarQube à la demande
 
 permissions:
   contents: read
-  packages: write      
+  packages: write
 
 jobs:
+  # ============================================================
+  # JOB 0 — Qualité du code (lint Ruff) — toutes les branches
+  # Bloquant : style, imports, bugs potentiels sur le service api/
+  # ============================================================
+  lint:
+    name: Qualité code (Ruff)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Installer uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Configurer Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Installer les dépendances
+        run: uv sync --all-packages --group dev
+
+      - name: Lint Ruff (api/)
+        run: uv run ruff check api
+
   # ============================================================
   # JOB 1 — Tests unitaires (toutes les branches)
   # La DB est entièrement mockée → pas de PostgreSQL nécessaire
@@ -30,6 +59,7 @@ jobs:
   test:
     name: Tests & Coverage ≥ 80%
     runs-on: ubuntu-latest
+    needs: lint
 
     steps:
       - name: Checkout du code
@@ -50,8 +80,16 @@ jobs:
 
       - name: Lancer pytest avec coverage
         env:
-          API_TOKEN: my-secret-token-123
+          API_TOKEN: test-token        # valeur factice : DB mockée, aucun secret réel
         run: uv run pytest
+
+      - name: Uploader le rapport de couverture XML (pour SonarQube)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
+          retention-days: 7
 
       - name: Uploader le rapport de couverture HTML
         if: always()
@@ -60,6 +98,81 @@ jobs:
           name: coverage-report
           path: htmlcov/
           retention-days: 7
+
+  # ============================================================
+  # JOB 1a — Tests d'INTÉGRATION (vraie base PostgreSQL seedée)
+  # Démarre Postgres (schema + seed) puis exécute la suite marquée
+  # @pytest.mark.integration contre la vraie base (interopérabilité backend/DB).
+  # ============================================================
+  integration:
+    name: Tests d'intégration (PostgreSQL réel)
+    runs-on: ubuntu-latest
+    needs: test
+
+    env:
+      DB_USER: postgres
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_NAME: postgres
+      API_TOKEN: test-token
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Installer uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Configurer Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Installer les dépendances
+        run: uv sync --all-packages --group dev
+
+      - name: Démarrer PostgreSQL (schéma + seed)
+        run: docker compose -f docker-compose.ci.yml up -d postgres
+
+      - name: Attendre que Postgres soit prêt (seed chargé)
+        timeout-minutes: 5
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: "5432"
+        run: |
+          # 1) Seed réellement chargé (table peuplée), pas juste serveur up.
+          until docker exec railcarbon_db_test \
+              psql -U postgres -d postgres -tAc "SELECT 1 FROM mart.dim_station LIMIT 1" 2>/dev/null | grep -q 1; do
+            echo "Attente du chargement du seed..."
+            sleep 5
+          done
+          echo "Seed chargé."
+          # 2) Accès depuis l'HÔTE (même chemin réseau que les tests) — évite un
+          #    skip silencieux si le port publié n'est pas joignable.
+          until uv run python -c "import os,psycopg2; psycopg2.connect(host='127.0.0.1',port=5432,user='postgres',password=os.environ['DB_PASSWORD'],dbname='postgres').close()"; do
+            echo "Attente de l'accès hôte au port publié..."
+            sleep 3
+          done
+          echo "Accès hôte OK."
+
+      - name: Lancer les tests d'intégration
+        env:
+          # 127.0.0.1 (et non localhost) : force IPv4. Docker publie le port en
+          # IPv4 ; "localhost" peut résoudre en IPv6 (::1) sur le runner → refus.
+          DB_HOST: 127.0.0.1
+          DB_PORT: "5432"
+        # addopts override : pas de seuil de couverture sur la suite d'intégration.
+        # Garde-fou : échoue si AUCUN test n'a tourné (skip silencieux = anomalie).
+        run: uv run pytest -m integration -o addopts="-v" -p no:cacheprovider --strict-markers
+
+      - name: Logs Postgres en cas d'échec
+        if: failure()
+        run: docker compose -f docker-compose.ci.yml logs postgres
+
+      - name: Arrêter la stack
+        if: always()
+        run: docker compose -f docker-compose.ci.yml down -v
 
   # ============================================================
   # JOB 1b — Tests E2E Playwright (stack complète)
@@ -240,3 +353,77 @@ jobs:
       - name: Arrêter la stack
         if: always()
         run: docker compose -f docker-compose.ci.yml down -v
+
+  # ============================================================
+  # JOB 4 — Contrôle qualité SonarQube (self-hosted, éphémère)
+  # Gated : uniquement sur main ou lancement manuel (workflow_dispatch),
+  # car booter un serveur Sonar (+ Elasticsearch) est lourd.
+  # Démarre Sonar dans le runner, génère un token, scanne le projet
+  # avec la couverture Python (coverage.xml).
+  # ============================================================
+  sonarqube:
+    name: Qualité code (SonarQube)
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+        with:
+          # Sonar exploite l'historique pour le « new code » : pas de shallow clone.
+          fetch-depth: 0
+
+      - name: Augmenter vm.max_map_count (Elasticsearch de Sonar)
+        run: sudo sysctl -w vm.max_map_count=262144
+
+      - name: Démarrer SonarQube
+        run: docker compose -f docker-compose.sonar.yml up -d
+
+      - name: Attendre que SonarQube soit UP
+        timeout-minutes: 6
+        run: |
+          until curl -s http://localhost:9000/api/system/status | grep -q '"status":"UP"'; do
+            echo "SonarQube démarre..."; sleep 10
+          done
+
+      - name: Générer la couverture Python (coverage.xml)
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+      - name: Installer les dépendances et lancer pytest
+        env:
+          API_TOKEN: test-token        # valeur factice : DB mockée, aucun secret réel
+        run: |
+          uv python install 3.11
+          uv sync --all-packages --group dev
+          uv run pytest
+
+      - name: Générer un token d'analyse Sonar
+        id: sonar
+        run: |
+          # 1er démarrage : Sonar force le changement du mot de passe admin par défaut.
+          curl -s -u admin:admin -X POST \
+            "http://localhost:9000/api/users/change_password" \
+            -d "login=admin&previousPassword=admin&password=Admin12345!" || true
+          TOKEN=$(curl -s -u admin:Admin12345! -X POST \
+            "http://localhost:9000/api/user_tokens/generate?name=ci-$GITHUB_RUN_ID" \
+            | sed -E 's/.*"token":"([^"]+)".*/\1/')
+          echo "::add-mask::$TOKEN"
+          echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
+
+      - name: Lancer l'analyse SonarScanner
+        run: |
+          docker run --rm --network host \
+            -e SONAR_HOST_URL=http://localhost:9000 \
+            -e SONAR_TOKEN=${{ steps.sonar.outputs.token }} \
+            -v "${{ github.workspace }}:/usr/src" \
+            sonarsource/sonar-scanner-cli
+
+      - name: Logs SonarQube en cas d'échec
+        if: failure()
+        run: docker compose -f docker-compose.sonar.yml logs sonarqube
+
+      - name: Arrêter SonarQube
+        if: always()
+        run: docker compose -f docker-compose.sonar.yml down -v

@@ -18,6 +18,15 @@ COPY api/src ./api/src
 # Installer le package railcarbon-api
 RUN uv sync --frozen --no-dev --package railcarbon-api
 
+# ── Durcissement : exécution en utilisateur non-root ──────────────────────────
+# Crée un utilisateur dédié sans privilèges et lui donne /app. L'API tourne
+# ensuite sans droits root (bonne pratique sécurité conteneur).
+RUN useradd --create-home --uid 10001 appuser \
+    && chown -R appuser:appuser /app
+USER appuser
+
 EXPOSE 8000
 
-CMD ["uv", "run", "--package", "railcarbon-api", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Lancement direct via le binaire du venv (pas d'invocation `uv` au runtime :
+# aucun cache à écrire, compatible utilisateur non-root).
+CMD [".venv/bin/python", "-m", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]

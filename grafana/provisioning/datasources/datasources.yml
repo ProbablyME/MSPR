@@ -26,10 +26,11 @@ datasources:
     type: postgres
     access: proxy
     url: postgres:5432
-    database: postgres
-    user: postgres
+    database: ${DB_NAME}
+    user: ${DB_USER}
     secureJsonData:
-      password: lpironti
+      # Interpolé depuis l'environnement du conteneur Grafana (cf. docker-compose).
+      password: ${DB_PASSWORD}
     jsonData:
       sslmode: disable
       postgresVersion: 1600

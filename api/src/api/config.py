@@ -1,6 +1,9 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
     # Database settings
     DB_USER: str = "postgres"
     DB_PASSWORD: str = "postgres"
@@ -16,11 +19,14 @@ class Settings(BaseSettings):
     # "*" autorise toutes les origines (pratique en dev, a restreindre en prod).
     CORS_ORIGINS: str = "*"
 
+    # Rate limiting (slowapi) — protège l'API d'un abus / déni de service basique.
+    # Désactivé en tests pour ne pas fausser les appels répétés (cf. conftest).
+    RATE_LIMIT_ENABLED: bool = True
+    RATE_LIMIT_DEFAULT: str = "120/minute"
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
 
-    class Config:
-        env_file = ".env"
 
 settings = Settings()

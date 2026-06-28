@@ -7,6 +7,7 @@ import NightDayChart    from './components/NightDayChart';
 import CountryStatsTable from './components/CountryStatsTable';
 import GreenRoutesTable from './components/GreenRoutesTable';
 import IncidentsPanel    from './components/IncidentsPanel';
+import MapPanel          from './components/MapPanel';
 
 export default function App() {
   const [comparison, setComparison] = useState(null);
@@ -32,6 +33,7 @@ export default function App() {
           <nav aria-label="Navigation principale">
             <ul className="nav-links" role="list">
               <li><a href="#search">Comparer</a></li>
+              <li><a href="#map">Carte</a></li>
               <li><a href="#stats">Statistiques</a></li>
               <li><a href="#rankings">Classement</a></li>
               <li><a href="#supervision">Supervision</a></li>
@@ -82,6 +84,22 @@ export default function App() {
             {comparison && (
               <CompareResult data={comparison} />
             )}
+          </div>
+        </section>
+
+        {/* Section Carte */}
+        <section
+          id="map"
+          aria-labelledby="map-heading"
+          className="section section--dark"
+        >
+          <div className="container">
+            <h2 id="map-heading">Carte des gares et aéroports</h2>
+            <p className="section-desc">
+              Cliquez sur un pays pour afficher toutes ses gares (vert) et
+              aéroports (rouge) référencés.
+            </p>
+            <MapPanel />
           </div>
         </section>
 

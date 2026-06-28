@@ -774,3 +774,28 @@ h4 { font-size: 1rem;     font-weight: 600; color: var(--c-text); }
     scroll-behavior: auto !important;
   }
 }
+
+/* ── Carte gares & aéroports ───────────────────────────────────────────────── */
+.map-panel { display: flex; flex-direction: column; gap: .75rem; }
+.map-toolbar {
+  font-size: .95rem;
+  background: rgba(255, 255, 255, .08);
+  padding: .6rem .9rem;
+  border-radius: 8px;
+}
+.map-error { color: #fca5a5; }
+.map-legend {
+  display: flex;
+  gap: 1.5rem;
+  font-size: .9rem;
+  align-items: center;
+}
+.map-legend .dot {
+  display: inline-block;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  margin-right: .4rem;
+  vertical-align: middle;
+}
+.dot--gare { background: #22c55e; }
+.dot--airport { background: #ef4444; }

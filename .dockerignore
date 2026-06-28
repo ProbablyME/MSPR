@@ -1,0 +1,32 @@
+# Contexte de build de l'image API (Dockerfile à la racine).
+# Le Dockerfile ne copie que pyproject.toml, uv.lock et api/ : on exclut
+# tout le reste pour un contexte léger et sans fuite de données/secrets.
+
+# Environnements & caches
+.venv/
+**/__pycache__/
+.pytest_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# Données volumineuses (montées au runtime via docker-compose, pas dans l'image)
+downloads_gtfs/
+opdi_cache/
+backontrack/
+jars/
+*.csv
+*.sql
+*.xlsx
+
+# Frontend (image construite séparément)
+frontend/node_modules/
+frontend/dist/
+frontend/playwright-report/
+
+# Secrets & VCS
+.env
+.git/
+.github/
+*.log

@@ -30,6 +30,13 @@ __pycache__/
 .coverage
 htmlcov/
 .pytest_cache/
+coverage.xml
+.ruff_cache/
+
+# Sauvegardes BDD (dumps locaux générés par le service backup)
+backups/*.sql
+backups/*.sql.gz
+!backups/.gitkeep
 
 # Node / Frontend
 node_modules/
