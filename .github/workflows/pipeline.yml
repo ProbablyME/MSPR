@@ -136,11 +136,16 @@ jobs:
         run: docker compose -f docker-compose.ci.yml up -d postgres
 
       - name: Attendre que Postgres soit prêt (seed chargé)
-        timeout-minutes: 3
+        timeout-minutes: 5
         run: |
-          until docker exec railcarbon_db_test pg_isready -U postgres -d postgres; do
+          # On attend que le seed soit réellement chargé (table peuplée),
+          # pas seulement que le serveur accepte les connexions.
+          until docker exec railcarbon_db_test \
+              psql -U postgres -d postgres -tAc "SELECT 1 FROM mart.dim_station LIMIT 1" 2>/dev/null | grep -q 1; do
+            echo "Attente du chargement du seed..."
             sleep 5
           done
+          echo "Seed chargé."
 
       - name: Lancer les tests d'intégration
         env:

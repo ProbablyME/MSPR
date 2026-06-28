@@ -39,8 +39,10 @@ services:
 
   api:
     # Image pre-buildée par le job build-and-push du pipeline CD
-    # La variable API_IMAGE est injectée par le runner GitHub
-    image: ${API_IMAGE}
+    # La variable API_IMAGE est injectée par le runner GitHub.
+    # Défaut inoffensif : permet de valider/parse le compose quand on ne démarre
+    # que `postgres` (job d'intégration) sans fournir API_IMAGE.
+    image: ${API_IMAGE:-postgres:16-alpine}
     container_name: railcarbon_api_test
     restart: unless-stopped
     ports:
