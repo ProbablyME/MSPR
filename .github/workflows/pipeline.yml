@@ -137,22 +137,34 @@ jobs:
 
       - name: Attendre que Postgres soit prêt (seed chargé)
         timeout-minutes: 5
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: "5432"
         run: |
-          # On attend que le seed soit réellement chargé (table peuplée),
-          # pas seulement que le serveur accepte les connexions.
+          # 1) Seed réellement chargé (table peuplée), pas juste serveur up.
           until docker exec railcarbon_db_test \
               psql -U postgres -d postgres -tAc "SELECT 1 FROM mart.dim_station LIMIT 1" 2>/dev/null | grep -q 1; do
             echo "Attente du chargement du seed..."
             sleep 5
           done
           echo "Seed chargé."
+          # 2) Accès depuis l'HÔTE (même chemin réseau que les tests) — évite un
+          #    skip silencieux si le port publié n'est pas joignable.
+          until uv run python -c "import os,psycopg2; psycopg2.connect(host='127.0.0.1',port=5432,user='postgres',password=os.environ['DB_PASSWORD'],dbname='postgres').close()"; do
+            echo "Attente de l'accès hôte au port publié..."
+            sleep 3
+          done
+          echo "Accès hôte OK."
 
       - name: Lancer les tests d'intégration
         env:
-          DB_HOST: localhost
+          # 127.0.0.1 (et non localhost) : force IPv4. Docker publie le port en
+          # IPv4 ; "localhost" peut résoudre en IPv6 (::1) sur le runner → refus.
+          DB_HOST: 127.0.0.1
           DB_PORT: "5432"
-        # addopts override : pas de seuil de couverture sur la suite d'intégration
-        run: uv run pytest -m integration -o addopts="-v"
+        # addopts override : pas de seuil de couverture sur la suite d'intégration.
+        # Garde-fou : échoue si AUCUN test n'a tourné (skip silencieux = anomalie).
+        run: uv run pytest -m integration -o addopts="-v" -p no:cacheprovider --strict-markers
 
       - name: Logs Postgres en cas d'échec
         if: failure()
