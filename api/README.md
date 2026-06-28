@@ -4,21 +4,22 @@ Cette API développée avec FastAPI permet de récupérer les données comparati
 
 ## Prérequis
 
-1. Avoir Python 3.9+ d'installé.
-2. Installer les dépendances :
+1. Python 3.11+ et [uv](https://docs.astral.sh/uv/).
+2. Installer les dépendances (workspace, depuis la racine du dépôt) :
    ```bash
-   pip install -r requirements.txt
+   uv sync --all-packages --group dev
    ```
-3. Configurer les variables d'environnement dans le fichier `.env` avec les identifiants de la base de données PostgreSQL. Le token par défaut est `super-secret-temp-token`.
+3. Configurer les variables d'environnement dans le fichier `.env` (voir `.env.example`) avec les identifiants de la base de données PostgreSQL et la valeur de `API_TOKEN` (jamais committée).
 
 ## Lancement
 
-Lancer le serveur de développement :
+Serveur de développement (depuis la racine du dépôt) :
 
 ```bash
-cd api
-uvicorn main:app --reload
+uv run --package railcarbon-api uvicorn api.main:app --reload
 ```
+
+> En production, l'API est lancée via Docker (`docker compose up`), pas en local.
 
 ## Utilisation
 
@@ -27,5 +28,5 @@ Une fois le serveur lancé, accédez à l'interface Swagger :
 [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
 * Configurez le token en cliquant sur le bouton **Authorize** en haut à droite.
-* Saisissez le token de `.env` (`super-secret-temp-token`).
+* Saisissez la valeur de `API_TOKEN` définie dans votre `.env`.
 * Testez les différents endpoints (ex: `/api/v1/compare/cities`).

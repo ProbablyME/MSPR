@@ -1,0 +1,2 @@
+# Dossier des sauvegardes BDD (dumps générés par le service `backup`).
+# Les dumps eux-mêmes ne sont pas versionnés (cf. .gitignore).

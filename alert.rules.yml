@@ -1,0 +1,47 @@
+# ============================================================
+# Règles d'alerte Prometheus — ObRail Europe
+# Détection automatique d'incidents sur l'API (disponibilité, erreurs, latence).
+# Les alertes actives sont visibles dans Prometheus (onglet Alerts) et dans
+# Grafana (panneau Alerting), répondant au besoin de supervision du cahier
+# des charges (« détecter automatiquement incidents et anomalies »).
+# ============================================================
+
+groups:
+  - name: railcarbon-api
+    rules:
+      # ── Disponibilité ─────────────────────────────────────────────────────
+      - alert: ApiDown
+        expr: up{job="railcarbon-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "API ObRail injoignable"
+          description: "La cible {{ $labels.instance }} ne répond plus depuis 1 min."
+
+      # ── Taux d'erreurs serveur (5xx) > 5% sur 5 min ───────────────────────
+      - alert: HighServerErrorRate
+        expr: |
+          sum(rate(http_requests_total{job="railcarbon-api", status=~"5.."}[5m]))
+          /
+          sum(rate(http_requests_total{job="railcarbon-api"}[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Taux d'erreurs 5xx élevé (> 5%)"
+          description: "Plus de 5% des requêtes renvoient une erreur serveur depuis 5 min."
+
+      # ── Latence p95 dégradée (> 1s) ───────────────────────────────────────
+      - alert: HighLatencyP95
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum(rate(http_request_duration_seconds_bucket{job="railcarbon-api"}[5m])) by (le)
+          ) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Latence API p95 dégradée (> 1s)"
+          description: "Le 95e percentile de latence dépasse 1s depuis 5 min."

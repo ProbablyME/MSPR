@@ -39,6 +39,24 @@ export const fetchCountryStats = () => get('/stats/by-country');
 export const fetchGreenRoutes = (limit = 10) =>
   get(`/ranking/greener-journeys?limit=${limit}`);
 
+// ── Stations & aéroports ────────────────────────────────────────────────────
+// Récupère toutes les stations d'un pays (gares + aéroports), paginées par 500.
+// is_airport : true = aéroports, false = gares, undefined = tous.
+export async function fetchStationsByCountry(countryCode, isAirport) {
+  const all = [];
+  let page = 1;
+  const perPage = 500;
+  for (;;) {
+    let path = `/stations?country_code=${encodeURIComponent(countryCode)}&page=${page}&per_page=${perPage}`;
+    if (isAirport !== undefined) path += `&is_airport=${isAirport}`;
+    const res = await get(path);
+    all.push(...res.data);
+    if (page * perPage >= res.total || res.data.length === 0) break;
+    page += 1;
+  }
+  return all;
+}
+
 // ── Recherche ──────────────────────────────────────────────────────────────
 export function searchCities(q = '') {
   return get(`/search/cities?q=${encodeURIComponent(q)}&limit=10`);

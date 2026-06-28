@@ -51,7 +51,8 @@ docker compose up -d --build api frontend
 
 - **Données** (volume `railcarbon_pgdata`) : restaurer le dernier dump (§4).
   ```bash
-  docker exec -i railcarbon_db psql -U postgres -d postgres < backups/dump_<date>.sql
+  # Les dumps sont compressés (.sql.gz) — décompresser à la volée :
+  gzip -dc backups/dump_<date>.sql.gz | docker exec -i railcarbon_db psql -U postgres -d postgres
   ```
 - **Réinitialisation complète** (dernier recours — perte des données runtime) :
   ```bash
@@ -68,15 +69,28 @@ docker compose up -d --build api frontend
 
 ## 4. Sauvegardes
 
+**Automatisées** par le service `backup` (sidecar `postgres:16-alpine`) lancé
+avec la stack (`docker compose up -d`). Il exécute [scripts/backup_db.sh](../scripts/backup_db.sh) :
+
+- `pg_dump` compressé (`.sql.gz`) à chaque démarrage puis **toutes les 24 h**
+  (`BACKUP_INTERVAL`, en secondes) ;
+- écrit dans `./backups/dump_<horodatage>.sql.gz` (monté côté hôte) ;
+- **rotation** : suppression des dumps de plus de `BACKUP_KEEP_DAYS` jours (7 par défaut).
+
 ```bash
-# Dump quotidien recommandé (cron / tâche planifiée)
-docker exec railcarbon_db pg_dump -U postgres postgres \
-  > backups/dump_$(date +%F).sql
+# Backup manuel immédiat (one-shot)
+docker compose run --rm -e BACKUP_INTERVAL=0 backup
+
+# Lister les sauvegardes
+ls -lh backups/
 ```
 
-- Conserver au moins 7 jours glissants.
-- Volumes persistants : `railcarbon_pgdata`, `railcarbon_grafana_data`,
+Variables (`.env`) : `BACKUP_INTERVAL` (défaut 86400), `BACKUP_KEEP_DAYS` (défaut 7).
+
+- Persistance des volumes : `railcarbon_pgdata`, `railcarbon_grafana_data`,
   `railcarbon_loki_data`, `railcarbon_prometheus_data`.
+- ⚠️ Persistance ≠ sauvegarde : le service `backup` protège d'une corruption /
+  suppression de volume, ce que le volume seul ne couvre pas.
 
 ## 5. Vérifications post-déploiement (checklist)
 
@@ -103,10 +117,15 @@ docker exec railcarbon_db pg_dump -U postgres postgres \
 | Script | Objet | Quand l'exécuter |
 |--------|-------|------------------|
 | [`scripts/fix_country_codes.py`](../scripts/fix_country_codes.py) | Recalcule `country_code` des stations depuis les coordonnées (corrige les codes pays erronés issus de l'ETL) | Après un (re)chargement complet du seed/ETL |
+| [`seed_avion_co2_fix.sql`](../seed_avion_co2_fix.sql) | Recalcule les émissions **avion** avec des facteurs ADEME (kg CO2e/pax.km). Le seed historique utilisait la « CO2 Metric Value » EASA (métrique de certification) qui sous-estimait les émissions → l'avion ressortait à tort plus écologique que le train. Appliqué **automatiquement** comme script d'init (`04_fix_avion_co2.sql`). | Auto au 1er démarrage ; rejouable (idempotent) sur une base existante |
 
 ```bash
+# Migration codes pays
 uv run --with reverse-geocode --with psycopg2-binary \
     python scripts/fix_country_codes.py
+
+# Migration émissions avion (sur une base déjà chargée)
+docker exec -i railcarbon_db psql -U postgres -d postgres < seed_avion_co2_fix.sql
 ```
 
 ## 8. Incidents fréquents & remédiation

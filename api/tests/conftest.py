@@ -1,5 +1,6 @@
 import os
 from unittest.mock import MagicMock
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -7,9 +8,12 @@ from fastapi.testclient import TestClient
 # avant l'import de l'app, pour que Settings() se charge sans secret en dur.
 TOKEN = "test-token"
 os.environ["API_TOKEN"] = TOKEN
+# Rate limiting désactivé en tests : les suites enchaînent de nombreux appels
+# depuis la même IP (TestClient) → éviterait de faux 429.
+os.environ["RATE_LIMIT_ENABLED"] = "false"
 
-from api.main import app
 from api.database import get_db
+from api.main import app
 
 HEADERS = {"Authorization": f"Bearer {TOKEN}"}
 

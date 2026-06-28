@@ -1,0 +1,3 @@
+# Les scripts shell doivent garder des fins de ligne LF, sinon ils ne
+# s'exécutent pas dans les conteneurs Linux (erreur "\r": not found).
+*.sh text eol=lf

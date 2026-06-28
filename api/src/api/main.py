@@ -1,10 +1,22 @@
-from fastapi import FastAPI, Depends
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.openapi.utils import get_openapi
-from .config import settings
-from .security import verify_token
-from .observability import setup_observability
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
+from slowapi.util import get_remote_address
+
 from . import routers
+from .config import settings
+from .observability import setup_observability
+from .security import verify_token
+
+# Rate limiting global : limite par IP, appliquée à toutes les routes via le
+# middleware. Désactivable (tests) par RATE_LIMIT_ENABLED.
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=[settings.RATE_LIMIT_DEFAULT],
+    enabled=settings.RATE_LIMIT_ENABLED,
+)
 
 tags_metadata = [
     {
@@ -84,6 +96,11 @@ Certains endpoints portent un nom plus precis que celui du cahier des charges
     docs_url="/docs",
     redoc_url="/redoc",
 )
+
+# Rate limiting : enregistre le limiter, le handler 429 et le middleware global.
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
 
 # CORS : autorise l'acces direct a l'API (hors reverse-proxy nginx) depuis les
 # origines configurees. Derriere nginx ce middleware est inoffensif ; il evite
