@@ -10,9 +10,10 @@ import {
 import 'leaflet/dist/leaflet.css';
 import { fetchStationsByCountry } from '../api/client';
 
-// GeoJSON des pays d'Europe (frontières cliquables), chargé au runtime.
-const EUROPE_GEOJSON =
-  'https://raw.githubusercontent.com/leakyMirror/map-of-europe/master/GeoJSON/europe.geojson';
+// GeoJSON des pays d'Europe (frontières cliquables), servi par l'application
+// elle-même (frontend/public/europe.geojson). Un fichier local évite toute
+// dépendance réseau externe, bloquée par la CSP « connect-src 'self' ».
+const EUROPE_GEOJSON = `${import.meta.env.BASE_URL}europe.geojson`;
 
 // Lit le code ISO 2 lettres depuis les propriétés d'une feature, quel que soit
 // le nom de champ utilisé par le jeu de données.
